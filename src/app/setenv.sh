@@ -1,6 +1,6 @@
 export GENI_DB_HOST='localhost'
 export GENI_DB_NAME='genipersonalvisit'
-export GENI_DB_USER='genipersonalvisit'
+export GENI_DB_USER='geniuser'
 export GENI_DB_PASSWD='genipersonalvisit!user'
 export GENI_CLIENT_SECRET='eOwb18QCl9flBfOwyE8w6FLDfk7RSxvKJpYKd1hU'
 export GENI_CLIENT_ID='iGlQ3AZVLLu8xY9xLagQwyf55uLMtlNC94UG3VKl'
