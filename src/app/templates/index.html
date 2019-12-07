@@ -44,12 +44,12 @@
                     <ul class="nav" style="margin-left: -2px!important;">
                        <!-- <li><a href="history">History Search<br/><span style="color: #888">Investigate your History</span></a></li>
                         <li><a href="graph">Ancestor Graph<br/><span style="color: #888">Visualize your Ancestry</span></a></li>
-                        <li><a href="login">Density Calculator<br/><span style="color: #888">Calculate Forest Density</span></a></li> -->
+                        <li><a href="login">Density Calculator<br/><span style="color: #888">Calculate Forest Density</span></a></li>
                         <li><a href="login">Login<br/><span style="color: #888">Show path to user</span></a></li>
-                        <!--
-                        <li><a href="/graph">SmartCopy<br/><span style="color: #888">Visualize your Ancestry</span></a></li>
+                       
+                        <li><a href="/graph">SmartCopy<br/><span style="color: #888">Visualize your Ancestry</span></a></li> -->
                         <li><a href="/logout">Logout</a></li>
-                        -->
+                       
                     </ul>
                 </nav>
             </div>
@@ -83,12 +83,7 @@
 
 
         <div style="margin-right: 30px;">
-            <span><br/>
-              <strong>Free <a href="http://www.geni.com/" target="_blank">Geni</a> Research Tools</strong>
-            </span>
-            <span style="float: right; margin-right: 8px; margin-top: -3px;">
-              <strong><small><a href="http://www.geni.com/projects/HistoryLink/14021" target="_blank">Follow Project</a> <span style="color:#0645AD;">&nbsp;&bull;&nbsp;</span> <a href="http://www.geni.com/discussions?discussion_type=project-14021" target="_blank">Discussion</a> <span style="color:#0645AD;">&nbsp;&bull;&nbsp;</span><a href="javascript:" data-toggle="modal" data-target="#contactForm">Contact</a> </small></strong>
-            </span>
+            
             <div ng-app="geniframework">
 
     <script type="text/javascript" src="/static/js/lib/angular.js"></script>
@@ -98,35 +93,16 @@
     <link type="text/css" rel="stylesheet" href="/static/css/bootstrap.css">
     <link type="text/css" rel="stylesheet" href="/static/css/flat-ui.css">
     <br/>
-    <table style="width:100%; margin-bottom: -50px;">
-      <tr>
-        <td align="left">
-          <div style="margin-top: -32px;">
-            <h1>Path to User Utility</h1>
-          </div>
-        </td>
-        <td align="right" valign="top" style="white-space: nowrap; width: 600px;">
-          <div id='header' class='row'>
-              <div class='col-xs-12'style="margin-top: 12px;">
-                  <nav class='navbar' role='navigation'>
-                      <div class='col-xs-6'>
-
-                          <div class="navbar-header ">
-                              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-01">
-                                  <span class="sr-only">Toggle navigation</span>
-                              </button>
-
-                          </div>
-                      </div>
-
-                      <div class='col-xs-6'>
-                      </div>
-                  </nav>
-              </div>
-          </div>
-        </td>
-      </tr>
-    </table>
+        <div class='container'>
+	                <h1>See How You're Related To</h1>
+                </div>
+                
+	            <div class="shadoweffect-business" style="margin-right: 25px; margin-top: 25px;">
+	
+						<button id="searchbutton" align="MIDDLE" onClick="window.location.href='/login'" class="cta cta-green">Continue</button>
+		            
+	            </div>
+            
 
     <div>
 
@@ -144,12 +120,7 @@
 </div>
 </div>
 
-<div class="shadoweffect-business" style="margin-right: 25px;"><p>The Geni <a href='http://www.geni.com/worldfamilytree' target="blank">World Family Tree</a> is a
-    unique collaborative, largely public collection of connected family trees.
-    The path to user tool calculates the shortest path between two geni
-    profiles in a readable format.</p>
-    <p>Please note that the Path-to-User tool may be limited by privacy settings or
-        by anomalies in the Geni database.</p></div>
+        
 <script src="/static/js/lib/jquery-ui-1.10.3.custom.min.js"></script>
 <script src="/static/js/lib/bootstrap.min.js"></script>
 <br/>
@@ -159,19 +130,6 @@
 
     </div>
 
-    <div id="copyright" class="columntab">
-        <div class="terms" style="margin-right: 35px;"><br/>
-            <table style="width:100%;"><tr><td style="width:205px;">
-                <div style='width:200px;text-align:center'><iframe src='http://www.geni.com/trends/world_tree_badge' width='200' height='55' scrolling='no' frameborder='0'></iframe><div style='font-family:Arial,Helvetica,sans-serif;font-size:10px'>Join the world's largest <a href='http://www.geni.com'>family tree</a></div></div></td>
-            <td style="text-align: right; vertical-align: text-top;">
-                <font size="2"><strong>Disclaimer: HistoryLink uses the Geni API but is not endorsed, operated, or sponsored by Geni, Inc.</strong></font>
-                <br/><br/>
-                <a href="http://www.geni.com/company/privacy">Privacy Policy</a> |
-                <a href="http://www.geni.com/company/terms_of_use">Terms of Use</a>
-
-            </td></tr></table>
-        </div>
-    </div>
 </div>
 <div class="modal fade" id="contactForm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
                  aria-hidden="true">
