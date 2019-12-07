@@ -437,7 +437,7 @@ def setup_app(app):
     HOST = os.environ.get('HOST', 'localhost')
     LOGGER.info("Starting application on PORT=%d", PORT)
     # Bind to PORT if defined, otherwise default to 5050.
-    app.debug = False
+    app.debug = True
     #APP.testing = True
     app.secret_key = '12345abcdf'
     #RQDashboard(app)
