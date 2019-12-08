@@ -84,7 +84,7 @@
 
         <div style="margin-right: 30px;">
             
-            <div ng-app="geniframework">
+            <div ng-app="geniframework" class="ng-scope">
 
     <script type="text/javascript" src="/static/js/lib/angular.js"></script>
     <script type="text/javascript" src="/static/js/app.js"></script>
@@ -94,15 +94,23 @@
     <link type="text/css" rel="stylesheet" href="/static/css/flat-ui.css">
     <br/>
         <div class='container'>
-	                <h1>See How You're Related To</h1>
-                </div>
-                
-	            <div class="shadoweffect-business" style="margin-right: 25px; margin-top: 25px;">
-	
-						<button id="searchbutton" align="MIDDLE" onClick="window.location.href='/login'" class="cta cta-green">Continue</button>
-		            
-	            </div>
-            
+
+		        <div id="uniqueProfiles" ng-controller="UniqueController" ng-scope>
+		        
+					<h1>See How You're Related To</h1>
+		            <div class="shadoweffect-business" style="margin-right: 25px; margin-top: 25px;">	                
+	                <form role="form" class="form-horizontal ng-dirty ng-valid-number ng-valid-email ng-invalid ng-invalid-required" id="myProjectsForm" name="myProjectsForm">
+	                
+	                <input type="hidden" name="project_id" ng-model="myProjectsForm.project_id" value="56250">
+					<button type="submit" class="btn btn-default" ng-disabled="checkMyProjectsFormValid()" ng-click="submitMyProfile('#myProjectsForm')">Find</button>
+					</form>
+		            </div>
+	                <!--
+					<button id="searchbutton" align="MIDDLE" onClick="window.location.href='/login'" class="cta cta-green">Continue</button>
+			        -->
+		        </div>
+
+        </div>
 
     <div>
 
