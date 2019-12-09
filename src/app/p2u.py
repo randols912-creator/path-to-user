@@ -22,6 +22,7 @@ from mail import sendEmail, sendErrorEmail, sendSetsEmail
 from rq import Queue
 from worker import CONN, get_redis_url
 #from rq_dashboard import RQDashboard
+import rq_dashboard
 from operator import itemgetter
 
 APP = Flask(__name__)
@@ -440,7 +441,10 @@ def setup_app(app):
     app.debug = True
     #APP.testing = True
     app.secret_key = '12345abcdf'
+    app.config.from_object(rq_dashboard.default_settings)
+    app.register_blueprint(rq_dashboard.blueprint, url_prefix="/rq")
     #RQDashboard(app)
+
 
 setup_app(APP)
 
