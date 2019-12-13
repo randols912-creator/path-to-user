@@ -301,7 +301,8 @@ def handleSet(email, my_flag, other_id, guids, set_name, set_url, sort_by_steps)
         params['guids'] = guids
         params['sort_by_steps'] = sort_by_steps
         LOGGER.info('handleSet creating background job email %s source %s', email, str(profile_id))
-        Q.enqueue_call(func=create_sets_background_job, args=(params,), timeout=604800)
+        Q.enqueue_call(func="p2u.create_sets_background_job", args=(params,), timeout=604800)
+        #create_sets_background_job(params)
         data = {}
         data['backgroundMessage'] = 'Background Job started. You will receive an e-mail with the results when they are ready. Make sure to check your SPAM folder. The process can take several minutes or more, so please be patient.'
 
@@ -333,7 +334,7 @@ def create_sets_background_job(params):
     jobs = []
     for guid in guids:
         params['guid'] = guid
-        job = PQ.enqueue_call(func=create_single_path_background_job, args=(params,), timeout=6000)
+        job = PQ.enqueue_call(func="p2u.create_single_path_background_job", args=(params,), timeout=6000)
         jobs.append(job)
     continue_flag = True
     retry_count = 0
@@ -345,9 +346,9 @@ def create_sets_background_job(params):
         not_finished_count = 0
         for job in jobs:
             if not (job.get_status() == None or job.is_failed or job.is_finished):
-                LOGGER.debug('Not failed or finished status: %s', job.get_status())
+                LOGGER.info('Not failed or finished status: %s', job.get_status())
                 not_finished_count = not_finished_count + 1
-        LOGGER.debug('create_sets_background_job count: %d not_finished: %d retries: %d', job_count, not_finished_count, retry_count)
+        LOGGER.info('create_sets_background_job count: %d not_finished: %d retries: %d', job_count, not_finished_count, retry_count)
         if (not_finished_count > 0):
             time.sleep(10)
             if (not_finished_count != job_count and last_not_finished_count == not_finished_count):
@@ -377,20 +378,20 @@ def create_single_path_background_job(params):
     global LOGGER
     if LOGGER == None:
         LOGGER = logging.getLogger()
-    LOGGER.debug("create_single_path_background_job")
+    LOGGER.info("create_single_path_background_job: {}".format(params))
 
     continue_flag = True
     set_data = {}
     while continue_flag:
         set_data = get_geni_path_to(params['access_token'], params['refresh_token'], params['other_id'], params['guid'])
-        LOGGER.debug('Path data returned: %s', str(set_data))
+        LOGGER.info('Path data returned: %s', str(set_data))
         if (not set_data.get('status') or (set_data.get('status') and str(set_data['status']) != 'pending')):
             continue_flag = False
         else:
             time.sleep(10)
     (params['access_token'], params['refresh_token'], target_text) = get_other_profile(params['access_token'], params['refresh_token'], params['guid'])
     profile_data = json.loads(target_text)
-    LOGGER.debug('Target profile data returned: %s', target_text)
+    LOGGER.info('Target profile data returned: %s', target_text)
     set_data['target_name'] = profile_data['name']
     set_data['target_url'] = profile_data['profile_url']
     if (str(set_data['status']) != 'not found' and str(set_data['status']) != 'done'):

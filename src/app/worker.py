@@ -44,7 +44,7 @@ except:
 
 if __name__ == '__main__':
     LOGGER.info("Starting workers")
-    LISTEN = ['p2u_high']
+    LISTEN = ['p2u_high', 'p2_default']
 
     with Connection(CONN):
         # qs = map(Queue, LISTEN) or [Queue()]
