@@ -14,3 +14,13 @@ Stack : Flask, Oauth2, MySql
 
 
 *Not associated with Geni.com
+
+
+How to run:
+## 1. Run RQ worker
+> rqworker p2u_high p2u_default
+
+## 2. Run P2U
+> python p2u.py
+
+## 3. Goto http://localhost:5050
