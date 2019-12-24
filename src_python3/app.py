@@ -113,6 +113,10 @@ def status_watchdog():
 
     while True:
         task = queue.get()
+
+        if task['target_id'] == task['source_id']:
+            continue
+
         status, geni_token = geni_client.get_geni_path_to(
             task['source_id'],
             task['target_id'],
@@ -122,16 +126,17 @@ def status_watchdog():
         if status.get('status') == 'done':
             geni_profile = models.GeniProfiles()
             geni_profile2 = models.GeniProfiles()
-            geni_profile2profile = models.ProfileToProfile()
 
-            geni_profile.profile_name = status[0]['name']
-            geni_profile.profile_details_link = status[0]['url']
-            geni_profile2.profile_name = status[1]['name']
-            geni_profile2.profile_details_link = status[1]['url']
+            geni_profile.profile_name = status['relations'][0]['name']
+            geni_profile.profile_details_link = status['relations'][0]['url']
+            geni_profile2.profile_name = status['relations'][1]['name']
+            geni_profile2.profile_details_link = status['relations'][1]['url']
 
+            db.session.add(geni_profile)
             db.session.add(geni_profile2)
             db.session.commit()
 
+            geni_profile2profile = models.ProfileToProfile()
             geni_profile2profile.step_count = status['step_count']
             geni_profile2profile.geni_profile1_id = geni_profile.id
             geni_profile2profile.geni_profile2_id = geni_profile2.id
@@ -152,6 +157,7 @@ def status_watchdog():
             })
 
         else:
+            print(status)
             print("Jesus Christ it's Jason Bourne")
 
 
