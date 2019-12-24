@@ -1,21 +1,44 @@
-import json
-import time
-from rq import Queue
+import sys
+from multiprocessing import Process, Queue
 
-from flask import Flask, send_file, request, redirect, session, jsonify
+from flask import Flask, send_file, request, redirect, session
 from flask_sqlalchemy import SQLAlchemy
 
-from geni_client import GeniClient
+import models
+from src_python3.geni_client import GeniClient
+
 
 
 app = Flask(__name__)
-
 db = SQLAlchemy(app)
 logger = app.logger
 geni_client = GeniClient()
-
-# Q = Queue("p2u_default", connection=CONN)
-# PQ = Queue("p2u_high", connection=CONN)
+target_profiles = [
+    '34661590460', '27358493', '34633071750', '34652391369', '34657269318', '34620733063',
+    '126952735', '126323188', '34711794524', '118108927', '77925526', '5606444', '34630958982',
+    '76580494', '34645275970', '119289731', '34620351137', '34629512587', '26179409', '8660445',
+    '34626158006', '2417947', '78451394', '71536218', '34621465282', '34620649340', '34626468381',
+    '34662918664', '34633724295', '109047256', '34625700708', '88457824', '34657776542',
+    '34643303919', '61190216', '49233056', '34668631501', '34625671545', '72750659', '40180846',
+    '115928580', '4170262', '21346643', '13609351', '38838132', '85087105', '10778709', '19897050',
+    '74223070', '10099378', '13489064', '112225931', '18356362', '31937597', '6362102', '40075916',
+    '113073167', '34662355325', '60466926', '34641636809', '3917300', '8432967', '116730025',
+    '20700199', '82108294', '112023168', '34660837306', '61112477', '74306103', '81865726',
+    '110801834', '34654749121', '34626021458', '21431155', '57093809', '3560033', '18032534',
+    '34621582550', '84052503', '4094322', '34660354651', '34720198331', '34672304535', '4169964',
+    '34676411531', '34628777085', '34629401739', '34630803201', '34626618419', '34655412324',
+    '11597140', '9863774', '4851757', '34710351976', '54271642', '34664455502', '55342098',
+    '14829724', '47975900', '77193155', '13840588', '7182537', '34678693602', '34657631401',
+    '34649831227', '9345033', '3367925', '3367909', '41074091', '3599736', '127706557', '2702671',
+    '2842427', '4104994', '48702978', '34623118964', '72658220', '73259963', '25086448', '112506699',
+    '20700335', '34661852503', '9097877', '75974853', '41381678', '29736694', '34636928598',
+    '34722160908', '83338470', '111095433', '34629257483', '34653507146', '34669347698', '94861765',
+    '8456114', '9851917', '58403008', '34715054765', '34634163199', '34621195982', '34715401632',
+    '44550958', '34661313127', '34659966053', '34721337020', '34623681165', '82518745', '115924431',
+    '34653380897', '78981118', '80940062', '40849187', '59257045', '129938371', '34661213344',
+    '26214263', '32671945', '34658248711', '44558103', '41614450', '69477878', '34628780059',
+    '4128644', '27587340'
+]
 
 
 @app.route('/')
@@ -33,266 +56,47 @@ def login_endpoint():
 @app.route('/home')
 def home_endpoint():
     """Handle the redirected OAuth session and capture tokens"""
-    code = request.args.get('code')
-    token_response = geni_client.get_new_token(code)
-    set_tokens(token_response)
-    session['current_step'] = 0
+    set_token()
 
     return send_file('templates/index.html')
 
 
+def set_token():
+    new_token = geni_client.get_token(
+        code=request.args.get('code')
+    )
+    session['geni_token'] = {
+        'access_token': new_token['access_token'],
+        'refresh_token': new_token['refresh_token'],
+        'tokenExpiration': new_token['tokenExpiration']
+    }
+
+
 @app.route('/path-to-project', methods=["GET", "PUT"])
 def path_to_project_endpoint():
-    if request.method == "PUT":
-        return 'PUT'
+    if request.method == "GET":
+        user_profile_info, session['geni_token'] = geni_client.get_profile_details(
+            session['geni_token']
+        )
 
-    elif request.method == "GET":
+        for target_id in target_profiles:
+            queue.put({
+                'target_id': target_id,
+                'source_id': user_profile_info['focus']['id'],
+                'geni_token': session['geni_token']
+            })
+        print(queue.qsize())
+        return 'DONE'
+
+    elif request.method == "PUT":
         return 'GET'
 
 
 @app.before_first_request
 def before_first_request_func():
-    # Import placed here because of auto create database
-    import models
-    # TODO FIX ISSUE WITH DB INIT
-    class TopProfiles(db.Model):
-        __tablename__ = 'geni_top_profiles'
-        profileId = db.Column(db.Integer, primary_key=True)
-        profileLink = db.Column(db.String(255))
-        steps = db.Column(db.Integer)
-
-    class GeniProfile(db.Model):
-        __tablename__ = 'geni_profiles'
-        gid = db.Column(db.Integer, primary_key=True)
-        profileId = db.Column(db.String(255))
-        profileName = db.Column(db.String(255))
-        profileLink = db.Column(db.String(255))
-        step = db.Column(db.Integer)
-        profiles = db.Column(db.Integer)
-
-    class GeniJob(db.Model):
-        __tablename__ = 'geni_job'
-        jid = db.Column(db.Integer, primary_key=True)
-        profileId = db.Column(db.String(255))
-        guid = db.Column(db.String(255))
-        apiKey = db.Column(db.String(255))
-        step = db.Column(db.Integer)
-        email = db.Column(db.String(255))
-        dbSave = db.Column(db.String(255))
-        status = db.Column(db.Integer)
-    db.create_all()
-    db.session.commit()
-
-
-@app.route('/getPath2Projects')
-def get_path_to_projects():
-    """Call the Path2User functionality of Geni for list based on a project"""
-    email = request.args.get('email')
-    other_id = request.args.get('otherId')
-    project_id = request.args.get('project_id')
-    source_profile_id = request.args.get('sourceProfile')
-    print(session['access_token'])
-
-    session['access_token'], session['refresh_token'], project_name, project_url, guids = geni_client.get_geni_project_guids(
-        session['access_token'],
-        session['refresh_token'],
-        project_id
-    )
-    print(session['access_token'])
-    if len(guids) > 0:
-        print(guids)
-        if source_profile_id is not None and len(source_profile_id) > 2:
-            return handleSet(email, False, source_profile_id,
-                guids, project_name, project_url,True
-            )
-
-        else:
-            return handleSet(email, True, other_id, guids,
-                project_name, project_url, True
-            )
-    else:
-        print('SEND MAIL')
-        # data['subject'] = "Project " + project_id + " was empty."
-        # data['status'] = 'Empty project'
-        # data['error'] = {}
-        # data['error']['message'] = "Could not process empty project."
-        # sendErrorEmail(email, data)
-
-
-def set_tokens(token_response_text):
-    """Save the OAuth tokens into the session object"""
-    token_response = json.loads(token_response_text)
-    session['access_token'] = token_response['access_token']
-    session['refresh_token'] = token_response['refresh_token']
-    session['tokenExpiration'] = token_response['expires_in']
-    logger.info('set_tokens access_token: %s', session['access_token'])
-
-
-def create_single_path_background_job(params):
-    """Builds job to run one path on a worker"""
-    continue_flag = True
-    set_data = {}
-
-    while continue_flag:
-        set_data = geni_client.get_geni_path_to(
-            params['access_token'],
-            params['refresh_token'],
-            params['other_id'], params['guid']
-        )
-
-        if (not set_data.get('status')
-            or (set_data.get('status') and str(set_data['status']) != 'pending')):
-            continue_flag = False
-
-        else:
-            time.sleep(10)
-    params['access_token'], params['refresh_token'], target_text = geni_client.get_other_profile(
-        params['access_token'],
-        params['refresh_token'],
-        params['guid']
-    )
-    profile_data = json.loads(target_text)
-
-    set_data['target_name'] = profile_data['name']
-    set_data['target_url'] = profile_data['profile_url']
-
-    if (str(set_data['status']) != 'not found'
-        and str(set_data['status']) != 'done'):
-
-        set_data['source_id'] = params['other_id']
-        set_data['target_id'] = params['guid']
-        set_data['step_count'] = 1000
-        sendErrorEmail(params['email'], set_data)
-
-    elif (str(set_data['status']) == 'not found'):
-        set_data['source_id'] = params['other_id']
-        set_data['target_id'] = params['guid']
-        set_data['step_count'] = 1000
-
-    if (not set_data.get('step_count')):
-        set_data['step_count'] = 1000
-
-    return set_data
-
-def create_sets_background_job(params):
-    """Builds long running job for sets"""
-    data = {}
-    data['source_id'] = params['other_id']
-    params['access_token'], params['refresh_token'], source_obj = geni_client.get_other_profile(
-        params['access_token'],
-        params['refresh_token'],
-        params['other_id']
-    )
-
-    if source_obj:
-        profile_data = json.loads(source_obj)
-
-    else:
-        profile_data = {}
-
-    data['source_name'] = profile_data.get('name', '(unknown)')
-    data['source_url'] = profile_data.get('profile_url', '')
-    data['set_data'] = []
-    guids = params['guids']
-    jobs = []
-    for guid in guids:
-        params['guid'] = guid
-        job = PQ.enqueue_call(func=create_single_path_background_job, args=(params,), timeout=6000)
-        jobs.append(job)
-
-    continue_flag = True
-    retry_count = 0
-    last_not_finished_count = 0
-    job_count = len(jobs)
-
-    # TODO handle error cases like not found paths, etc below
-    while continue_flag and retry_count < 360:
-        not_finished_count = 0
-
-        for job in jobs:
-            if not (job.get_status() == None or job.is_failed or job.is_finished):
-                logger.debug('Not failed or finished status: %s', job.get_status())
-                not_finished_count = not_finished_count + 1
-
-        if (not_finished_count > 0):
-            time.sleep(10)
-
-            if (not_finished_count != job_count and last_not_finished_count == not_finished_count):
-                retry_count = retry_count + 1
-
-            else:
-                last_not_finished_count = not_finished_count
-                retry_count = 0
-
-        else:
-            continue_flag = False
-
-    for job in jobs:
-        data['set_data'].append(job.result)
-
-    # check whether to sort results
-    if (params['sort_by_steps']):
-        try:
-            data['set_data'] = sorted(data['set_data'], key=itemgetter('step_count'))
-
-        except Exception as err:
-            logger.error('Could not sort data: %s', err)
-
-    data['set_name'] = params.get('set_name', 'Unknown project')
-    data['set_url'] = params['set_url']
-    # send results of this set
-    sendSetsEmail(params['email'], data)
-
-
-def handleSet(email, my_flag, other_id, guids, set_name, set_url, sort_by_steps):
-    # handle case where we are implicit
-    if my_flag:
-        session['access_token'], session['refresh_token'], profile_obj = geni_client.get_profile_details(
-            session['access_token'],
-            session['refresh_token']
-        )
-        profile_id = profile_obj['guid']
-
-    else:
-        #Other profiles
-        session['access_token'], session['refresh_token'], profile_data_text = geni_client.get_other_profile(
-            session['access_token'],
-            session['refresh_token'],
-            other_id
-        )
-        profile_data = json.loads(profile_data_text)
-        check_id = profile_data.get('id')
-
-        if check_id == None:
-            data = {}
-            data['backgroundMessage'] = 'This profile access is denied.'
-
-            return jsonify(data)
-
-        profile_id = profile_data['guid']
-
-    data = {}
-
-    try:
-        params = {}
-        params['access_token'] = session['access_token']
-        params['refresh_token'] = session['refresh_token']
-        params['email'] = email
-        params['other_id'] = profile_id
-        params['set_name'] = set_name
-        params['set_url'] = set_url
-        params['guids'] = guids
-        params['sort_by_steps'] = sort_by_steps
-        Q.enqueue_call(func=create_sets_background_job, args=(params,), timeout=604800)
-        data = {}
-        data['backgroundMessage'] = 'Background Job started. You will receive an e-mail with the results when they are ready. Make sure to check your SPAM folder. The process can take several minutes or more, so please be patient.'
-
-        return jsonify(data)
-
-    except Exception as err:
-        logger.exception('handle_sets error: %s', err)
-
-    return jsonify(data)
+    # Import placed here because of auto-create database
+    from models import db_init
+    db_init()
 
 
 def setup_app(app):
@@ -303,5 +107,80 @@ def setup_app(app):
 setup_app(app)
 
 
+def status_watchdog():
+    # print to main stdout
+    sys.stdout.flush()
+
+    while True:
+        task = queue.get()
+        status, geni_token = geni_client.get_geni_path_to(
+            task['source_id'],
+            task['target_id'],
+            task['geni_token']
+        )
+
+        if status.get('status') == 'done':
+            geni_profile = models.GeniProfiles()
+            geni_profile2 = models.GeniProfiles()
+            geni_profile2profile = models.ProfileToProfile()
+
+            geni_profile.profile_name = status[0]['name']
+            geni_profile.profile_details_link = status[0]['url']
+            geni_profile2.profile_name = status[1]['name']
+            geni_profile2.profile_details_link = status[1]['url']
+
+            db.session.add(geni_profile2)
+            db.session.commit()
+
+            geni_profile2profile.step_count = status['step_count']
+            geni_profile2profile.geni_profile1_id = geni_profile.id
+            geni_profile2profile.geni_profile2_id = geni_profile2.id
+            geni_profile2profile.profile_to_profile_link = status['url']
+            geni_profile2profile.profile_relationship = status['relationship']
+
+            db.session.add(geni_profile2profile)
+            db.session.commit()
+
+        elif status.get('status') == 'not found':
+            continue
+
+        elif status.get('status') == 'pending':
+            queue.put({
+                'target_id': task['target_id'],
+                'source_id': task['source_id'],
+                'geni_token': task['geni_token']
+            })
+
+        else:
+            print("Jesus Christ it's Jason Bourne")
+
+
 if __name__ == '__main__':
-    app.run(port=5050)
+    queue = Queue()
+
+    Process(target=app.run, kwargs={'port': 5050}).start()
+
+    for counter in range(int(sys.argv[1])):
+        Process(
+            target=status_watchdog,
+            # kwargs={'number': counter},
+            name=str(counter)
+        ).start()
+
+
+
+
+
+"""
+{'api_errors': [], 'internal_errors': [], 'is_success': True, 'inlaw_distance': 0,
+ 'relations': [{'name': 'Super Leha', 'url': 'https://www.geni.com/api/profile-34747685068'},
+               {'name': 'Bro Daniel Eisenberg', 'relation': 'brother',
+                'url': 'https://www.geni.com/api/profile-34747685358'}], 'relationship': 'brother', 'status': 'done',
+ 'step_count': 1,
+ 'url': 'https://www.geni.com/path/Super-Leha+is+related+to+Bro-Daniel?from=6000000115951461848&path_type=blood&to=6000000115952147891'}
+ 
+ 
+ 
+source_id = '34747685068'
+target_id = '34747685358'
+"""

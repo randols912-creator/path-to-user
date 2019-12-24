@@ -1,8 +1,8 @@
 # pylint: disable=line-too-long
 
-import os, logging, time
+import os, time
 import requests
-import json
+from ratelimit import limits, sleep_and_retry
 
 
 class GeniClient:
@@ -11,17 +11,33 @@ class GeniClient:
     CLIENT_SECRET = os.getenv('GENI_CLIENT_SECRET', 'AATGHLSwFITr5E0jEkcrTKYday2bJHwu3BPkwtZO')
     BASE_URL = 'https://www.geni.com/'
     AUTH_URL = 'platform/oauth/authorize'
-    TOKEN_URL = 'https://www.geni.com/platform/oauth/request_token'
-    PROF_URL = 'https://www.geni.com/api/profile/immediate-family?fields=id,deleted,merged_into,name,guid'
-    PATH_TO_URL = 'https://www.geni.com/api/profile-g{source}/path-to/profile-g{target}?skip_email=1&skip_notify=1'
-    INVALIDATE_URL = 'https://www.geni.com/platform/oauth/invalidate_token'
-    PUBLIC_URL = 'http://www.geni.com/people/private/{guid}'
-    OTHERS_URL = 'https://www.geni.com/api/profile-g{guid}'
-    PROJECT_URL = 'https://www.geni.com/api/project-{project}/profiles?fields=guid&page={page}'
-    PROJECT_NAME_URL = 'https://www.geni.com/api/project-{project}?fields=name,url'
-    GENI_API_SLEEP_REMAINING = 50
-    GENI_API_SLEEP_LIMIT = 50
-    GENI_API_SLEEP_WINDOW = 10
+    TOKEN_URL = 'platform/oauth/request_token'
+    PROFILE_URL = 'api/profile/immediate-family?fields=id,deleted,merged_into,name,guid'
+    PATH_BETWEEN_PROFILES_URL = 'api/profile-{source}/path-to/profile-{target}?skip_email=1&skip_notify=1'
+    PROFILES_FROM_PROJECT = 'api/project-56250/profiles'
+
+    def get_geni_path_to(self, source_id, target_id, token):
+        url = self.BASE_URL + self.PATH_BETWEEN_PROFILES_URL
+
+        url = url.replace(
+            '{source}', source_id
+        ).replace('{target}', target_id)
+        status, token = self.geni_api_call(url, token)
+
+        return status, token
+
+    def get_target_profiles(self, token):
+        url: str = self.BASE_URL + self.PROFILES_FROM_PROJECT
+        profiles = []
+
+        while url:
+            part_profiles, token = self.geni_api_call(url, token)
+            url = part_profiles.get('next_page')
+
+            if part_profiles['is_success']:
+                profiles += part_profiles['results']
+
+        return profiles, token
 
     def build_auth_url(self):
         """Create the OAuth url for the application"""
@@ -30,298 +46,95 @@ class GeniClient:
             'redirect_uri': self.REDIRECT_URL
         }
         params = '&'.join(['%s=%s' % (k, v) for k, v in params.items()])
-        url = '%s%s?%s' % (self.BASE_URL, self.AUTH_URL, params)
+        url = f'{self.BASE_URL}{self.AUTH_URL}?{params}'
 
         return url
 
-    def get_new_token(self, code):
-        """Get the authorization tokens from OAuth"""
-        params = {
-            'client_id': self.CLIENT_ID,
-            'client_secret': self.CLIENT_SECRET,
-            'code': code,
-            'redirect_url': self.REDIRECT_URL
-        }
-        token_response = requests.get(self.TOKEN_URL, params=params)
-        token_response = token_response.text
-
-        return token_response
-
-    def get_refreshed_token(self, refresh_token):
-        """Refresh an expired token via OAuth"""
-        logger.debug("get_refreshed_token")
-
-        params = {
-            'client_id': self.CLIENT_ID,
-            'grant_type': 'refresh_token',
-            'refresh_token': refresh_token
-        }
-        token_response = requests.get(self.TOKEN_URL, params=params)
-        token_response = token_response.text
-        logger.info('get_refreshed_token returns %s', token_response)
-
-        return token_response
-
-    def get_profile_details(self, access_token, refresh_token):
+    def get_profile_details(self, token):
         """Get the profile details for the logged in account"""
-        logger.debug("get_profile_details")
+        url = self.BASE_URL + self.PROFILE_URL
+        profile_raw, token = self.geni_api_call(url, token)
+        if not profile_raw['is_success']:
+            profile_raw = {}
 
-        profile_object = None
-        access_token, refresh_token, profile_response = self.geni_api_call(
-            access_token, refresh_token, self.PROF_URL
-        )
+        return profile_raw, token
 
-        if profile_response:
-            profile_object = self.get_profile_obj(profile_response.text)
+    @sleep_and_retry
+    @limits(calls=15, period=60)
+    def geni_api_call(self, url, token):
+        result = {
+            'api_errors': [],
+            'internal_errors': [],
+            'is_success': False
+        }
+        payload = {'access_token': token['access_token']}
 
-        return access_token, refresh_token, profile_object
-
-    def get_other_profile(self, access_token, refresh_token, guid):
-        """Retrieve the profile of the non-logged in user as specified"""
-        logger.info("get_other_profile")
-
-        url = self.OTHERS_URL.replace('{guid}', guid)
-        access_token, refresh_token, profile_response = self.geni_api_call(
-            access_token, refresh_token, url
-        )
-        profile_text = None
-
-        if profile_response:
-            profile_text = profile_response.text
-
-        return access_token, refresh_token, profile_text
-
-    def get_profile_obj(self, profile_response):
-        """Parse the JSON profile response and build return object"""
-        logger.debug("get_profile_obj")
-        data = {}
-
-        try:
-            jsoncontents = json.loads(profile_response)
-
-        except ValueError:
-            logger.error("get_profile_obj error decoding JSON: %s", profile_response)
-            return data
-
-        error = jsoncontents.get('error', False)
-
-        if error and jsoncontents['error']['type'] == 'OAuthException':
-            raise GeniOAuthError(jsoncontents['error']['message'])
-
-        elif error != False:
-            data['status'] = 'API_ERROR'
-            return data
-
-        data['status'] = 'SUCCESS'
-        public_url = self.PUBLIC_URL
-        public_url = public_url.replace('{guid}', jsoncontents['focus']['guid'])
-        data['id'] = jsoncontents['focus']['id']
-        data['profileName'] = jsoncontents['focus'].get('name', '')
-        data['geniLink'] = public_url
-        data['guid'] = jsoncontents['focus']['guid']
-
-        return data
-
-    def get_geni_path_to(self, access_token, refresh_token, source_id, target_id):
-        """Get the path to user for this source and target"""
-        assert (source_id != target_id), "get_geni_path_to equal ids passed"
-        path_object = {}
-
-        if (source_id.isnumeric() and target_id.isnumeric() and source_id != target_id):
-            url = self.PATH_TO_URL
-            url = url.replace('{source}', source_id)
-            url = url.replace('{target}', target_id)
-            access_token, refresh_token, path_response = self.geni_api_call(
-                access_token, refresh_token, url
-            )
-
-            if (path_response):
-                path_object = self.get_path_obj(path_response.text)
-                path_object['access_token'] = access_token
-                path_object['refresh_token'] = refresh_token
-
-        return path_object
-
-    def get_path_obj(self, path_response):
-        """Parse the JSON path response and build return object"""
-        data = {}
-
-        try:
-            data = json.loads(path_response)
-
-        except ValueError:
-            data['status'] = 'API_ERROR'
-            return data
-
-        error = data.get('error', False)
-
-        if error and data['error']['type'] == 'OAuthException':
-            raise GeniOAuthError(jsoncontents['error']['message'])
-
-        elif error != False:
-            data['status'] = 'API_ERROR'
-
-        return data
-
-    def get_geni_project_guids(self, access_token, refresh_token, project_id):
-        """Get the guids for a given project number"""
-        page_number = 1
-        guids = []
-        project_name = None
-        continue_flag = True
-        url = self.PROJECT_NAME_URL
-        url = url.replace('{project}', str(project_id))
-        access_token, refresh_token, project_response = self.geni_api_call(access_token, refresh_token, url)
-
-        if project_response:
+        retry_count = 0
+        while retry_count < 10:
+            retry_count += 1
 
             try:
-                data = json.loads(project_response.text)
-                project_name = data.get('name')
-                project_url = data.get('url')
+                response_raw = requests.get(url, params=payload, timeout=10)
+                response = response_raw.json()
 
-            except ValueError:
-                logger.error(
-                    "get_geni_project_guids error decoding JSON: %s",
-                    project_response
-                )
+                if response.get('error'):
+                    result['api_errors'].append(response['error'])
 
-        # Loop through and build guids
-        retry_count = 0
-        while continue_flag and retry_count < 5:
-            data = {}
-            url = self.PROJECT_URL
-            url = url.replace('{page}', str(page_number))
-            url = url.replace('{project}', str(project_id))
-            access_token, refresh_token, project_response = self.geni_api_call(
-                access_token, refresh_token, url
-            )
+                    if response['error']['type'] == 'OAuthException':
+                        self.get_token(token['refresh_token'])
+                        payload = {'access_token': token['access_token']}
 
-            if project_response:
-                try:
-                    data = json.loads(project_response.text)
-                    total_count = data.get('total_count', 0)
+                    elif response['error']['type'] == 'ApiException':
+                        if response['error']['message'] != 'Rate limit exceeded.':
+                            result['is_success'] = False
+                            break
 
-                    if total_count > 0:
+                elif (
+                    response_raw.status_code == 200
+                    or response_raw.status_code == 403
+                ):
+                    result.update(response)
+                    result['is_success'] = True
+                    break
 
-                        for result in data['results']:
+            except Exception as error:
+                result['internal_errors'].append(error)
 
-                            if len(guids) <= 200:
+            time.sleep(5.0)
 
-                                guids.append(result['guid'])
+        return result, token
 
-                        if len(guids) > 200 or len(guids) >= total_count:
-                            continue_flag = False
+    def get_token(self, code=None, refresh_token=None):
+        """
+        Get or refresh token.
+        """
+        token_result = {}
+        url = self.BASE_URL + self.TOKEN_URL
+        params = {
+            'client_id': self.CLIENT_ID
+        }
 
-                        else:
-                            page_number = page_number + 1
+        if refresh_token:
+            params.update({
+                'grant_type': 'refresh_token',
+                'refresh_token': refresh_token
+            })
 
-                    else:
-                        continue_flag = False
+        else:
+            params.update({
+                'client_secret': self.CLIENT_SECRET,
+                'code': code,
+                'redirect_url': self.REDIRECT_URL
+            })
 
-                except ValueError:
-                    logger.error(
-                        "get_geni_project_guids error decoding JSON: %s",
-                        project_response
-                    )
-                    retry_count = retry_count + 1
-                    time.sleep(5)
+        response = requests.get(url, params=params).json()
+        token_result['access_token'] = response['access_token']
+        token_result['refresh_token'] = response['refresh_token']
 
-        return access_token, refresh_token, project_name, project_url, guids
+        if code:
+            token_result['tokenExpiration'] = response['expires_in']
 
-    def geni_api_call(self, access_token, refresh_token, url):
-        payload = {'access_token': access_token}
-
-        if 0 == self.GENI_API_SLEEP_REMAINING:
-            logger.info('sleeping before geni api calling')
-            time.sleep(self.GENI_API_SLEEP_WINDOW)
-            self.GENI_API_SLEEP_REMAINING = self.GENI_API_SLEEP_LIMIT
-
-        continue_flag = True
-        response = None
-        retry_count = 0
-
-        while continue_flag and retry_count < 30:
-            try:
-                logger.info('geni_api_call with url: %s', url)
-                response = requests.get(url, params=payload)
-                logger.debug(
-                    "Header X-API-Rate-Limit: %s",
-                    response.headers['X-API-Rate-Limit']
-                )
-                logger.debug(
-                    "Header X-API-Rate-Remaining: %s",
-                    response.headers['X-API-Rate-Remaining']
-                )
-                logger.debug(
-                    "Header X-API-Rate-Window: %s",
-                    response.headers['X-API-Rate-Window']
-                )
-                self.GENI_API_SLEEP_LIMIT = int(response.headers['X-API-Rate-Limit'])
-                self.GENI_API_SLEEP_REMAINING = int(response.headers['X-API-Rate-Remaining'])
-                self.GENI_API_SLEEP_WINDOW = int(response.headers['X-API-Rate-Window'])
-                # check return to be 200 with no rate limiting
-                if (response.status_code == 200 or response.status_code == 403):
-                    continue_flag = False
-
-                elif (response.status_code == 429):
-                    time.sleep(10)
-
-                else:
-                    try:
-                        data = json.loads(response.text)
-                        retry_count = retry_count + 1
-
-                        if (data.get('error', False) and
-                            data['error']['message'] == 'Rate limit exceeded.'):
-                            time.sleep(10)
-
-                        elif (data['error']['type'] == 'ApiException'):
-                            logger.info(
-                                'ApiException URL:%s message: %s',
-                                url,
-                                data['error']['message']
-                            )
-                            continue_flag = False
-
-                    except ValueError:
-                        logger.error(
-                            "geni_api_call error decoding JSON: %s",
-                            project_response
-                        )
-                        continue_flag = False
-
-            except GeniOAuthError as goae:
-                logger.error('Geni oauth error - %s', goae)
-                token_text = self.get_refreshed_token(refresh_token)
-                logger.info('get_refreshed_token returned: %s', token_text)
-                token_response = json.loads(token_text)
-                access_token =  token_response['access_token']
-                refresh_token  = token_response['refresh_token']
-                payload = {'access_token':access_token}
-                retry_count = retry_count + 1
-                time.sleep(5)
-
-            except requests.exceptions.HTTPError as err:
-                logger.exception('Geni api error %s ', err)
-                retry_count = retry_count + 1
-                time.sleep(5)
-
-            except Exception as error:     #Catch all errors
-                logger.exception(
-                    'Geni api connection error...retrying: %s',
-                    error
-                )
-                retry_count = retry_count + 1
-                time.sleep(5)
-
-        return access_token, refresh_token, response
-
-    def invalidate_token(self, access_token):
-        """Invalidate the given access token via the API for logging out"""
-        logger.debug("invalidateToken")
-        payload = {'access_token': access_token}
-        requests.get(self.INVALIDATE_URL, params=payload)
+        return token_result
 
 
 class GeniOAuthError(Exception):
@@ -332,7 +145,3 @@ class GeniOAuthError(Exception):
 
     def __str__(self):
         return repr(self.value)
-
-
-logger = logging.getLogger()
-logging.getLogger("requests").setLevel(logging.WARNING)

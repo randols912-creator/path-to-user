@@ -1,35 +1,35 @@
-from sqlalchemy import Index
+from sqlalchemy import Index, ForeignKey
+from sqlalchemy.orm import relationship
 
 from app import db
 
 
-class TopProfiles(db.Model):
-    __tablename__ = 'geni_top_profiles'
-    profileId = db.Column(db.Integer, primary_key=True)
-    profileLink = db.Column(db.String(255))
-    steps = db.Column(db.Integer)
-
-
-class GeniProfile(db.Model):
+class GeniProfiles(db.Model):
     __tablename__ = 'geni_profiles'
-    gid = db.Column(db.Integer, primary_key=True)
-    profileId = db.Column(db.String(255))
-    profileName = db.Column(db.String(255))
-    profileLink = db.Column(db.String(255))
-    step = db.Column(db.Integer)
-    profiles = db.Column(db.Integer)
+
+    id = db.Column(db.Integer, primary_key=True)
+    profile_id = db.Column(db.String(255))
+    profile_name = db.Column(db.String(255))
+    profile_details_link = db.Column(db.String(255))
 
 
-class GeniJob(db.Model):
-    __tablename__ = 'geni_job'
-    jid = db.Column(db.Integer, primary_key=True)
-    profileId = db.Column(db.String(255))
-    guid = db.Column(db.String(255))
-    apiKey = db.Column(db.String(255))
-    step = db.Column(db.Integer)
-    email = db.Column(db.String(255))
-    dbSave = db.Column(db.String(255))
-    status = db.Column(db.Integer)
+class ProfileToProfile(db.Model):
+    __tablename__ = 'profile_to_profile'
+
+    id = db.Column(db.Integer, primary_key=True)
+    geni_profile1_id = db.Column(db.Integer, ForeignKey("geni_profiles.id"), nullable=False)
+    geni_profile2_id = db.Column(db.Integer, ForeignKey("geni_profiles.id"), nullable=False)
+    profile_to_profile_link = db.Column(db.String(255))
+    step_count = db.Column(db.Integer)
+    profile_relationship = db.Column(db.String(255))
+
+    geni_profile1_id_fk = relationship('GeniProfiles', foreign_keys=[geni_profile1_id])
+    geni_profile2_id_fk = relationship('GeniProfiles', foreign_keys=[geni_profile2_id])
 
 
-Index('geni_profile_step_profile_index', GeniProfile.profileId, GeniProfile.step)
+Index('profile_to_profile_index', ProfileToProfile.geni_profile1_id, ProfileToProfile.geni_profile2_id)
+
+
+def db_init():
+    db.create_all()
+    db.session.commit()
