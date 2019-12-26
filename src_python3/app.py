@@ -173,7 +173,6 @@ def status_watchdog(number):
 
 def save_profiles_relations(status, target_profiles, not_found_param=None):
     if not_found_param:
-        print(not_found_param[2])
         source_profile_id = not_found_param[0]
         target_profile_id = not_found_param[1]
         source_name = not_found_param[2]['focus']['name']
