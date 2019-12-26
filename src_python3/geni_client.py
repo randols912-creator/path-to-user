@@ -1,5 +1,3 @@
-# pylint: disable=line-too-long
-
 import os, time
 import requests
 from ratelimit import limits, sleep_and_retry
@@ -53,14 +51,21 @@ class GeniClient:
     def get_profile_details(self, token):
         """Get the profile details for the logged in account"""
         url = self.BASE_URL + self.PROFILE_URL
-        profile_raw, token = self.geni_api_call(url, token)
-        if not profile_raw['is_success']:
-            profile_raw = {}
+        counter = 0
+
+        while counter < 5:
+            profile_raw, token = self.geni_api_call(url, token)
+
+            if profile_raw['is_success']:
+                break
+
+            counter += 1
+            time.sleep(3.0)
 
         return profile_raw, token
 
     @sleep_and_retry
-    @limits(calls=39, period=10)
+    @limits(calls=3, period=1)
     def geni_api_call(self, url, token):
         result = {
             'api_errors': [],
@@ -69,38 +74,25 @@ class GeniClient:
         }
         payload = {'access_token': token['access_token']}
 
-        retry_count = 0
-        while retry_count < 10:
-            retry_count += 1
+        try:
+            response_raw = requests.get(url, params=payload, timeout=20)
+            response = response_raw.json()
 
-            try:
-                response_raw = requests.get(url, params=payload, timeout=10)
-                response = response_raw.json()
+            if response.get('error'):
+                result['api_errors'].append(response['error'])
 
-                if response.get('error'):
-                    result['api_errors'].append(response['error'])
+                if response['error']['type'] == 'OAuthException':
+                    self.get_token(token['refresh_token'])
 
-                    if response['error']['type'] == 'OAuthException':
-                        self.get_token(token['refresh_token'])
-                        payload = {'access_token': token['access_token']}
+            elif (
+                response_raw.status_code == 200
+                or response_raw.status_code == 403
+            ):
+                result.update(response)
+                result['is_success'] = True
 
-                    elif response['error']['type'] == 'ApiException':
-                        if response['error']['message'] != 'Rate limit exceeded.':
-                            result['is_success'] = False
-                            break
-
-                elif (
-                    response_raw.status_code == 200
-                    or response_raw.status_code == 403
-                ):
-                    result.update(response)
-                    result['is_success'] = True
-                    break
-
-            except Exception as error:
-                result['internal_errors'].append(error)
-
-            time.sleep(5.0)
+        except Exception as error:
+            result['internal_errors'].append(error)
 
         return result, token
 
@@ -135,13 +127,3 @@ class GeniClient:
             token_result['tokenExpiration'] = response['expires_in']
 
         return token_result
-
-
-class GeniOAuthError(Exception):
-    """Custom exception raised when session expires and we need to renew"""
-    def __init__(self, value):
-        super(GeniOAuthError, self).__init__(value)
-        self.value = value
-
-    def __str__(self):
-        return repr(self.value)

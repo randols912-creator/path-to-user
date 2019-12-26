@@ -11,23 +11,24 @@ class GeniProfiles(db.Model):
     profile_id = db.Column(db.String(255))
     profile_name = db.Column(db.String(255))
     profile_details_link = db.Column(db.String(255))
+    is_user = db.Column(db.Boolean, default=True)
 
 
 class ProfileToProfile(db.Model):
     __tablename__ = 'profile_to_profile'
 
     id = db.Column(db.Integer, primary_key=True)
-    geni_profile1_id = db.Column(db.Integer, ForeignKey("geni_profiles.id"), nullable=False)
-    geni_profile2_id = db.Column(db.Integer, ForeignKey("geni_profiles.id"), nullable=False)
-    profile_to_profile_link = db.Column(db.String(255))
+    source_profile_id = db.Column(db.Integer, ForeignKey("geni_profiles.id"), nullable=False)
+    target_profile_id = db.Column(db.Integer, ForeignKey("geni_profiles.id"), nullable=False)
+    joint_url = db.Column(db.String(255))
     step_count = db.Column(db.Integer)
-    profile_relationship = db.Column(db.String(255))
+    profiles_relationship = db.Column(db.String(255))
 
-    geni_profile1_id_fk = relationship('GeniProfiles', foreign_keys=[geni_profile1_id])
-    geni_profile2_id_fk = relationship('GeniProfiles', foreign_keys=[geni_profile2_id])
+    user_profile_id_fk = relationship('GeniProfiles', foreign_keys=[source_profile_id])
+    target_profile_id_fk = relationship('GeniProfiles', foreign_keys=[target_profile_id])
 
 
-Index('profile_to_profile_index', ProfileToProfile.geni_profile1_id, ProfileToProfile.geni_profile2_id)
+Index('profile_to_profile_index', ProfileToProfile.source_profile_id, ProfileToProfile.target_profile_id)
 
 
 def db_init():
