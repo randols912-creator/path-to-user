@@ -1,12 +1,12 @@
 import sys
 import time
 from multiprocessing import Process, Queue
-
+import logging
 from flask import Flask, send_file, request, redirect, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
 import models
-from src_python3.geni_client import GeniClient
+from geni_client import GeniClient
 
 
 app = Flask(__name__)
@@ -159,7 +159,7 @@ def status_watchdog(number):
         record.profile_id: record.id
         for record in models.GeniProfiles.query.filter_by(is_user=False).all()
     }
-
+    done_profiles = 0
     while True:
         task = queue.get()
         source_info, geni_token = geni_client.get_profile_details(task['geni_token'])
@@ -176,11 +176,13 @@ def status_watchdog(number):
                 target_id,
                 task['geni_token']
             )
-
+            logging.info("Status for {} -> {}".format(target_id, status.get('status')))
             if status.get('status') == 'done':
+                done_profiles += 1
                 save_profiles_relations(status, target_profiles)
 
             elif status.get('status') == 'not found':
+                done_profiles += 1
                 not_found = (
                     source_id,
                     target_id,
@@ -199,6 +201,7 @@ def status_watchdog(number):
                 # Unexpected status
                 print("Jesus Christ, it's Jason Bourne.")
                 print(status)
+        logging.info("Done profiles: {}/{}".format(done_profiles, len(target_profiles)))
 
         if next_target_profiles:
             queue.put({
@@ -218,7 +221,7 @@ def save_profiles_relations(status, target_profiles, not_found_param=None):
     else:
         # Example of user link -> 'https://www.geni.com/api/profile-34747685358'
         source_profile_id = status['relations'][0]['url'].split('-')[-1]
-        target_profile_id = status['relations'][1]['url'].split('-')[-1]
+        target_profile_id = status['relations'][-1]['url'].split('-')[-1]
 
     source = models.GeniProfiles.query.filter_by(
         profile_id=source_profile_id
@@ -258,6 +261,8 @@ setup_app(app)
 
 
 if __name__ == '__main__':
+    logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.DEBUG)
+
     queue = Queue()
 
     Process(target=app.run, kwargs={'port': 5050}).start()
