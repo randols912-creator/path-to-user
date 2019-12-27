@@ -50,7 +50,7 @@ def set_token():
     }
 
 
-@app.route('/path-to-project', methods=["POST"])
+@app.route('/path-to-project', methods=["GET"])
 def path_to_project_endpoint_get():
     user_profile_info, session['geni_token'] = geni_client.get_profile_details(
         session['geni_token']
@@ -60,7 +60,7 @@ def path_to_project_endpoint_get():
     return jsonify(response)
 
 
-@app.route('/path-to-project', methods=["GET"])
+@app.route('/path-to-project', methods=["POST"])
 def path_to_project_endpoint_post():
     user_profile_info, session['geni_token'] = geni_client.get_profile_details(
         session['geni_token']
@@ -69,7 +69,6 @@ def path_to_project_endpoint_post():
     sources_list = control_queue.get()
 
     if not source_id in sources_list:
-        print('I WILL TRY IT')
         queue.put({
             'source_id': user_profile_info['focus']['id'].split('-')[-1],
             'geni_token': session['geni_token'],
@@ -77,9 +76,6 @@ def path_to_project_endpoint_post():
             'target_profiles': {}
         })
         sources_list.append(source_id)
-
-    else:
-        print("ALREADY PROCEED")
 
     control_queue.put(sources_list)
 
