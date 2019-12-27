@@ -1,6 +1,6 @@
 import sys
 import time
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Queue, cpu_count
 
 from flask import Flask, send_file, request, redirect, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
@@ -259,10 +259,11 @@ setup_app(app)
 
 if __name__ == '__main__':
     queue = Queue()
+    process_quantity = int(sys.argv[1]) if len(sys.argv) > 1 else 0
 
     Process(target=app.run, kwargs={'port': 5050}).start()
 
-    for counter in range(int(sys.argv[1])):
+    for counter in range(process_quantity if process_quantity else cpu_count()):
         Process(
             target=status_watchdog,
             kwargs={'number': counter},
