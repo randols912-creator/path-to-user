@@ -114,6 +114,11 @@ var UniqueController = function($scope, $rootScope, $http){
         }
     }
 
+    $scope.findPaths = function(){
+        var api = '/path-to-project';
+        callServerPOSTAPI(httpPromise, api, showTableData);
+}
+
     function showTableData(responseData){
         $scope.loading = false;
         $('.loadingMask').hide();
@@ -185,4 +190,8 @@ var UniqueController = function($scope, $rootScope, $http){
 
 function callServerGETAPI(httpPromise, apiName, reponseHandler){
 	httpPromise.get(apiName).success(reponseHandler);
+}
+
+function callServerPOSTAPI(httpPromise, apiName, reponseHandler){
+	httpPromise.post(apiName).success(reponseHandler);
 }
