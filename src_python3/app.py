@@ -49,24 +49,30 @@ def set_token():
     }
 
 
-@app.route('/path-to-project', methods=["GET", "PUT"])
-def path_to_project_endpoint():
-    response = {}
+@app.route('/path-to-project', methods=["GET"])
+def path_to_project_endpoint_get():
     user_profile_info, session['geni_token'] = geni_client.get_profile_details(
         session['geni_token']
     )
-    if request.method == "PUT":
-        queue.put({
-            'source_id': user_profile_info['focus']['id'].split('-')[-1],
-            'geni_token': session['geni_token'],
-            'init_geni_targets': False,
-            'target_profiles': {}
-        })
-
-    elif request.method == "GET":
-        response = get_user_relations(user_profile_info)
+    response = get_user_relations(user_profile_info)
 
     return jsonify(response)
+
+
+@app.route('/path-to-project', methods=["POST"])
+def path_to_project_endpoint_post():
+    user_profile_info, session['geni_token'] = geni_client.get_profile_details(
+        session['geni_token']
+    )
+
+    queue.put({
+        'source_id': user_profile_info['focus']['id'].split('-')[-1],
+        'geni_token': session['geni_token'],
+        'init_geni_targets': False,
+        'target_profiles': {}
+    })
+
+    return jsonify({'result': 'Done'})
 
 
 @app.before_first_request
