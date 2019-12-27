@@ -2,7 +2,7 @@ import sys
 import time
 from multiprocessing import Process, Queue
 
-from flask import Flask, send_file, request, redirect, session
+from flask import Flask, send_file, request, redirect, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
 import models
@@ -51,11 +51,11 @@ def set_token():
 
 @app.route('/path-to-project', methods=["GET", "PUT"])
 def path_to_project_endpoint():
-    if request.method == "GET":
-        user_profile_info, session['geni_token'] = geni_client.get_profile_details(
-            session['geni_token']
-        )
-
+    response = {}
+    user_profile_info, session['geni_token'] = geni_client.get_profile_details(
+        session['geni_token']
+    )
+    if request.method == "PUT":
         queue.put({
             'source_id': user_profile_info['focus']['id'].split('-')[-1],
             'geni_token': session['geni_token'],
@@ -63,11 +63,10 @@ def path_to_project_endpoint():
             'target_profiles': {}
         })
 
-        return 'DONE'
+    elif request.method == "GET":
+        response = get_user_relations(user_profile_info)
 
-    elif request.method == "PUT":
-
-        return 'GET'
+    return jsonify(response)
 
 
 @app.before_first_request
@@ -81,6 +80,38 @@ def setup_app(app):
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///geni_database.db'
     app.config['SESSION_TYPE'] = 'redis'
     app.config['SECRET_KEY'] = '#MyC00lp@sswoRdl@budil@bud@'
+
+
+def get_user_relations(user_profile_info):
+    response = {
+        'source': {},
+        'targets': []
+    }
+    user_obj = models.GeniProfiles.query.filter_by(
+        profile_id=user_profile_info['focus']['id'].split('-')[-1]
+    ).first()
+
+    if user_obj:
+        response['source'].update({
+            'geni_id': user_obj.profile_id,
+            'name': user_obj.profile_name,
+            'profile_link': user_obj.profile_details_link
+        })
+        relations = models.ProfileToProfile.query.filter_by(
+            source_profile_id=user_obj.id
+        ).all()
+
+        for relation_obj in relations:
+            response['targets'].append({
+                'step_count': relation_obj.step_count,
+                'joint_url': relation_obj.joint_url,
+                'profiles_relationship': relation_obj.profiles_relationship,
+                'profile_link': (models.GeniProfiles.query.filter_by(
+                    id=relation_obj.target_profile_id
+                ).first()).profile_details_link
+            })
+
+    return response
 
 
 def status_watchdog_kicker():

@@ -65,7 +65,7 @@ class GeniClient:
         return profile_raw, token
 
     @sleep_and_retry
-    @limits(calls=1, period=1)
+    @limits(calls=4, period=1)
     def geni_api_call(self, url, token):
         result = {
             'api_errors': [],
