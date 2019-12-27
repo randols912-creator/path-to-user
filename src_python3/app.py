@@ -50,7 +50,7 @@ def set_token():
     }
 
 
-@app.route('/path-to-project', methods=["GET"])
+@app.route('/path-to-project', methods=["POST"])
 def path_to_project_endpoint_get():
     user_profile_info, session['geni_token'] = geni_client.get_profile_details(
         session['geni_token']
@@ -60,18 +60,28 @@ def path_to_project_endpoint_get():
     return jsonify(response)
 
 
-@app.route('/path-to-project', methods=["POST"])
+@app.route('/path-to-project', methods=["GET"])
 def path_to_project_endpoint_post():
     user_profile_info, session['geni_token'] = geni_client.get_profile_details(
         session['geni_token']
     )
+    source_id = user_profile_info['focus']['id'].split('-')[-1]
+    sources_list = control_queue.get()
 
-    queue.put({
-        'source_id': user_profile_info['focus']['id'].split('-')[-1],
-        'geni_token': session['geni_token'],
-        'init_geni_targets': False,
-        'target_profiles': {}
-    })
+    if not source_id in sources_list:
+        print('I WILL TRY IT')
+        queue.put({
+            'source_id': user_profile_info['focus']['id'].split('-')[-1],
+            'geni_token': session['geni_token'],
+            'init_geni_targets': False,
+            'target_profiles': {}
+        })
+        sources_list.append(source_id)
+
+    else:
+        print("ALREADY PROCEED")
+
+    control_queue.put(sources_list)
 
     return jsonify({'result': 'Done'})
 
@@ -211,6 +221,11 @@ def status_watchdog(number):
                 'geni_token': task['geni_token']
             })
 
+        else:
+            sources_list = control_queue.get()
+            sources_list.remove(source_id)
+            control_queue.put(sources_list)
+
 
 def save_profiles_relations(status, target_profiles, not_found_param=None):
     if not_found_param:
@@ -265,6 +280,8 @@ if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.DEBUG)
 
     queue = Queue()
+    control_queue = Queue()
+    control_queue.put([])
     process_quantity = int(sys.argv[1]) if len(sys.argv) > 1 else 0
 
     Process(target=app.run, kwargs={'port': 5050}).start()
