@@ -5,8 +5,8 @@ from ratelimit import limits, sleep_and_retry
 
 class GeniClient:
     REDIRECT_URL = os.getenv('GENI_REDIRECT_URL', 'http://localhost:5050/home')
-    CLIENT_ID = os.getenv('GENI_CLIENT_ID', 'tUwZAls5rg6euVuiWKWibPzUCY0twJIuXc7qfdS3')
-    CLIENT_SECRET = os.getenv('GENI_CLIENT_SECRET', 'AATGHLSwFITr5E0jEkcrTKYday2bJHwu3BPkwtZO')
+    CLIENT_ID = os.getenv('GENI_CLIENT_ID', 'eYis8xWUg8AoILdkT1GsmuwO9PTFFQrECLaNSONt')
+    CLIENT_SECRET = os.getenv('GENI_CLIENT_SECRET', '2lcQWKBT3urNPIqprZpBZVcWU9JRQkQvbZ5TUDHH')
     BASE_URL = 'https://www.geni.com/'
     AUTH_URL = 'platform/oauth/authorize'
     TOKEN_URL = 'platform/oauth/request_token'
@@ -65,14 +65,15 @@ class GeniClient:
         return profile_raw, token
 
     @sleep_and_retry
-    @limits(calls=4, period=1)
+    @limits(calls=1, period=1)
     def geni_api_call(self, url, token):
         result = {
             'api_errors': [],
             'internal_errors': [],
             'is_success': False
         }
-        payload = {'access_token': token['access_token']}
+
+        payload = {'access_token': token['access_token']} if token else dict()
 
         try:
             response_raw = requests.get(url, params=payload, timeout=20)

@@ -1,4 +1,5 @@
 import sys
+import os
 import time
 from multiprocessing import Process, Queue, cpu_count
 import logging
@@ -14,7 +15,6 @@ app = Flask(__name__)
 db = SQLAlchemy(app)
 logger = app.logger
 geni_client = GeniClient()
-
 
 @app.route('/')
 def root_endpoint():
@@ -32,10 +32,6 @@ def login_endpoint():
 def home_endpoint():
     """Handle the redirected OAuth session and capture tokens"""
     set_token()
-    queue.put({
-        'init_geni_targets': True,
-        'geni_token': session['geni_token'],
-    })
     return send_file('templates/index.html')
 
 
@@ -68,13 +64,19 @@ def path_to_project_endpoint_post():
     source_id = user_profile_info['focus']['id'].split('-')[-1]
     sources_list = control_queue.get()
 
+    etalon_target_profiles = {
+        record.profile_id: record.id
+        for record in models.GeniProfiles.query.filter_by(is_user=False).all()
+    }
+
     if not source_id in sources_list:
-        queue.put({
-            'source_id': user_profile_info['focus']['id'].split('-')[-1],
-            'geni_token': session['geni_token'],
-            'init_geni_targets': False,
-            'target_profiles': {}
-        })
+        for profile_id,id in etalon_target_profiles.items():
+            queue.put({
+                'source_id': user_profile_info['focus']['id'].split('-')[-1],
+                'geni_token': session['geni_token'],
+                'init_geni_targets': False,
+                'target_profiles': {profile_id: id}
+            })
         sources_list.append(source_id)
 
     control_queue.put(sources_list)
@@ -127,49 +129,42 @@ def get_user_relations(user_profile_info):
     return response
 
 
-def status_watchdog_kicker():
-    task = queue.get()
+def init_profiles():
+    target_profiles, token = geni_client.get_target_profiles(token=None)
 
-    if task['init_geni_targets']:
-        target_profiles, token = geni_client.get_target_profiles(task['geni_token'])
+    for target in target_profiles:
+        exists_target = models.GeniProfiles.query.filter_by(
+            profile_id=target['id'].split('-')[-1]
+        ).first()
 
-        for target in target_profiles:
-            exists_target = models.GeniProfiles.query.filter_by(
-                profile_id=target['id'].split('-')[-1]
-            ).first()
+        if not exists_target:
+            target_profile = models.GeniProfiles()
+            target_profile.profile_id = target['id'].split('-')[-1]
+            target_profile.profile_name = target['name']
+            target_profile.profile_details_link = target['url']
+            target_profile.is_user = False
 
-            if not exists_target:
-                target_profile = models.GeniProfiles()
-                target_profile.profile_id = target['id'].split('-')[-1]
-                target_profile.profile_name = target['name']
-                target_profile.profile_details_link = target['url']
-                target_profile.is_user = False
+            db.session.add(target_profile)
 
-                db.session.add(target_profile)
-
-        db.session.commit()
-        # just for case. Maybe SQLite will be slow guy.
-        time.sleep(5.0)
-
-    else:
-        queue.put(task)
-        # wait while db filling
-        time.sleep(120.0)
+    db.session.commit()
 
 
 def status_watchdog(number):
     # print to main stdout
     sys.stdout.flush()
 
-    status_watchdog_kicker()
+    #status_watchdog_kicker()
     etalon_target_profiles = {
         record.profile_id: record.id
         for record in models.GeniProfiles.query.filter_by(is_user=False).all()
     }
+    source_info = None
+    geni_token = None
     done_profiles = 0
     while True:
         task = queue.get()
-        source_info, geni_token = geni_client.get_profile_details(task['geni_token'])
+        if not geni_token:
+            source_info, geni_token = geni_client.get_profile_details(task['geni_token'])
         next_target_profiles = {}
         target_profiles = task['target_profiles']
         source_id = task['source_id']
@@ -183,7 +178,7 @@ def status_watchdog(number):
                 target_id,
                 task['geni_token']
             )
-            logging.info("Status for {} -> {}".format(target_id, status.get('status')))
+            logging.info("[{}] Status for {} -> {}".format(os.getpid(), target_id, status.get('status')))
             if status.get('status') == 'done':
                 done_profiles += 1
                 save_profiles_relations(status, target_profiles)
@@ -208,7 +203,6 @@ def status_watchdog(number):
                 # Unexpected status
                 print("Jesus Christ, it's Jason Bourne.")
                 print(status)
-        logging.info("Done profiles: {}/{}".format(done_profiles, len(target_profiles)))
 
         if next_target_profiles:
             queue.put({
@@ -217,10 +211,10 @@ def status_watchdog(number):
                 'geni_token': task['geni_token']
             })
 
-        else:
-            sources_list = control_queue.get()
-            sources_list.remove(source_id)
-            control_queue.put(sources_list)
+        #else:
+        #    sources_list = control_queue.get()
+        #    sources_list.remove(source_id)
+        #    control_queue.put(sources_list)
 
 
 def save_profiles_relations(status, target_profiles, not_found_param=None):
@@ -280,6 +274,7 @@ if __name__ == '__main__':
     control_queue.put([])
     process_quantity = int(sys.argv[1]) if len(sys.argv) > 1 else 0
 
+    init_profiles()
     Process(target=app.run, kwargs={'port': 5050}).start()
 
     for counter in range(process_quantity if process_quantity else cpu_count()):
