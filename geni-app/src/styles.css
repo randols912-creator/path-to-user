@@ -1,1 +1,15 @@
 /* You can add global styles to this file, and also import other style files */
+
+@font-face {
+  font-family: 'Open Sans Hebrew';
+  font-style: normal;
+  font-weight: 700;
+  src: url(assets/fonts/OpenSansHebrew-Bold.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'Open Sans Hebrew';
+  font-style: normal;
+  font-weight: 400;
+  src: url(assets/fonts/OpenSansHebrew-Regular.ttf) format('truetype');
+}
