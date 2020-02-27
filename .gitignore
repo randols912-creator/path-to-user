@@ -21,3 +21,5 @@ include/
 include/*
 
 env/
+
+**/Pipfile.lock

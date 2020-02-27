@@ -1,0 +1,28 @@
+.profile-image {
+  flex: 1;
+}
+
+img {
+  max-width: 150px;
+  max-height: 150px;
+  width: auto;
+  height: auto;
+}
+
+.profile-data {
+  flex: 3;
+  justify-content: space-between;
+}
+
+mat-card-content {
+  display: flex;
+}
+
+mat-list {
+  padding: 0;
+}
+
+.mat-list-base .mat-list-item {
+  height: auto;
+  width: 100%;
+}

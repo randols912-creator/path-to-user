@@ -1,56 +1,34 @@
 import sys
 import os
-import time
 from multiprocessing import Process, Queue, cpu_count
 import logging
 
 from flask import Flask, send_file, request, redirect, session, jsonify
+from flask_dotenv import DotEnv
 from flask_sqlalchemy import SQLAlchemy
 
 import models
 from geni_client import GeniClient
 
+app = Flask(__name__, static_folder='templates/')
+env = DotEnv(app)
 
-app = Flask(__name__)
 db = SQLAlchemy(app)
 logger = app.logger
 geni_client = GeniClient()
+GENI_ACCESS_TOKEN_HEADER_KEY = 'Geni-access-token'
+
 
 @app.route('/')
 def root_endpoint():
     """Handle the index page"""
-    return send_file('templates/login.html')
-
-
-@app.route('/login')
-def login_endpoint():
-    """Handle the login page"""
-    return redirect(geni_client.build_auth_url())
-
-
-@app.route('/home')
-def home_endpoint():
-    """Handle the redirected OAuth session and capture tokens"""
-    set_token()
     return send_file('templates/index.html')
-
-
-def set_token():
-    new_token = geni_client.get_token(
-        code=request.args.get('code')
-    )
-    session['geni_token'] = {
-        'access_token': new_token['access_token'],
-        'refresh_token': new_token['refresh_token'],
-        'tokenExpiration': new_token['tokenExpiration']
-    }
 
 
 @app.route('/path-to-project', methods=["GET"])
 def path_to_project_endpoint_get():
-    user_profile_info, session['geni_token'] = geni_client.get_profile_details(
-        session['geni_token']
-    )
+    geni_tokens = {'access_token': request.headers.get(GENI_ACCESS_TOKEN_HEADER_KEY)}
+    user_profile_info, _ = geni_client.get_profile_details(geni_tokens)
     response = get_user_relations(user_profile_info)
 
     return jsonify(response)
@@ -58,9 +36,12 @@ def path_to_project_endpoint_get():
 
 @app.route('/path-to-project', methods=["POST"])
 def path_to_project_endpoint_post():
-    user_profile_info, session['geni_token'] = geni_client.get_profile_details(
-        session['geni_token']
-    )
+    geni_tokens = {'access_token': request.headers.get(GENI_ACCESS_TOKEN_HEADER_KEY)}
+
+    if models.GeniProfiles.query.count() == 0:
+        init_profiles(geni_tokens)
+
+    user_profile_info, _ = geni_client.get_profile_details(geni_tokens)
     source_id = user_profile_info['focus']['id'].split('-')[-1]
     sources_list = control_queue.get()
 
@@ -69,11 +50,11 @@ def path_to_project_endpoint_post():
         for record in models.GeniProfiles.query.filter_by(is_user=False).all()
     }
 
-    if not source_id in sources_list:
+    if source_id not in sources_list:
         for profile_id,id in etalon_target_profiles.items():
             queue.put({
                 'source_id': user_profile_info['focus']['id'].split('-')[-1],
-                'geni_token': session['geni_token'],
+                'geni_token': geni_tokens,
                 'init_geni_targets': False,
                 'target_profiles': {profile_id: id}
             })
@@ -82,19 +63,6 @@ def path_to_project_endpoint_post():
     control_queue.put(sources_list)
 
     return jsonify({'result': 'Done'})
-
-
-@app.before_first_request
-def before_first_request_func():
-    # Import placed here because of auto-create database
-    from models import db_init
-    db_init()
-
-
-def setup_app(app):
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///geni_database.db'
-    app.config['SESSION_TYPE'] = 'redis'
-    app.config['SECRET_KEY'] = '#MyC00lp@sswoRdl@budil@bud@'
 
 
 def get_user_relations(user_profile_info):
@@ -117,20 +85,22 @@ def get_user_relations(user_profile_info):
         ).all()
 
         for relation_obj in relations:
+            rel = models.GeniProfiles.query.filter_by(id=relation_obj.target_profile_id).first()
             response['targets'].append({
+                'id': f'profile-{rel.profile_id}',
                 'step_count': relation_obj.step_count,
                 'joint_url': relation_obj.joint_url,
                 'profiles_relationship': relation_obj.profiles_relationship,
-                'profile_link': (models.GeniProfiles.query.filter_by(
-                    id=relation_obj.target_profile_id
-                ).first()).profile_details_link
+                'profile_name': rel.profile_name,
+                'profile_link': rel.profile_details_link,
+                'profile_relations': relation_obj.profile_relations
             })
 
     return response
 
 
-def init_profiles():
-    target_profiles, token = geni_client.get_target_profiles(token=None)
+def init_profiles(token):
+    target_profiles, token = geni_client.get_target_profiles(token)
 
     for target in target_profiles:
         exists_target = models.GeniProfiles.query.filter_by(
@@ -211,11 +181,6 @@ def status_watchdog(number):
                 'geni_token': task['geni_token']
             })
 
-        #else:
-        #    sources_list = control_queue.get()
-        #    sources_list.remove(source_id)
-        #    control_queue.put(sources_list)
-
 
 def save_profiles_relations(status, target_profiles, not_found_param=None):
     if not_found_param:
@@ -256,14 +221,12 @@ def save_profiles_relations(status, target_profiles, not_found_param=None):
     profile2profile.step_count = 0 if not_found_param else status['step_count']
     profile2profile.profiles_relationship = 'not found' if not_found_param else status['relationship']
     profile2profile.target_profile_id = target_profiles[target_profile_id]
+    profile2profile.profile_relations = status['relations'] if 'relations' in status else None
 
     if add_flag:
         db.session.add(profile2profile)
 
     db.session.commit()
-
-
-setup_app(app)
 
 
 if __name__ == '__main__':
@@ -274,8 +237,7 @@ if __name__ == '__main__':
     control_queue.put([])
     process_quantity = int(sys.argv[1]) if len(sys.argv) > 1 else 0
 
-    init_profiles()
-    Process(target=app.run, kwargs={'port': 5050}).start()
+    Process(target=app.run, kwargs={'port': app.config.get('PORT')}).start()
 
     for counter in range(process_quantity if process_quantity else cpu_count()):
         Process(

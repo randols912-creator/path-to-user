@@ -14,6 +14,9 @@ class GeniClient:
     PATH_BETWEEN_PROFILES_URL = 'api/profile-{source}/path-to/profile-{target}?skip_email=1&skip_notify=1'
     PROFILES_FROM_PROJECT = 'api/project-56250/profiles'
 
+    def __init__(self):
+        self.session = requests.session()
+
     def get_geni_path_to(self, source_id, target_id, token):
         url = self.BASE_URL + self.PATH_BETWEEN_PROFILES_URL
 
@@ -76,7 +79,7 @@ class GeniClient:
         payload = {'access_token': token['access_token']} if token else dict()
 
         try:
-            response_raw = requests.get(url, params=payload, timeout=20)
+            response_raw = self.session.get(url, params=payload, timeout=20)
             response = response_raw.json()
 
             if response.get('error'):
@@ -120,7 +123,7 @@ class GeniClient:
                 'redirect_url': self.REDIRECT_URL
             })
 
-        response = requests.get(url, params=params).json()
+        response = self.session.get(url, params=params).json()
         token_result['access_token'] = response['access_token']
         token_result['refresh_token'] = response['refresh_token']
 

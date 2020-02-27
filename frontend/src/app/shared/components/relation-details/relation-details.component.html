@@ -1,0 +1,36 @@
+<mat-dialog-content>
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ data.display_name }}</mat-card-title>
+      <mat-card-subtitle>{{ data.occupation }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="profile-image">
+        <img
+          *ngIf="data.photo_urls"
+          src="{{ data.photo_urls.medium }}"
+          alt="Photo"
+        />
+        <img
+          *ngIf="!data.photo_urls"
+          src="../../../../assets/no-photo.png"
+          alt="Photo"
+        />
+      </div>
+      <div class="profile-data">
+        <mat-list>
+          <mat-list-item *ngFor="let element of dataElementsToShow">
+            {{ element.title }}: {{ extractValue(element.path) }}
+          </mat-list-item>
+        </mat-list>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-raised-button (click)="openProfile()">Open profile</button>
+  <button mat-raised-button [mat-dialog-close]="true">
+    Close
+  </button>
+</mat-dialog-actions>

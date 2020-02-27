@@ -23,6 +23,7 @@ class ProfileToProfile(db.Model):
     joint_url = db.Column(db.String(255))
     step_count = db.Column(db.Integer)
     profiles_relationship = db.Column(db.String(255))
+    profile_relations = db.Column(db.JSON)
 
     user_profile_id_fk = relationship('GeniProfiles', foreign_keys=[source_profile_id])
     target_profile_id_fk = relationship('GeniProfiles', foreign_keys=[target_profile_id])
