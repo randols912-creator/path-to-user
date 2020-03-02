@@ -13,3 +13,9 @@
   font-weight: 400;
   src: url(assets/fonts/OpenSansHebrew-Regular.ttf) format('truetype');
 }
+
+.accent-text {
+  font: Bold 13px/11px Open Sans Hebrew;
+  letter-spacing: 0;
+  color: #353535;
+}

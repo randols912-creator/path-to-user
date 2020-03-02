@@ -24,7 +24,7 @@
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": ["./lib/geni_jsdk.js"]
           },
           "configurations": {
             "production": {
@@ -83,7 +83,7 @@
             "karmaConfig": "karma.conf.js",
             "assets": ["src/favicon.ico", "src/assets"],
             "styles": ["src/styles.css"],
-            "scripts": []
+            "scripts": ["./lib/geni_jsdk.js"]
           }
         },
         "lint": {

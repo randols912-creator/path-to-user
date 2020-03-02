@@ -4,11 +4,15 @@ import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { WelcomeComponent } from './components/containers/welcome/welcome.component';
+import { HomeComponent } from './components/containers/home/home.component';
+import { TitleBarComponent } from './components/ui/title-bar/title-bar.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    WelcomeComponent
+    WelcomeComponent,
+    HomeComponent,
+    TitleBarComponent
   ],
   imports: [
     BrowserModule,

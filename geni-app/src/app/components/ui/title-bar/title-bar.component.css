@@ -1,0 +1,19 @@
+.title-bar {
+  height: 6.1vh;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: transparent linear-gradient(270deg, #ffffff 0%, #efefef 100%) 0%
+    0% no-repeat padding-box;
+}
+
+.title-bar h4 {
+  margin-bottom: 0;
+}
+
+.title-bar input[type='image'] {
+  height: 50%;
+  padding-right: 3.2vw;
+  padding-left: 3.2vw;
+  outline: none;
+}

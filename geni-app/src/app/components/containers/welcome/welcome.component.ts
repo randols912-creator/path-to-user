@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { welcomePhotos } from 'src/app/app.constants';
+import { Router } from '@angular/router';
+import { homeUrl, welcomePhotos } from 'src/app/app.constants';
+import { AuthService } from 'src/app/auth/auth.service';
 
 @Component({
   selector: 'app-welcome',
@@ -9,7 +11,13 @@ import { welcomePhotos } from 'src/app/app.constants';
 export class WelcomeComponent implements OnInit {
   photos = welcomePhotos;
 
-  constructor() {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {}
+
+  loginHandler(): void {
+    this.authService.login().subscribe(() => {
+      this.router.navigate([homeUrl]);
+    });
+  }
 }
