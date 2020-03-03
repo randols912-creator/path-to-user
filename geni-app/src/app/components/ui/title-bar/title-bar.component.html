@@ -1,5 +1,21 @@
 <div class="title-bar">
-  <div></div>
+  <div class="icon">
+    <input
+      *ngIf="isIconShown('close')"
+      (click)="iconClickHandler()"
+      class="close-menu-icon"
+      type="image"
+      src="assets/img/x.svg"
+    />
+  </div>
   <h4 class="accent-text">MJP & ME</h4>
-  <input type="image" src="assets/img/menu.svg" (click)="menuClickHandler()" />
+  <div class="icon">
+    <input
+      *ngIf="isIconShown('menu')"
+      (click)="iconClickHandler()"
+      class="open-menu-icon"
+      type="image"
+      src="assets/img/menu.svg"
+    />
+  </div>
 </div>

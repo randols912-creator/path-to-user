@@ -1,12 +1,14 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { homePath, welcomePath, welcomeUrl } from './app.constants';
+import { homePath, menuPath, welcomePath, welcomeUrl } from './app.constants';
 import { AuthGuard } from './auth/auth.guard';
 import { HomeComponent } from './components/containers/home/home.component';
+import { MenuComponent } from './components/containers/menu/menu.component';
 import { WelcomeComponent } from './components/containers/welcome/welcome.component';
 
 const routes: Routes = [
   { path: homePath, component: HomeComponent, canActivate: [AuthGuard] },
+  { path: menuPath, component: MenuComponent, data: { animation: 'slide' } },
   { path: welcomePath, component: WelcomeComponent },
   { path: '**', redirectTo: welcomeUrl },
 ];

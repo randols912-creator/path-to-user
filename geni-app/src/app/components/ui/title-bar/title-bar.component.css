@@ -11,9 +11,20 @@
   margin-bottom: 0;
 }
 
-.title-bar input[type='image'] {
+.title-bar .icon {
+  height: 100%;
+  width: 8vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-menu-icon {
+  height: 25%;
+  outline: none;
+}
+
+.open-menu-icon {
   height: 50%;
-  padding-right: 3.2vw;
-  padding-left: 3.2vw;
   outline: none;
 }

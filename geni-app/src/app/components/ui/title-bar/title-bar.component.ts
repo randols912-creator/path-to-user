@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 @Component({
   selector: 'app-title-bar',
@@ -6,11 +6,18 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./title-bar.component.css'],
 })
 export class TitleBarComponent implements OnInit {
+  @Input() icons: string[];
+  @Output() onToggleMenu: EventEmitter<void> = new EventEmitter<void>();
+
   constructor() {}
 
   ngOnInit(): void {}
 
-  menuClickHandler(): void {
-    console.log('Menu clicked');
+  isIconShown(name: string): boolean {
+    return this.icons.indexOf(name) > -1;
+  }
+
+  iconClickHandler(): void {
+    this.onToggleMenu.emit();
   }
 }

@@ -12,9 +12,11 @@ export const millisBetweenBackendCalls = 1000;
 
 export const homePath = '';
 export const welcomePath = 'welcome';
+export const menuPath = 'menu';
 
 export const homeUrl = `/${homePath}`;
 export const welcomeUrl = `/${welcomePath}`;
+export const menuUrl = `/${menuPath}`;
 
 export const welcomePhotos = [
   'assets/img/photos/photo_2.png',
