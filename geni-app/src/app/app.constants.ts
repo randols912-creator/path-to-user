@@ -1,8 +1,7 @@
-export const appHost = process.env.host || 'http://localhost:4200';
+import { environment } from 'src/environments/environment';
 
 export const geniClientId = 'eYis8xWUg8AoILdkT1GsmuwO9PTFFQrECLaNSONt';
-export const geniOathRedirectUri = `${appHost}`;
-export const geniOauthUrl = `https://www.geni.com/platform/oauth/authorize?client_id=${geniClientId}&redirect_uri=${geniOathRedirectUri}&response_type=token&display=mobile`;
+export const geniOauthUrl = `https://www.geni.com/platform/oauth/authorize?client_id=${geniClientId}&redirect_uri=${environment.host}&response_type=token&display=mobile`;
 
 export const geniTokenStorageKey = 'gn-token';
 export const geniTokenExpiresStorageKey = 'gn-token-exp';
