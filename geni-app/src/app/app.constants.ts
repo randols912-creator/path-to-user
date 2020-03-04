@@ -1,7 +1,8 @@
-export const geniConf = {
-  app_id: 'eYis8xWUg8AoILdkT1GsmuwO9PTFFQrECLaNSONt',
-  logging: true,
-};
+export const appHost = process.env.host || 'http://localhost:4200';
+
+export const geniClientId = 'eYis8xWUg8AoILdkT1GsmuwO9PTFFQrECLaNSONt';
+export const geniOathRedirectUri = `${appHost}`;
+export const geniOauthUrl = `https://www.geni.com/platform/oauth/authorize?client_id=${geniClientId}&redirect_uri=${geniOathRedirectUri}&response_type=token&display=mobile`;
 
 export const geniTokenStorageKey = 'gn-token';
 export const geniTokenExpiresStorageKey = 'gn-token-exp';

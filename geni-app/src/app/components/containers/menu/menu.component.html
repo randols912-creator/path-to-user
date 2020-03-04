@@ -1,2 +1,5 @@
-<app-title-bar [icons]="['close']"></app-title-bar>
+<app-title-bar
+  [icons]="['close']"
+  (onToggleMenu)="goToPreviousLocation()"
+></app-title-bar>
 <p>menu works!</p>
