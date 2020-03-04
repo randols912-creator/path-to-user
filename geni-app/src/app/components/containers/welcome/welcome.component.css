@@ -13,32 +13,6 @@
   margin-bottom: 4.5vh;
 }
 
-.welcome-title {
-  font: bold 24px/20px Open Sans Hebrew;
-  letter-spacing: 0;
-  color: #353535;
-}
-
-.welcome-subtitle {
-  font: normal 14px/24px Open Sans Hebrew;
-  letter-spacing: -0.14px;
-  color: #353535;
-}
-
-.welcome-regular-text {
-  font: normal 12px/18px Open Sans Hebrew;
-  letter-spacing: 0;
-  color: #878787;
-}
-
-.circles-separator {
-  display: block;
-  width: 46vw;
-  height: 1vh;
-  margin-left: auto;
-  margin-right: auto;
-}
-
 .welcome-photos-row {
   height: 9.2vh;
 }

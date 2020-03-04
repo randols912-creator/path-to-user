@@ -1,4 +1,8 @@
-/* You can add global styles to this file, and also import other style files */
+body,
+html,
+app-root {
+  height: 100%;
+}
 
 @font-face {
   font-family: 'Open Sans Hebrew';
@@ -14,8 +18,40 @@
   src: url(assets/fonts/OpenSansHebrew-Regular.ttf) format('truetype');
 }
 
+.title-text {
+  font: bold 24px/20px Open Sans Hebrew;
+  letter-spacing: 0;
+  color: #353535;
+}
+
+.bigger-text {
+  font: Bold 16px/11px Open Sans Hebrew;
+  letter-spacing: 0;
+  color: #353535;
+}
+
+.subtitle-text {
+  font: normal 14px/24px Open Sans Hebrew;
+  letter-spacing: -0.14px;
+  color: #353535;
+}
+
 .accent-text {
   font: Bold 13px/11px Open Sans Hebrew;
   letter-spacing: 0;
   color: #353535;
+}
+
+.regular-text {
+  font: normal 12px/18px Open Sans Hebrew;
+  letter-spacing: 0;
+  color: #878787;
+}
+
+.circles-separator {
+  display: block;
+  width: 46vw;
+  height: 1vh;
+  margin-left: auto;
+  margin-right: auto;
 }

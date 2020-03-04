@@ -19,7 +19,9 @@ export class AuthService {
     window.location.href = geniOauthUrl;
   }
 
-  logout(): void {}
+  logout(): void {
+    this.setToken(null);
+  }
 
   isAuthenticated(): boolean {
     return !!this.token;

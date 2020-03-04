@@ -7,8 +7,18 @@ import { MenuComponent } from './components/containers/menu/menu.component';
 import { WelcomeComponent } from './components/containers/welcome/welcome.component';
 
 const routes: Routes = [
-  { path: homePath, component: HomeComponent, canActivate: [AuthGuard] },
-  { path: menuPath, component: MenuComponent, data: { animation: 'slide' } },
+  {
+    path: homePath,
+    component: HomeComponent,
+    canActivate: [AuthGuard],
+    data: { animation: 'home' },
+  },
+  {
+    path: menuPath,
+    component: MenuComponent,
+    canActivate: [AuthGuard],
+    data: { animation: 'menu' },
+  },
   { path: welcomePath, component: WelcomeComponent },
   { path: '**', redirectTo: welcomeUrl },
 ];

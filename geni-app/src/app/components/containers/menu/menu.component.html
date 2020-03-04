@@ -2,4 +2,28 @@
   [icons]="['close']"
   (onToggleMenu)="goToPreviousLocation()"
 ></app-title-bar>
-<p>menu works!</p>
+<div class="menu-container">
+  <button
+    (click)="logoutHandler(false)"
+    type="button"
+    class="btn btn-link bigger-text"
+  >
+    עברית
+  </button>
+  <img src="assets/img/lineOfCircles.svg" class="circles-separator" />
+  <button
+    (click)="logoutHandler(false)"
+    type="button"
+    class="btn btn-link bigger-text"
+  >
+    About
+  </button>
+  <img src="assets/img/lineOfCircles.svg" class="circles-separator" />
+  <button
+    (click)="logoutHandler(true)"
+    type="button"
+    class="btn btn-link bigger-text"
+  >
+    log out
+  </button>
+</div>

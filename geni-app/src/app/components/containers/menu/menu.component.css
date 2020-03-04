@@ -1,0 +1,11 @@
+.menu-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 84px 5px 5px 5px;
+}
+
+.menu-container > * {
+  margin: 16px;
+}
