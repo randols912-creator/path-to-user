@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { menuUrl } from 'src/app/app.constants';
+import { GeniService } from 'src/app/services/geni.service';
 
 @Component({
   selector: 'app-home',
@@ -8,9 +9,11 @@ import { menuUrl } from 'src/app/app.constants';
   styleUrls: ['./home.component.css'],
 })
 export class HomeComponent implements OnInit {
-  constructor(private router: Router) {}
+  constructor(private router: Router, private geni: GeniService) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.geni.getStatus();
+  }
 
   gotoMenuHandler(): void {
     this.router.navigate([menuUrl]);
