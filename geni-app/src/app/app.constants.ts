@@ -1,10 +1,14 @@
 import { environment } from 'src/environments/environment';
 
 export const geniClientId = 'eYis8xWUg8AoILdkT1GsmuwO9PTFFQrECLaNSONt';
-export const geniOauthUrl = `https://www.geni.com/platform/oauth/authorize?client_id=${geniClientId}&redirect_uri=${environment.host}&response_type=token&display=mobile`;
+
+export const geniHost = 'https://www.geni.com';
+export const geniOauthUrl = `${geniHost}/platform/oauth/authorize?client_id=${geniClientId}&redirect_uri=${environment.host}&response_type=token&display=mobile`;
+export const geniCurrentProfileUrl = `${geniHost}/api/profile`;
 
 export const geniTokenStorageKey = 'gn-token';
 export const geniTokenExpiresStorageKey = 'gn-token-exp';
+export const currentUserProfileStorageKey = 'gn-user';
 
 export const findRelationsUrl = '/path-to-project';
 export const geniTokenHeaderKey = 'geni-access-token';

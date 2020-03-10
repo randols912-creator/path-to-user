@@ -1,16 +1,19 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import {
+  currentUserProfileStorageKey,
   geniOauthUrl,
   geniTokenExpiresStorageKey,
   geniTokenStorageKey,
 } from '../app.constants';
+import Profile from '../model/Profile';
+import { GeniService } from '../services/geni.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  constructor(private router: Router) {}
+  constructor(private router: Router, private geni: GeniService) {}
 
   /**
    * Navigates to Geni for Authorization
@@ -19,12 +22,26 @@ export class AuthService {
     window.location.href = geniOauthUrl;
   }
 
+  login(access_token: string, expires_in: string): void {
+    this.setToken(access_token, expires_in);
+    this.geni.fetchCurrentUserProfile().subscribe(profile => {
+      localStorage.setItem(
+        currentUserProfileStorageKey,
+        JSON.stringify(profile)
+      );
+    });
+  }
+
   logout(): void {
     this.setToken(null);
   }
 
   isAuthenticated(): boolean {
     return !!this.token;
+  }
+
+  get user(): Profile {
+    return JSON.parse(localStorage.getItem(currentUserProfileStorageKey));
   }
 
   get token(): string | null {
@@ -42,10 +59,8 @@ export class AuthService {
     return localStorage.getItem(geniTokenStorageKey);
   }
 
-  setToken(tokenDetails: any | null) {
-    if (tokenDetails) {
-      const { access_token, expires_in } = tokenDetails;
-
+  private setToken(access_token: string | null, expires_in?: string) {
+    if (access_token) {
       const expDate = new Date(
         new Date().getTime() + +expires_in * 1000 // Seconds until the token will expire
       );

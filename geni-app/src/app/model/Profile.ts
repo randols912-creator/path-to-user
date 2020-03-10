@@ -1,0 +1,31 @@
+export default interface Profile {
+  id: string;
+  url: string;
+  profile_url: string;
+  public: boolean;
+  guid: string;
+  first_name: string;
+  maiden_name: string;
+  last_name: string;
+  name: string;
+  is_alive: boolean;
+  gender: string;
+  created_by: string;
+  big_tree: boolean;
+  claimed: boolean;
+  language: string;
+  mugshot_urls: object;
+  unions: Array<string>;
+  relationship: string;
+  marriage_orders: object;
+  birth_order: number;
+  living: boolean;
+  creator: string;
+  account_type: string;
+  birth: object;
+  location: object;
+  photo_urls: object;
+  created_at: string;
+  updated_at: string;
+  deleted: boolean;
+}

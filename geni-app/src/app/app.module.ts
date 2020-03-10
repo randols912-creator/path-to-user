@@ -1,13 +1,31 @@
-import { HttpClientModule } from '@angular/common/http';
-import { NgModule } from '@angular/core';
+import {
+  HttpClientJsonpModule,
+  HttpClientModule,
+  HTTP_INTERCEPTORS,
+} from '@angular/common/http';
+import { NgModule, Provider } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { AuthInterceptor } from './auth/auth.interceptor';
 import { HomeComponent } from './components/containers/home/home.component';
 import { MenuComponent } from './components/containers/menu/menu.component';
 import { WelcomeComponent } from './components/containers/welcome/welcome.component';
 import { TitleBarComponent } from './components/ui/title-bar/title-bar.component';
+import { ToolbarComponent } from './components/ui/toolbar/toolbar.component';
+
+const INTERCEPTOR_PROVIDER: Provider = {
+  provide: HTTP_INTERCEPTORS,
+  useClass: AuthInterceptor,
+  multi: true,
+};
+
+@NgModule({
+  providers: [INTERCEPTOR_PROVIDER],
+  declarations: [],
+})
+class JsonpInterceptorModule {}
 
 @NgModule({
   declarations: [
@@ -15,6 +33,7 @@ import { TitleBarComponent } from './components/ui/title-bar/title-bar.component
     WelcomeComponent,
     HomeComponent,
     TitleBarComponent,
+    ToolbarComponent,
     MenuComponent,
   ],
   imports: [
@@ -22,8 +41,10 @@ import { TitleBarComponent } from './components/ui/title-bar/title-bar.component
     BrowserAnimationsModule,
     AppRoutingModule,
     HttpClientModule,
+    JsonpInterceptorModule, // Must be before the HttpClientJsonpModule to use interceptor
+    HttpClientJsonpModule,
   ],
-  providers: [],
+  providers: [INTERCEPTOR_PROVIDER],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
