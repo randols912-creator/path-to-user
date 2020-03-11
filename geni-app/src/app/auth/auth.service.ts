@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   currentUserProfileStorageKey,
-  geniOauthUrl,
   geniTokenExpiresStorageKey,
   geniTokenStorageKey,
 } from '../app.constants';
@@ -18,11 +17,14 @@ export class AuthService {
   /**
    * Navigates to Geni for Authorization
    */
-  geniLogin(): void {
-    window.location.href = geniOauthUrl;
+  login(): void {
+    this.geni.login();
   }
 
-  login(access_token: string, expires_in: string): void {
+  storeTokenAndFetchUserDetails(
+    access_token: string,
+    expires_in: string
+  ): void {
     this.setToken(access_token, expires_in);
     this.geni.fetchCurrentUserProfile().subscribe(profile => {
       localStorage.setItem(

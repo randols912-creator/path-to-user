@@ -16,6 +16,6 @@ export class WelcomeComponent implements OnInit {
   ngOnInit(): void {}
 
   loginHandler(): void {
-    this.authService.geniLogin();
+    this.authService.login();
   }
 }

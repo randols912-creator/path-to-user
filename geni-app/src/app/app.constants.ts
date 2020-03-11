@@ -10,7 +10,8 @@ export const geniTokenStorageKey = 'gn-token';
 export const geniTokenExpiresStorageKey = 'gn-token-exp';
 export const currentUserProfileStorageKey = 'gn-user';
 
-export const findRelationsUrl = '/path-to-project';
+export const relationsServiceHost = 'https://eubert.jhn.ngo/pv'; // 'http://localhost:5050';
+export const fetchRelationsUrl = `${relationsServiceHost}/path-to-project`;
 export const geniTokenHeaderKey = 'geni-access-token';
 export const millisBetweenBackendCalls = 1000;
 

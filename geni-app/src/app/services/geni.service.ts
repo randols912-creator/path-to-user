@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import {
   geniClientId,
   geniCurrentProfileUrl,
+  geniOauthUrl,
   geniTokenExpiresStorageKey,
   geniTokenStorageKey,
 } from '../app.constants';
@@ -24,6 +25,10 @@ export class GeniService {
       logging: true,
     };
     this.geni = Geni.init(geniConf);
+  }
+
+  login(): void {
+    window.location.href = geniOauthUrl;
   }
 
   fetchCurrentUserProfile(): Observable<Profile> {

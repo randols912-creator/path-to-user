@@ -31,7 +31,7 @@ export class AuthGuard implements CanActivate {
       'expires_in' in next.queryParams
     ) {
       const { access_token, expires_in } = next.queryParams;
-      this.authService.login(access_token, expires_in);
+      this.authService.storeTokenAndFetchUserDetails(access_token, expires_in);
       return this.router.navigate([homeUrl]);
     }
 

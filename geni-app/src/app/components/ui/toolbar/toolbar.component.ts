@@ -8,7 +8,7 @@ import Profile from 'src/app/model/Profile';
 })
 export class ToolbarComponent implements OnInit {
   @Input() user: Profile;
-  count = 0;
+  @Input() relations: Array<any>;
 
   constructor() {}
 
