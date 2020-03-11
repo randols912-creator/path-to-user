@@ -4,6 +4,7 @@ from multiprocessing import Process, Queue, cpu_count
 import logging
 
 from flask import Flask, send_file, request, redirect, session, jsonify
+from flask_cors import CORS
 from flask_dotenv import DotEnv
 from flask_sqlalchemy import SQLAlchemy
 
@@ -12,6 +13,7 @@ from geni_client import GeniClient
 
 app = Flask(__name__, static_folder='templates/')
 env = DotEnv(app)
+CORS(app)
 
 db = SQLAlchemy(app)
 logger = app.logger
