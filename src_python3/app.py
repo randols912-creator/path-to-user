@@ -1,6 +1,6 @@
 import sys
 import os
-from multiprocessing import Process, Queue, cpu_count
+from multiprocessing import Process, Queue, cpu_count, Value
 import logging
 
 from flask import Flask, send_file, request, redirect, session, jsonify
@@ -31,7 +31,8 @@ def root_endpoint():
 def path_to_project_endpoint_get():
     geni_tokens = {'access_token': request.headers.get(GENI_ACCESS_TOKEN_HEADER_KEY)}
     user_profile_info, _ = geni_client.get_profile_details(geni_tokens)
-    response = get_user_relations(user_profile_info)
+    response: dict = get_user_relations(user_profile_info)
+    response['workers_busy'] = not queue.empty() or sum([i.value for i in app.config['worker_busy_flags']]) > 0
 
     return jsonify(response)
 
@@ -121,7 +122,7 @@ def init_profiles(token):
     db.session.commit()
 
 
-def status_watchdog(number):
+def status_watchdog(number, busy_flag):
     # print to main stdout
     sys.stdout.flush()
 
@@ -135,6 +136,7 @@ def status_watchdog(number):
     done_profiles = 0
     while True:
         task = queue.get()
+        busy_flag.value = 1
         if not geni_token:
             source_info, geni_token = geni_client.get_profile_details(task['geni_token'])
         next_target_profiles = {}
@@ -182,6 +184,8 @@ def status_watchdog(number):
                 'source_id': task['source_id'],
                 'geni_token': task['geni_token']
             })
+
+        busy_flag.value = 0
 
 
 def save_profiles_relations(status, target_profiles, not_found_param=None):
@@ -238,12 +242,17 @@ if __name__ == '__main__':
     control_queue = Queue()
     control_queue.put([])
     process_quantity = int(sys.argv[1]) if len(sys.argv) > 1 else 0
+    quantity = process_quantity if process_quantity else cpu_count()
+
+    worker_busy_flags = [Value('i', 0) for i in range(quantity)]
+    app.config['worker_busy_flags'] = worker_busy_flags
 
     Process(target=app.run, kwargs={'port': app.config.get('PORT')}).start()
 
-    for counter in range(process_quantity if process_quantity else cpu_count()):
+    for counter in range(quantity):
         Process(
             target=status_watchdog,
-            kwargs={'number': counter},
+            kwargs={'number': counter,
+                    'busy_flag': worker_busy_flags[counter]},
             name=str(counter)
         ).start()
