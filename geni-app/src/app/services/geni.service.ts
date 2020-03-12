@@ -2,7 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
-  geniClientId,
   geniCurrentProfileUrl,
   geniOauthUrl,
   geniTokenExpiresStorageKey,
@@ -19,12 +18,12 @@ export class GeniService {
   private geni: any;
 
   constructor(private http: HttpClient) {
-    const geniConf = {
-      app_id: geniClientId,
-      access_token: tempToken(),
-      logging: true,
-    };
-    this.geni = Geni.init(geniConf);
+    // const geniConf = {
+    //   app_id: geniClientId,
+    //   access_token: tempToken(),
+    //   logging: true,
+    // };
+    // this.geni = Geni.init(geniConf);
   }
 
   login(): void {

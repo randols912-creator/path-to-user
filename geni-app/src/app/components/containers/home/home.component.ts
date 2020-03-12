@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { interval } from 'rxjs';
-import { menuUrl, millisBetweenBackendCalls } from 'src/app/app.constants';
+import { menuUrl } from 'src/app/app.constants';
 import { AuthService } from 'src/app/auth/auth.service';
 import Profile from 'src/app/model/Profile';
 import Relation from 'src/app/model/Relation';
@@ -13,6 +12,8 @@ import { RelationService } from 'src/app/services/relation.service';
   styleUrls: ['./home.component.css'],
 })
 export class HomeComponent implements OnInit {
+  status: Status;
+
   constructor(
     private router: Router,
     private auth: AuthService,
@@ -20,9 +21,22 @@ export class HomeComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    if (this.relations.length === 0) {
-      const interval$ = interval(millisBetweenBackendCalls);
-      this.relationService.fetchAll();
+    if (!this.relations.length) {
+      this.status = Status.SEARCHING;
+      this.relationService.init().subscribe(
+        isEmptyUserProfile => {
+          if (isEmptyUserProfile) {
+            console.log('Source or target profiles are empty');
+            this.relationService.setupNewUserProfile();
+          } else {
+            this.status = Status.READY;
+          }
+        },
+        reason => {
+          console.error(reason);
+          this.status = Status.ERROR;
+        }
+      );
     }
   }
 
@@ -37,4 +51,14 @@ export class HomeComponent implements OnInit {
   get relations(): Array<Relation> {
     return this.relationService.getRelations();
   }
+
+  get loading(): boolean {
+    return this.relationService.isLoading();
+  }
+}
+
+enum Status {
+  READY = 'All the data successfuly fetched',
+  SEARCHING = "We're searching for people connected to you...",
+  ERROR = 'Error! See the console',
 }
