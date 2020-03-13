@@ -1,3 +1,5 @@
+import Profile from './Profile';
+
 export default interface Relation {
   id: string;
   joint_url: string;
@@ -6,4 +8,5 @@ export default interface Relation {
   profile_relations: Array<any>;
   profiles_relationship: string;
   step_count: number;
+  profile?: Profile;
 }

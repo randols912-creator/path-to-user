@@ -2,16 +2,19 @@
   [icons]="['menu']"
   (onToggleMenu)="gotoMenuHandler()"
 ></app-title-bar>
-<div class="greet">
-  <h1 *ngIf="user">
-    <span class="small-text">Hi, {{ user.name }}, nice to see you here.</span>
-    <span *ngIf="!relations.length" class="regular-text connections-info">{{
-      status
-    }}</span>
-    <span *ngIf="relations.length" class="regular-text connections-info"
-      >We found {{ relations.length }} people connected to you</span
-    >
-  </h1>
-  <div></div>
+<div class="home">
+  <div class="greet">
+    <h1 *ngIf="user">
+      <span class="small-text">Hi, {{ user.name }}, nice to see you here.</span>
+      <span *ngIf="!relations.length" class="regular-text connections-info">{{
+        status
+      }}</span>
+      <span *ngIf="relations.length" class="regular-text connections-info"
+        >We found {{ relations.length }} people connected to you</span
+      >
+    </h1>
+    <div></div>
+  </div>
+  <app-toolbar [user]="user" [relations]="relations"></app-toolbar>
 </div>
-<!-- <app-toolbar [user]="user" [relations]="relations"></app-toolbar> -->
+<app-relations-list [relations]="relations"></app-relations-list>

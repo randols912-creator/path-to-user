@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
-  geniCurrentProfileUrl,
+  geniApiUrl,
   geniOauthUrl,
   geniTokenExpiresStorageKey,
   geniTokenStorageKey,
@@ -30,8 +30,18 @@ export class GeniService {
     window.location.href = geniOauthUrl;
   }
 
-  fetchCurrentUserProfile(): Observable<Profile> {
-    return this.http.jsonp<Profile>(geniCurrentProfileUrl, 'callback');
+  fetchProfile(profile: string): Observable<Profile> {
+    return this.http.jsonp<Profile>(`${geniApiUrl}/${profile}`, 'callback');
+  }
+
+  fetchProfileByLink(
+    link: string,
+    fields?: Array<string>
+  ): Observable<Profile> {
+    return this.http.jsonp<Profile>(
+      `${link}${fields ? '?fields=' + fields.join(',') : ''}`,
+      'callback'
+    );
   }
 }
 

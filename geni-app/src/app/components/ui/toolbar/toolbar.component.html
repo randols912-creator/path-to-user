@@ -1,1 +1,18 @@
-<h1>toolbar</h1>
+<div class="toolbar">
+  <div class="left-section">
+    <button type="button" class="btn" (click)="buttonClickHandler('filters')">
+      <img src="assets/img/filter.svg" alt="" />
+      <span class="small-text">Filters</span>
+    </button>
+    <button type="button" class="btn" (click)="buttonClickHandler('sorting')">
+      <img src="assets/img/sort.svg" alt="" />
+      <span class="small-text">Sorting</span>
+    </button>
+  </div>
+  <div class="right-section">
+    <button type="button" class="btn" (click)="buttonClickHandler('search')">
+      <img src="assets/img/search.svg" alt="" />
+      <span class="small-text">Search</span>
+    </button>
+  </div>
+</div>

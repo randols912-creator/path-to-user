@@ -4,13 +4,14 @@ export const geniClientId = 'eYis8xWUg8AoILdkT1GsmuwO9PTFFQrECLaNSONt';
 
 export const geniHost = 'https://www.geni.com';
 export const geniOauthUrl = `${geniHost}/platform/oauth/authorize?client_id=${geniClientId}&redirect_uri=${environment.host}&response_type=token&display=mobile`;
-export const geniCurrentProfileUrl = `${geniHost}/api/profile`;
+export const geniApiUrl = `${geniHost}/api`;
+export const currentUserProfilePath = 'profile';
 
 export const geniTokenStorageKey = 'gn-token';
 export const geniTokenExpiresStorageKey = 'gn-token-exp';
 export const currentUserProfileStorageKey = 'gn-user';
 
-export const relationsServiceHost = 'https://eubert.jhn.ngo/pv'; // 'http://localhost:5050';
+export const relationsServiceHost = 'http://localhost:5050'; //'https://eubert.jhn.ngo/pv';
 export const fetchRelationsUrl = `${relationsServiceHost}/path-to-project`;
 export const geniTokenHeaderKey = 'geni-access-token';
 export const millisBetweenBackendCalls = 1000;

@@ -1,0 +1,58 @@
+.relation-card {
+  padding: 2vh 3vw;
+  border-bottom: 1px solid #9a9a9a;
+}
+
+.photo-section {
+  display: inline-block;
+  width: 35%;
+}
+
+.info-section {
+  display: inline-block;
+  vertical-align: top;
+  width: 65%;
+}
+
+.brief-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-top: 1px dashed #c9c9c9;
+}
+
+.brief-info * {
+  color: #000000;
+}
+
+.brief-info .small-text {
+  color: #878787;
+}
+
+.info-section .fullname {
+  font: normal 15px/20px Open Sans Hebrew;
+  letter-spacing: 0;
+  color: #000000;
+}
+
+.collapsed {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.photo-section img {
+  height: 90px;
+  width: 90px;
+  border-radius: 50%;
+}
+
+.chevron {
+  padding: 0;
+  margin: 0;
+  float: right;
+}
+
+.chevron:focus {
+  box-shadow: none;
+}

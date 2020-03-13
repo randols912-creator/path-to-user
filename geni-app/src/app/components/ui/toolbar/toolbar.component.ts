@@ -13,4 +13,8 @@ export class ToolbarComponent implements OnInit {
   constructor() {}
 
   ngOnInit(): void {}
+
+  buttonClickHandler(name: string) {
+    console.log(`${name} clicked`);
+  }
 }

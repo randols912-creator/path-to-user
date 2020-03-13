@@ -1,0 +1,22 @@
+<div class="relation-card">
+  <div class="photo-section">
+    <img src="{{ relationImgUlr }}" alt="" />
+  </div>
+  <div class="info-section">
+    <button class="btn chevron" (click)="collapseFullnameHandler()">
+      &#8964;
+    </button>
+    <div>
+      <div class="fullname" [ngClass]="{ collapsed: collapsed }">
+        {{ relationFullname }}
+      </div>
+    </div>
+    <div class="brief-info">
+      <div class="regular-text">{{ livingDates }}</div>
+      <div>
+        <span class="small-text">Connection Number:</span>
+        <span class="regular-text">{{ this.relation.step_count }}</span>
+      </div>
+    </div>
+  </div>
+</div>

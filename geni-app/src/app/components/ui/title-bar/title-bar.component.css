@@ -1,6 +1,7 @@
 .title-bar {
   height: 6.1vh;
   display: flex;
+  border: 1px solid #efefef;
   justify-content: space-between;
   align-items: center;
   background: transparent linear-gradient(270deg, #ffffff 0%, #efefef 100%) 0%

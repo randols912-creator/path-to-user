@@ -11,7 +11,9 @@ import { AppComponent } from './app.component';
 import { AuthInterceptor } from './auth/auth.interceptor';
 import { HomeComponent } from './components/containers/home/home.component';
 import { MenuComponent } from './components/containers/menu/menu.component';
+import { RelationsListComponent } from './components/containers/relations-list/relations-list.component';
 import { WelcomeComponent } from './components/containers/welcome/welcome.component';
+import { RelationCardComponent } from './components/ui/relation-card/relation-card.component';
 import { TitleBarComponent } from './components/ui/title-bar/title-bar.component';
 import { ToolbarComponent } from './components/ui/toolbar/toolbar.component';
 
@@ -21,7 +23,9 @@ const INTERCEPTOR_PROVIDER: Provider = {
   multi: true,
 };
 
-@NgModule({
+/**
+ * Hack to alow JSONP requests to use existing interceptors
+ */ @NgModule({
   providers: [INTERCEPTOR_PROVIDER],
   declarations: [],
 })
@@ -35,6 +39,8 @@ class JsonpInterceptorModule {}
     TitleBarComponent,
     ToolbarComponent,
     MenuComponent,
+    RelationsListComponent,
+    RelationCardComponent,
   ],
   imports: [
     BrowserModule,

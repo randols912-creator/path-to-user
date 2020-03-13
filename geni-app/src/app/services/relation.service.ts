@@ -30,7 +30,7 @@ export class RelationService {
     return new Observable<boolean>(observer => {
       this.http.get<RelationServiceResponse>(fetchRelationsUrl).subscribe(
         resp => {
-          this.relations = resp.targets;
+          this.relations = resp.targets; // TODO temp
           observer.next(isEmptyUserProfile(resp));
         },
         reason => {
