@@ -9,16 +9,27 @@
 }
 
 .info-section {
+  width: 65%;
   display: inline-block;
   vertical-align: top;
-  width: 65%;
+}
+
+.info-section-upper {
+  height: 65px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.categories {
+  vertical-align: bottom;
 }
 
 .brief-info {
+  border-top: 1px dashed #c9c9c9;
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  border-top: 1px dashed #c9c9c9;
 }
 
 .brief-info * {
@@ -42,6 +53,7 @@
 }
 
 .photo-section img {
+  object-fit: cover;
   height: 90px;
   width: 90px;
   border-radius: 50%;

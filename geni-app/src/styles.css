@@ -48,8 +48,14 @@ app-root {
   color: #878787;
 }
 
-.small-text {
+.small-regular-text {
   font: normal 11px Open Sans Hebrew;
+  letter-spacing: 0;
+  color: #000;
+}
+
+.small-text {
+  font: normal 10px Open Sans Hebrew;
   letter-spacing: 0;
   color: #353535;
 }

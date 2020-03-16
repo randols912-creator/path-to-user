@@ -24,6 +24,8 @@ export default interface Profile {
   creator?: string;
   account_type?: string;
   birth?: LivingDetails;
+  death?: LivingDetails;
+  nicknames?: Array<string>;
   location?: object;
   photo_urls?: PhotoUrls;
   created_at?: string;
