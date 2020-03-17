@@ -1,7 +1,16 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { Category, getColor } from 'src/app/model/Category';
 import { LivingDetails } from 'src/app/model/Profile';
 import Relation from 'src/app/model/Relation';
 import { GeniService } from 'src/app/services/geni.service';
+
+const randomCategory = (): Category => {
+  return Category[
+    Object.keys(Category)[
+      Math.floor(Math.random() * (Object.keys(Category).length - 1))
+    ]
+  ];
+};
 
 @Component({
   selector: 'app-relation-card',
@@ -11,6 +20,8 @@ import { GeniService } from 'src/app/services/geni.service';
 export class RelationCardComponent implements OnInit {
   @Input() relation: Relation;
   collapsed: boolean = true;
+  // TODO - real categories?
+  categories: Array<Category> = [randomCategory()];
 
   constructor(private geni: GeniService) {}
 
@@ -82,5 +93,9 @@ export class RelationCardComponent implements OnInit {
     return this.relation.profile && this.relation.profile.nicknames
       ? this.relation.profile.nicknames.map(n => `"${n}"`).join(', ')
       : '';
+  }
+
+  categoryColor(category: Category): string {
+    return getColor(category);
   }
 }

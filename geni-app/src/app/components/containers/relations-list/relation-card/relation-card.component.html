@@ -25,9 +25,12 @@
         </div>
       </div>
       <div class="categories">
-        <span class="badge badge-primary mr-1">Some</span>
-        <span class="badge badge-danger mr-1">Some</span>
-        <span class="badge badge-primary mr-1">Some</span>
+        <span
+          *ngFor="let category of categories"
+          class="small-regular-text category mr-1"
+          [ngStyle]="{ backgroundColor: categoryColor(category) }"
+          >{{ category }}</span
+        >
       </div>
     </div>
     <div class="brief-info">
