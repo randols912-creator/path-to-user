@@ -1,10 +1,3 @@
-import {
-  animate,
-  state,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
 import { Component, Input, OnInit } from '@angular/core';
 import { LivingDetails } from 'src/app/model/Profile';
 import Relation from 'src/app/model/Relation';
@@ -14,23 +7,6 @@ import { GeniService } from 'src/app/services/geni.service';
   selector: 'app-relation-card',
   templateUrl: './relation-card.component.html',
   styleUrls: ['./relation-card.component.css'],
-  animations: [
-    trigger('collapseFullname', [
-      state(
-        'open',
-        style({
-          backgroundColor: 'yellow',
-        })
-      ),
-      state(
-        'closed',
-        style({
-          backgroundColor: 'red',
-        })
-      ),
-      transition('open <=> closed', [animate('3s')]),
-    ]),
-  ],
 })
 export class RelationCardComponent implements OnInit {
   @Input() relation: Relation;
@@ -52,21 +28,19 @@ export class RelationCardComponent implements OnInit {
     this.collapsed = !this.collapsed;
   }
 
+  get gender(): string {
+    return this.relation.profile && this.relation.profile.gender
+      ? this.relation.profile.gender
+      : '';
+  }
+
   get relationImgUlr(): string {
-    let url: string;
-
-    if (this.relation.profile) {
-      if (
-        this.relation.profile.photo_urls &&
-        this.relation.profile.photo_urls.medium
-      ) {
-        url = this.relation.profile.photo_urls.medium;
-      } else {
-        url = `assets/img/${this.relation.profile.gender}.svg`;
-      }
-    }
-
-    return url;
+    return (
+      '' &&
+      this.relation.profile &&
+      this.relation.profile.photo_urls &&
+      this.relation.profile.photo_urls.medium
+    );
   }
 
   get relationFullname(): string {
@@ -105,7 +79,7 @@ export class RelationCardComponent implements OnInit {
 
   get nicknames(): string {
     return this.relation.profile && this.relation.profile.nicknames
-      ? this.relation.profile.nicknames.join(', ')
+      ? this.relation.profile.nicknames.map(n => `"${n}"`).join(', ')
       : '';
   }
 }

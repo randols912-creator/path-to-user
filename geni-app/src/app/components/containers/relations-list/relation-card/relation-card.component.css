@@ -59,6 +59,14 @@
   border-radius: 50%;
 }
 
+.male {
+  background-color: #47c3d3;
+}
+
+.female {
+  background-color: #cb5947;
+}
+
 .chevron {
   padding: 0;
   margin: 0;
