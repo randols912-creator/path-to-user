@@ -4,8 +4,11 @@
       src="{{
         relationImgUlr ? relationImgUlr : 'assets/img/' + gender + '.svg'
       }}"
-      alt="Relation photo"
-      [ngClass]="{ gender: true }"
+      alt="Photo"
+      [ngClass]="[
+        gender,
+        !relationImgUlr ? 'no-profile-photo' : 'profile-photo'
+      ]"
     />
   </div>
   <div class="info-section">

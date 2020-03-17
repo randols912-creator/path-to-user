@@ -31,12 +31,12 @@ export class RelationCardComponent implements OnInit {
   get gender(): string {
     return this.relation.profile && this.relation.profile.gender
       ? this.relation.profile.gender
-      : '';
+      : 'male';
   }
 
   get relationImgUlr(): string {
     return (
-      '' &&
+      // '' &&
       this.relation.profile &&
       this.relation.profile.photo_urls &&
       this.relation.profile.photo_urls.medium
@@ -44,16 +44,17 @@ export class RelationCardComponent implements OnInit {
   }
 
   get relationFullname(): string {
-    let full_name: string;
+    let full_name: string = this.relation.profile_name;
 
-    if (this.relation.profile) {
-      const { first_name, middle_name, last_name } = this.relation.profile;
-      full_name = `${first_name}${middle_name ? ' ' + middle_name : ''}${
-        last_name ? ' ' + last_name : ''
-      }`;
-    } else {
-      full_name = this.relation.profile_name;
-    }
+    // TODO - some fullname logic?
+    // if (this.relation.profile) {
+    //   const { first_name, middle_name, last_name } = this.relation.profile;
+    //   full_name = `${first_name}${middle_name ? ' ' + middle_name : ''}${
+    //     last_name ? ' ' + last_name : ''
+    //   }`;
+    // } else {
+    //   full_name = this.relation.profile_name;
+    // }
 
     return full_name;
   }

@@ -6,11 +6,8 @@ import {
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import {
-  geniHost,
-  geniTokenHeaderKey,
-  relationsServiceHost,
-} from '../app.constants';
+import { environment as env } from 'src/environments/environment';
+import { geniHost, geniTokenHeaderKey } from '../app.constants';
 import { AuthService } from './auth.service';
 
 @Injectable()
@@ -31,7 +28,7 @@ export class AuthInterceptor implements HttpInterceptor {
       }
     }
 
-    if (request.url.startsWith(relationsServiceHost)) {
+    if (request.url.startsWith(env.relationsServiceHost)) {
       return next.handle(
         request.clone({
           headers: request.headers.set(geniTokenHeaderKey, this.auth.token),
