@@ -15,7 +15,7 @@
 }
 
 .info-section-upper {
-  height: 65px;
+  min-height: 65px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
