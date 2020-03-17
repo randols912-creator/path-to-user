@@ -22,8 +22,8 @@ export class MenuComponent implements OnInit {
     this.location.back();
   }
 
-  logoutHandler(realy: boolean): void {
-    console.log('clicked');
+  logoutHandler(name: string, realy = true): void {
+    console.log(`${name} clicked`); // TODO - remove in the end
 
     if (realy) {
       this.auth.logout();

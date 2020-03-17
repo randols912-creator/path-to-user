@@ -4,7 +4,7 @@
 ></app-title-bar>
 <div class="menu-container">
   <button
-    (click)="logoutHandler(false)"
+    (click)="logoutHandler('עברית', false)"
     type="button"
     class="btn btn-link bigger-text"
   >
@@ -12,7 +12,7 @@
   </button>
   <img src="assets/img/lineOfCircles.svg" class="circles-separator" />
   <button
-    (click)="logoutHandler(false)"
+    (click)="logoutHandler('About', false)"
     type="button"
     class="btn btn-link bigger-text"
   >
@@ -20,7 +20,7 @@
   </button>
   <img src="assets/img/lineOfCircles.svg" class="circles-separator" />
   <button
-    (click)="logoutHandler(true)"
+    (click)="logoutHandler('log out')"
     type="button"
     class="btn btn-link bigger-text"
   >
