@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { relationPath } from 'src/app/app.constants';
 import { Category, getColor } from 'src/app/model/Category';
 import { LivingDetails } from 'src/app/model/Profile';
 import Relation from 'src/app/model/Relation';
@@ -22,6 +23,7 @@ export class RelationCardComponent implements OnInit {
   collapsed: boolean = true;
   // TODO - real categories?
   categories: Array<Category> = [randomCategory()];
+  relationPath: string = relationPath;
 
   constructor(private geni: GeniService) {}
 

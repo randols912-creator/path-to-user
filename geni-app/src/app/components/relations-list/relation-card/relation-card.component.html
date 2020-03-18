@@ -1,15 +1,17 @@
 <div class="relation-card">
   <div class="photo-section">
-    <img
-      src="{{
-        relationImgUlr ? relationImgUlr : 'assets/img/' + gender + '.svg'
-      }}"
-      alt="Photo"
-      [ngClass]="[
-        gender,
-        !relationImgUlr ? 'no-profile-photo' : 'profile-photo'
-      ]"
-    />
+    <a [routerLink]="[relationPath, relation.id]">
+      <img
+        src="{{
+          relationImgUlr ? relationImgUlr : 'assets/img/' + gender + '.svg'
+        }}"
+        alt="Photo"
+        [ngClass]="[
+          gender,
+          !relationImgUlr ? 'no-profile-photo' : 'profile-photo'
+        ]"
+      />
+    </a>
   </div>
   <div class="info-section">
     <div class="info-section-upper">
@@ -18,7 +20,9 @@
           {{ collapsed ? '&#8964;' : '&#8963;' }}
         </button>
         <div #fullname class="fullname" [ngClass]="{ collapsed: collapsed }">
-          {{ relationFullname }}
+          <a [routerLink]="[relationPath, relation.id]">{{
+            relationFullname
+          }}</a>
         </div>
         <div *ngIf="collapsed" class="regular-text collapsed">
           {{ nicknames }}

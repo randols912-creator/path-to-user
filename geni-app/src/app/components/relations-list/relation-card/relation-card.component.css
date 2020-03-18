@@ -3,6 +3,10 @@
   border-bottom: 1px solid #9a9a9a;
 }
 
+a {
+  color: #000;
+}
+
 .photo-section {
   display: inline-block;
   width: 35%;

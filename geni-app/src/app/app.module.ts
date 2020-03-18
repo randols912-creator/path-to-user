@@ -11,9 +11,10 @@ import { AppComponent } from './app.component';
 import { AuthInterceptor } from './auth/auth.interceptor';
 import { HomeComponent } from './components/containers/home/home.component';
 import { MenuComponent } from './components/containers/menu/menu.component';
-import { RelationCardComponent } from './components/containers/relations-list/relation-card/relation-card.component';
-import { RelationsListComponent } from './components/containers/relations-list/relations-list.component';
+import { RelationComponent } from './components/containers/relation/relation.component';
 import { WelcomeComponent } from './components/containers/welcome/welcome.component';
+import { RelationCardComponent } from './components/relations-list/relation-card/relation-card.component';
+import { RelationsListComponent } from './components/relations-list/relations-list.component';
 import { TitleBarComponent } from './components/ui/title-bar/title-bar.component';
 import { ToolbarComponent } from './components/ui/toolbar/toolbar.component';
 
@@ -41,6 +42,7 @@ class JsonpInterceptorModule {}
     MenuComponent,
     RelationsListComponent,
     RelationCardComponent,
+    RelationComponent,
   ],
   imports: [
     BrowserModule,
