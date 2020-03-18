@@ -88,6 +88,20 @@ export class RelationService {
     console.log(`Interval fetch ${enable === true ? 'enabled' : 'disabled'}`);
   }
 
+  getRelation(id: string): Observable<Relation> {
+    return new Observable<Relation>(observer => {
+      if (!this.relations.length) {
+        this.init().subscribe(() => {
+          const filtered = this.relations.filter(next => next.id === id);
+          observer.next(filtered && filtered[0]);
+        });
+      } else {
+        const filtered = this.relations.filter(next => next.id === id);
+        observer.next(filtered && filtered[0]);
+      }
+    });
+  }
+
   getRelations(): Array<Relation> {
     return this.relations;
   }

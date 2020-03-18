@@ -1,6 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { menuUrl } from 'src/app/app.constants';
 import { AuthService } from 'src/app/auth/auth.service';
 import Profile from 'src/app/model/Profile';
 import Relation from 'src/app/model/Relation';
@@ -15,7 +13,6 @@ export class HomeComponent implements OnInit {
   status: Status;
 
   constructor(
-    private router: Router,
     private auth: AuthService,
     private relationService: RelationService
   ) {}
@@ -38,10 +35,6 @@ export class HomeComponent implements OnInit {
         }
       );
     }
-  }
-
-  gotoMenuHandler(): void {
-    this.router.navigate([menuUrl]);
   }
 
   get user(): Profile {

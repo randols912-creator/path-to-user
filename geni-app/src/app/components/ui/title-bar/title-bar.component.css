@@ -1,31 +1,51 @@
+h4 {
+  margin: 0;
+}
+
 .title-bar {
   height: 6.1vh;
-  display: flex;
   border: 1px solid #efefef;
+  display: flex;
   justify-content: space-between;
   align-items: center;
   background: transparent linear-gradient(270deg, #ffffff 0%, #efefef 100%) 0%
     0% no-repeat padding-box;
 }
 
-.title-bar h4 {
-  margin-bottom: 0;
+button {
+  height: 6.1vh;
+  padding: 0;
 }
 
-.title-bar .icon {
-  height: 100%;
-  width: 8vw;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.close-menu-icon {
-  height: 25%;
-  outline: none;
+button:focus {
+  box-shadow: none;
 }
 
 .open-menu-icon {
-  height: 50%;
-  outline: none;
+  height: 15px;
+  margin: 6px 9px;
+}
+
+.close-menu-icon {
+  height: 9px;
+  margin: 6px;
+}
+
+.icon-container-left {
+  min-width: 75px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.icon-container-left .small-text {
+  padding-left: 10px;
+  color: #535453;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.icon-container-right {
+  min-width: 75px;
+  display: flex;
+  justify-content: flex-end;
 }

@@ -1,2 +1,12 @@
-<app-title-bar [icons]="['menu']"></app-title-bar>
-<p>relation works!</p>
+<app-title-bar> </app-title-bar>
+<app-info-bar *ngIf="relation && user">
+  <div class="small-text">
+    <b>{{ relation.profile_name }}</b> is
+    <span *ngIf="!relation.profile_relations">not related to </span
+    ><b>{{ user.name }}</b>
+    <span
+      *ngIf="relation.profile_relations && relation.profile_relations.length"
+      ><b>'s</b> {{ relation.profiles_relationship }}</span
+    >
+  </div>
+</app-info-bar>

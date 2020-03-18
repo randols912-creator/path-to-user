@@ -30,7 +30,13 @@ export class RelationCardComponent implements OnInit {
   ngOnInit(): void {
     if (!this.relation.profile) {
       this.geni
-        .fetchProfileByLink(this.relation.profile_link)
+        .fetchProfileByLink(this.relation.profile_link, [
+          'gender',
+          'photo_urls',
+          'birth',
+          'death',
+          'nicknames',
+        ])
         .subscribe(profile => {
           this.relation.profile = profile;
         });

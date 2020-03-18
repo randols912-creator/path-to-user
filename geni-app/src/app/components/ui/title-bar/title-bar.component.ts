@@ -1,4 +1,7 @@
+import { Location } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Router } from '@angular/router';
+import { homeUrl, menuUrl } from 'src/app/app.constants';
 
 @Component({
   selector: 'app-title-bar',
@@ -9,7 +12,7 @@ export class TitleBarComponent implements OnInit {
   @Input() icons: string[];
   @Output() onToggleMenu: EventEmitter<void> = new EventEmitter<void>();
 
-  constructor() {}
+  constructor(private location: Location, private router: Router) {}
 
   ngOnInit(): void {}
 
@@ -18,6 +21,22 @@ export class TitleBarComponent implements OnInit {
   }
 
   iconClickHandler(): void {
-    this.onToggleMenu.emit();
+    console.log('some');
+  }
+
+  gotoMenuHandler(): void {
+    this.router.navigate([menuUrl]);
+  }
+
+  goToPreviousLocation(): void {
+    this.location.back();
+  }
+
+  isMenu(): boolean {
+    return this.router.url === menuUrl;
+  }
+
+  isHome(): boolean {
+    return this.router.url === homeUrl;
   }
 }

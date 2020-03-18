@@ -1,13 +1,22 @@
 <div class="title-bar">
-  <div class="icon" (click)="iconClickHandler()" *ngIf="isIconShown('close')">
-    <input class="close-menu-icon" type="image" src="assets/img/x.svg" />
+  <div class="icon-container-left">
+    <button *ngIf="isMenu()" (click)="goToPreviousLocation()" class="btn">
+      <img class="close-menu-icon" src="assets/img/x.svg" alt="" />
+    </button>
+    <button
+      *ngIf="!isMenu() && !isHome()"
+      (click)="goToPreviousLocation()"
+      class="btn btn-lnk small-text"
+    >
+      to all results
+    </button>
   </div>
-  <!-- To center the logo -->
-  <div class="icon" *ngIf="!isIconShown('close')"></div>
-  <h4 class="accent-text">MJP & ME</h4>
-  <div class="icon" (click)="iconClickHandler()" *ngIf="isIconShown('menu')">
-    <input class="open-menu-icon" type="image" src="assets/img/menu.svg" />
+  <div class="title">
+    <h4 class="accent-text">MJP & ME</h4>
   </div>
-  <!-- To center the logo -->
-  <div class="icon" *ngIf="!isIconShown('menu')"></div>
+  <div class="icon-container-right">
+    <button *ngIf="!isMenu()" class="btn" (click)="gotoMenuHandler()">
+      <img class="open-menu-icon" src="assets/img/menu.svg" alt="" />
+    </button>
+  </div>
 </div>

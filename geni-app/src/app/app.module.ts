@@ -15,6 +15,7 @@ import { RelationComponent } from './components/containers/relation/relation.com
 import { WelcomeComponent } from './components/containers/welcome/welcome.component';
 import { RelationCardComponent } from './components/relations-list/relation-card/relation-card.component';
 import { RelationsListComponent } from './components/relations-list/relations-list.component';
+import { InfoBarComponent } from './components/ui/info-bar/info-bar.component';
 import { TitleBarComponent } from './components/ui/title-bar/title-bar.component';
 import { ToolbarComponent } from './components/ui/toolbar/toolbar.component';
 
@@ -43,6 +44,7 @@ class JsonpInterceptorModule {}
     RelationsListComponent,
     RelationCardComponent,
     RelationComponent,
+    InfoBarComponent,
   ],
   imports: [
     BrowserModule,
