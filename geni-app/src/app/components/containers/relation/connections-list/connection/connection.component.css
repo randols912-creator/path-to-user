@@ -1,0 +1,21 @@
+.direct {
+  margin-bottom: 15px;
+  border-radius: 29px;
+}
+
+.indirect {
+}
+
+.connection-photo {
+  width: 42px;
+  height: 42px;
+  border-radius: 29px;
+}
+
+.connection-male {
+  background-color: #c0edf3;
+}
+
+.connection-female {
+  background-color: #f2d7d2;
+}

@@ -1,0 +1,7 @@
+<div class="connection-list">
+  <app-connection
+    *ngFor="let connection of connections; index as i"
+    [connection]="connection"
+    [isDirect]="0 === i || i === connections.length - 1"
+  ></app-connection>
+</div>

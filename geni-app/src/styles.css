@@ -67,3 +67,11 @@ app-root {
   margin-left: auto;
   margin-right: auto;
 }
+
+.male {
+  background-color: #47c3d3;
+}
+
+.female {
+  background-color: #cb5947;
+}
