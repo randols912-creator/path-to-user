@@ -55,7 +55,6 @@ export class RelationCardComponent implements OnInit {
 
   get relationImgUlr(): string {
     return (
-      // '' &&
       this.relation.profile &&
       this.relation.profile.photo_urls &&
       this.relation.profile.photo_urls.medium

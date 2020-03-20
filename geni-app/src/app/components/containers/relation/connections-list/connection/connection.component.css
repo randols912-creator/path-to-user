@@ -1,15 +1,21 @@
+.connection span {
+  color: #333;
+}
+
 .direct {
   margin-bottom: 15px;
   border-radius: 29px;
 }
 
 .indirect {
+  margin-bottom: 15px;
+  border-radius: 29px;
 }
 
-.connection-photo {
-  width: 42px;
-  height: 42px;
-  border-radius: 29px;
+.indirect span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .connection-male {
@@ -18,4 +24,30 @@
 
 .connection-female {
   background-color: #f2d7d2;
+}
+
+.profile-photo {
+  object-fit: cover;
+}
+
+.connection-photo {
+  display: inline-block;
+  margin-right: 5px;
+}
+
+.direct .connection-photo img {
+  width: 42px;
+  height: 42px;
+  border-radius: 29px;
+}
+
+.indirect .connection-photo img {
+  width: 20px;
+  height: 20px;
+  border-radius: 15px;
+}
+
+.no-profile-photo {
+  padding: 3px;
+  object-fit: contain;
 }

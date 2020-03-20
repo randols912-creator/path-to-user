@@ -10,7 +10,7 @@ import { GeniService } from 'src/app/services/geni.service';
 })
 export class ConnectionComponent implements OnInit {
   @Input() connection: Connection;
-  @Input() isDirect: boolean;
+  @Input() direct: boolean;
 
   constructor(private geni: GeniService, private auth: AuthService) {}
 
@@ -19,6 +19,7 @@ export class ConnectionComponent implements OnInit {
       this.geni
         .fetchProfileByLink(this.connection.url, [
           'gender',
+          'name',
           'photo_urls',
           'birth',
           'death',
@@ -27,5 +28,19 @@ export class ConnectionComponent implements OnInit {
           this.connection.profile = profile;
         });
     }
+  }
+
+  get relationImgUlr(): string {
+    return (
+      this.connection.profile &&
+      this.connection.profile.photo_urls &&
+      this.connection.profile.photo_urls.medium
+    );
+  }
+
+  get gender(): string {
+    return this.connection.profile && this.connection.profile.gender
+      ? this.connection.profile.gender
+      : 'male';
   }
 }
