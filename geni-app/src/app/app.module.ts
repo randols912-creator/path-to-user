@@ -6,6 +6,7 @@ import {
 import { NgModule, Provider } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AuthInterceptor } from './auth/auth.interceptor';
@@ -15,6 +16,7 @@ import { RelationsListComponent } from './components/containers/home/relations-l
 import { MenuComponent } from './components/containers/menu/menu.component';
 import { ConnectionComponent } from './components/containers/relation/connections-list/connection/connection.component';
 import { ConnectionsListComponent } from './components/containers/relation/connections-list/connections-list.component';
+import { GenderDotComponent } from './components/containers/relation/connections-list/gender-dot/gender-dot.component';
 import { RelationComponent } from './components/containers/relation/relation.component';
 import { WelcomeComponent } from './components/containers/welcome/welcome.component';
 import { InfoBarComponent } from './components/ui/info-bar/info-bar.component';
@@ -32,6 +34,7 @@ const INTERCEPTOR_PROVIDER: Provider = {
  */ @NgModule({
   providers: [INTERCEPTOR_PROVIDER],
   declarations: [],
+  imports: [],
 })
 class JsonpInterceptorModule {}
 
@@ -49,6 +52,7 @@ class JsonpInterceptorModule {}
     InfoBarComponent,
     ConnectionsListComponent,
     ConnectionComponent,
+    GenderDotComponent,
   ],
   imports: [
     BrowserModule,
@@ -57,6 +61,7 @@ class JsonpInterceptorModule {}
     HttpClientModule,
     JsonpInterceptorModule, // Must be before the HttpClientJsonpModule to use interceptor
     HttpClientJsonpModule,
+    FontAwesomeModule,
   ],
   providers: [INTERCEPTOR_PROVIDER],
   bootstrap: [AppComponent],

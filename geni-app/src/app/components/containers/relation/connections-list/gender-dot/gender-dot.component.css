@@ -1,0 +1,9 @@
+.gender-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.inline {
+  display: inline;
+}

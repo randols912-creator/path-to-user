@@ -18,4 +18,8 @@ export class WelcomeComponent implements OnInit {
   loginHandler(): void {
     this.authService.login();
   }
+
+  dummyClickHandler(info: string): void {
+    console.log(info);
+  }
 }

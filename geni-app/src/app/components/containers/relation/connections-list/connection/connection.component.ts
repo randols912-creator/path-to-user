@@ -1,33 +1,31 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { faAngleDown, faAngleUp } from '@fortawesome/free-solid-svg-icons';
 import { AuthService } from 'src/app/auth/auth.service';
+import { Gender, LivingDetails } from 'src/app/model/Profile';
 import Connection from 'src/app/model/ProfileRelation';
-import { GeniService } from 'src/app/services/geni.service';
 
 @Component({
   selector: 'app-connection',
   templateUrl: './connection.component.html',
   styleUrls: ['./connection.component.css'],
 })
-export class ConnectionComponent implements OnInit {
+export class ConnectionComponent {
   @Input() connection: Connection;
-  @Input() direct: boolean;
+  @Input() step_count?: number = 0;
+  @Input() relatedConnection?: Connection;
+  @Input() direct?: boolean = false;
+  @Input() isFinalIndirectConnection?: boolean = false;
+  @Input() drawArrowDown?: boolean = false;
 
-  constructor(private geni: GeniService, private auth: AuthService) {}
+  faAngleDown = faAngleDown;
+  faAngleUp = faAngleUp;
 
-  ngOnInit(): void {
-    if (!this.connection.profile) {
-      this.geni
-        .fetchProfileByLink(this.connection.url, [
-          'gender',
-          'name',
-          'photo_urls',
-          'birth',
-          'death',
-        ])
-        .subscribe(profile => {
-          this.connection.profile = profile;
-        });
-    }
+  expanded: boolean = false;
+
+  constructor(private auth: AuthService) {}
+
+  toggleExpandedHandler(): void {
+    this.expanded = !this.expanded;
   }
 
   get relationImgUlr(): string {
@@ -38,9 +36,49 @@ export class ConnectionComponent implements OnInit {
     );
   }
 
-  get gender(): string {
+  get gender(): Gender {
     return this.connection.profile && this.connection.profile.gender
       ? this.connection.profile.gender
-      : 'male';
+      : Gender.UNDEFINED;
+  }
+
+  get relation(): string {
+    if (
+      this.relatedConnection &&
+      this.relatedConnection.url === this.auth.user.url
+    ) {
+      return `your ${this.connection.relation}`;
+    } else {
+      return (
+        (this.relatedConnection &&
+          this.relatedConnection.profile &&
+          this.relatedConnection.profile.gender &&
+          `${
+            this.relatedConnection.profile.gender === Gender.MALE
+              ? 'his'
+              : 'her'
+          } ${this.connection.relation}`) ||
+        Gender.UNDEFINED
+      );
+    }
+  }
+
+  get livingDates(): string {
+    let birthYear = '',
+      deathYear = '';
+
+    if (this.connection.profile) {
+      if (this.connection.profile.birth) {
+        const birth: LivingDetails = this.connection.profile.birth;
+        birthYear = `${birth.date.year}`;
+      }
+
+      if (this.connection.profile.death) {
+        const death: LivingDetails = this.connection.profile.death;
+        deathYear = `${death.date.year}`;
+      }
+    }
+
+    return `${birthYear}${deathYear ? ' - ' + deathYear : ''}`;
   }
 }

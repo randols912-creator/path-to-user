@@ -14,7 +14,7 @@
   <button
     (click)="loginHandler()"
     type="button"
-    class="btn btn-link accent-text"
+    class="btn btn-link accent-text general-link"
   >
     Log in to your Geni account
   </button>
@@ -34,11 +34,21 @@
 </div>
 <div class="welcome-bottom">
   <div class="instructions-for-other-platform">
-    <p class="accent-text">Have a family tree in other Platform</p>
+    <button
+      (click)="dummyClickHandler('Other platform')"
+      class="btn btn-link accent-text general-link"
+    >
+      Have a family tree in other Platform
+    </button>
     <p class="regular-text">Upload your Gedcom file to Geni.</p>
   </div>
   <div class="instructions-for-none-platform">
-    <p class="accent-text">Don't have a family tree</p>
+    <button
+      (click)="dummyClickHandler('No family tree')"
+      class="btn btn-link accent-text general-link"
+    >
+      Don't have a family tree
+    </button>
     <p class="regular-text">
       You will need to register and build a family tree. The more family members
       included the greater chance you'll find more connection at the museum.

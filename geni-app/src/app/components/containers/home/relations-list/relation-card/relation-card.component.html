@@ -3,7 +3,9 @@
     <a [routerLink]="[relationPath, relation.id]" [state]="{ id: relation.id }">
       <img
         src="{{
-          relationImgUlr ? relationImgUlr : 'assets/img/' + gender + '.svg'
+          relationImgUlr
+            ? relationImgUlr
+            : 'assets/img/gender-' + gender + '.svg'
         }}"
         alt="Photo"
         [ngClass]="[

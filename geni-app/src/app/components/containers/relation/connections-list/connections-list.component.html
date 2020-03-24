@@ -1,7 +1,54 @@
-<div class="connection-list">
-  <app-connection
-    *ngFor="let connection of connections; index as i"
-    [connection]="connection"
-    [direct]="i === 0 || i === connections.length - 1"
-  ></app-connection>
+<div
+  class="connection-list"
+  *ngIf="connections && connections.length && !loading"
+>
+  <div *ngIf="directConnectionsOnly; else allConnections">
+    <app-connection
+      [connection]="userConnection"
+      [direct]="true"
+      [drawArrowDown]="true"
+    ></app-connection>
+
+    <div class="connections-dots">
+      <div class="flex-box">
+        <app-gender-dot
+          *ngFor="let c of connections"
+          [gender]="c.profile && c.profile.gender"
+          [inline]="false"
+        ></app-gender-dot>
+      </div>
+    </div>
+
+    <div class="link-box">
+      <button
+        (click)="toggleDirectConnectionsOnly()"
+        class="btn btn-link general-link subtitle-text"
+      >
+        show all
+        <span class="connections-count-badge">{{ connections.length }}</span>
+        connections
+        <fa-icon [icon]="faAngleDown"></fa-icon>
+      </button>
+      <div class="arrow-down"></div>
+    </div>
+
+    <app-connection
+      [connection]="finalConnection"
+      [direct]="true"
+    ></app-connection>
+  </div>
 </div>
+
+<ng-template #allConnections>
+  <app-connection
+    *ngFor="let c of connections; index as i"
+    [connection]="c"
+    [step_count]="i"
+    [relatedConnection]="
+      !isDirectConnection(i) ? connections[i - 1] : undefined
+    "
+    [direct]="isDirectConnection(i)"
+    [isFinalIndirectConnection]="connections.length - i === 2"
+    [drawArrowDown]="c != finalConnection"
+  ></app-connection>
+</ng-template>

@@ -5,19 +5,62 @@
     direct ? 'direct' : 'indirect'
   ]"
 >
-  <div class="connection-photo">
-    <img
-      src="{{
-        relationImgUlr ? relationImgUlr : 'assets/img/' + gender + '.svg'
-      }}"
-      alt="Photo"
-      [ngClass]="[
-        gender,
-        !relationImgUlr ? 'no-profile-photo' : 'profile-photo'
-      ]"
-    />
+  <div class="connection-badge" [ngClass]="{ expanded: expanded }">
+    <div class="connection-photo">
+      <img
+        src="{{
+          relationImgUlr
+            ? relationImgUlr
+            : 'assets/img/gender-' + gender + '.svg'
+        }}"
+        alt="Photo"
+        [ngClass]="[
+          'gender-' + gender,
+          !relationImgUlr ? 'no-profile-photo' : 'profile-photo'
+        ]"
+      />
+    </div>
+    <div class="info-section">
+      <div
+        class="name-section"
+        [ngClass]="[
+          direct ? 'subtitle-text' : 'regular-text',
+          expanded ? 'info-section-upper' : ''
+        ]"
+      >
+        {{ connection.profile && connection.profile.name }}
+      </div>
+      <div *ngIf="!direct && expanded" class="small-text">
+        {{ relation }}
+        <button
+          *ngIf="expanded"
+          (click)="toggleExpandedHandler()"
+          class="btn chevron"
+        >
+          <fa-icon [icon]="faAngleUp" size="sm"></fa-icon>
+        </button>
+      </div>
+      <div *ngIf="expanded" class="brief-info">
+        <div class="small-regular-text">{{ livingDates }}</div>
+        <div>
+          <span class="small-text">Connection Number: </span>
+          <span class="small-regular-text">{{ step_count }}</span>
+        </div>
+      </div>
+    </div>
+    <button
+      *ngIf="!direct && !expanded"
+      (click)="toggleExpandedHandler()"
+      class="btn chevron"
+    >
+      <fa-icon [icon]="faAngleDown" size="sm"></fa-icon>
+    </button>
   </div>
-  <div [ngClass]="[direct ? 'subtitle-text' : 'regular-text']">
-    {{ connection.profile && connection.profile.name }}
+  <div *ngIf="!direct && !expanded" class="relation small-text">
+    {{ relation }}
+    <app-gender-dot [gender]="gender" [inline]="false"></app-gender-dot>
   </div>
+</div>
+<div [ngClass]="direct ? 'direct' : 'indirect'">
+  <div *ngIf="drawArrowDown" class="arrow-down"></div>
 </div>

@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { relationPath } from 'src/app/app.constants';
 import { Category, getColor } from 'src/app/model/Category';
-import { LivingDetails } from 'src/app/model/Profile';
+import { Gender, LivingDetails } from 'src/app/model/Profile';
 import Relation from 'src/app/model/Relation';
 import { GeniService } from 'src/app/services/geni.service';
 
@@ -47,10 +47,10 @@ export class RelationCardComponent implements OnInit {
     this.collapsed = !this.collapsed;
   }
 
-  get gender(): string {
+  get gender(): Gender {
     return this.relation.profile && this.relation.profile.gender
       ? this.relation.profile.gender
-      : 'male';
+      : Gender.UNDEFINED;
   }
 
   get relationImgUlr(): string {

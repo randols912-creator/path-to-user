@@ -44,9 +44,10 @@ interface PhotoUrls {
   url?: string;
 }
 
-enum Gender {
+export enum Gender {
   MALE = 'male',
   FEMALE = 'female',
+  UNDEFINED = 'undefined',
 }
 
 export interface LivingDetails {
