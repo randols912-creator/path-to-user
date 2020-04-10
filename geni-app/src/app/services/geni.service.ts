@@ -17,21 +17,17 @@ declare var Geni: any;
 export class GeniService {
   private geni: any;
 
-  constructor(private http: HttpClient) {
-    // const geniConf = {
-    //   app_id: geniClientId,
-    //   access_token: tempToken(),
-    //   logging: true,
-    // };
-    // this.geni = Geni.init(geniConf);
-  }
+  constructor(private http: HttpClient) {}
 
   login(): void {
     window.location.href = geniOauthUrl;
   }
 
-  fetchProfile(profile: string): Observable<Profile> {
-    return this.http.jsonp<Profile>(`${geniApiUrl}/${profile}`, 'callback');
+  fetchProfile(profile: string, fields?: Array<string>): Observable<Profile> {
+    return this.http.jsonp<Profile>(
+      `${geniApiUrl}/${profile}${fields ? '?fields=' + fields.join(',') : ''}`,
+      'callback'
+    );
   }
 
   fetchProfileByLink(

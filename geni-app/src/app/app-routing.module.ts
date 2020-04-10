@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import {
   homePath,
   menuPath,
+  profilePath,
   relationPath,
   welcomePath,
   welcomeUrl,
@@ -10,6 +11,7 @@ import {
 import { AuthGuard } from './auth/auth.guard';
 import { HomeComponent } from './components/containers/home/home.component';
 import { MenuComponent } from './components/containers/menu/menu.component';
+import { ProfileComponent } from './components/containers/profile/profile.component';
 import { RelationComponent } from './components/containers/relation/relation.component';
 import { WelcomeComponent } from './components/containers/welcome/welcome.component';
 
@@ -31,6 +33,12 @@ const routes: Routes = [
     component: RelationComponent,
     canActivate: [AuthGuard],
   },
+  {
+    path: `${profilePath}/:id`,
+    component: ProfileComponent,
+    canActivate: [AuthGuard],
+  },
+
   { path: welcomePath, component: WelcomeComponent },
   { path: '**', redirectTo: welcomeUrl },
 ];

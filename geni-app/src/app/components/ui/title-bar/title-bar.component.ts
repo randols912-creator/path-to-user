@@ -32,6 +32,10 @@ export class TitleBarComponent implements OnInit {
     this.location.back();
   }
 
+  goToAllResults(): void {
+    this.router.navigate([homeUrl]);
+  }
+
   isMenu(): boolean {
     return this.router.url === menuUrl;
   }

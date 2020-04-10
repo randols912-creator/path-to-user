@@ -1,0 +1,19 @@
+<app-title-bar></app-title-bar>
+<div class="profile" *ngIf="profile">
+  <div class="profile-photo">
+    <img [src]="profilePhotoUrl" [alt]="profile.display_name" />
+  </div>
+  <div class="profile-details">
+    <h4 class="subtitle-text">{{ profile.display_name }}</h4>
+    <div class="birthdate">
+      <span class="light-grey-text">Birthdate:</span> {{ birthdate }}
+    </div>
+    <div class="birthplace">
+      <span class="light-grey-text">Birthplace:</span> {{ birthplace }}
+    </div>
+    <div class="about">
+      <span class="light-grey-text">About {{ fullname }}:</span><br />
+      {{ about }}
+    </div>
+  </div>
+</div>

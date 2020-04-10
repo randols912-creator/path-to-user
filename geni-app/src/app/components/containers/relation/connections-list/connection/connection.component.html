@@ -7,18 +7,23 @@
 >
   <div class="connection-badge" [ngClass]="{ expanded: expanded }">
     <div class="connection-photo">
-      <img
-        src="{{
-          relationImgUlr
-            ? relationImgUlr
-            : 'assets/img/gender-' + gender + '.svg'
-        }}"
-        alt="Photo"
-        [ngClass]="[
-          'gender-' + gender,
-          !relationImgUlr ? 'no-profile-photo' : 'profile-photo'
-        ]"
-      />
+      <a
+        [routerLink]="[profileUrl, connection.id]"
+        [state]="{ id: connection.id }"
+      >
+        <img
+          src="{{
+            relationImgUlr
+              ? relationImgUlr
+              : 'assets/img/gender-' + gender + '.svg'
+          }}"
+          alt="Photo"
+          [ngClass]="[
+            'gender-' + gender,
+            !relationImgUlr ? 'no-profile-photo' : 'profile-photo'
+          ]"
+        />
+      </a>
     </div>
     <div class="info-section">
       <div
@@ -28,7 +33,12 @@
           expanded ? 'info-section-upper' : ''
         ]"
       >
-        {{ connection.profile && connection.profile.name }}
+        <a
+          [routerLink]="[profileUrl, connection.id]"
+          [state]="{ id: connection.id }"
+        >
+          {{ connection.profile && connection.profile.name }}
+        </a>
       </div>
       <div *ngIf="!direct && expanded" class="small-text">
         {{ relation }}

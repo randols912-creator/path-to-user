@@ -1,5 +1,5 @@
-body,
 html,
+body,
 app-root {
   height: 100%;
 }
@@ -16,6 +16,10 @@ app-root {
   font-style: normal;
   font-weight: 400;
   src: url(assets/fonts/OpenSansHebrew-Regular.ttf) format('truetype');
+}
+
+html * {
+  font-family: Open Sans Hebrew;
 }
 
 .title-text {
@@ -96,4 +100,8 @@ app-root {
   border-left: 3px solid transparent;
   border-right: 3px solid transparent;
   border-top: 5px solid #9a9a9a;
+}
+
+.light-grey-text {
+  color: #878787;
 }

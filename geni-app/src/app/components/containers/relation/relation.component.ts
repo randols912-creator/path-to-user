@@ -23,7 +23,11 @@ export class RelationComponent implements OnInit {
   ngOnInit(): void {
     this.relationService
       .getRelation(this.route.snapshot.params.id)
-      .subscribe(relation => {
+      .subscribe((relation) => {
+        relation.profile_relations.forEach((relation) => {
+          const urlParts = relation.url.split('/');
+          relation.id = urlParts[urlParts.length - 1];
+        });
         this.relation = relation;
       });
   }

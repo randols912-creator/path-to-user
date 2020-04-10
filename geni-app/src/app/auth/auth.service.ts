@@ -27,7 +27,7 @@ export class AuthService {
     expires_in: string
   ): void {
     this.setToken(access_token, expires_in);
-    this.geni.fetchProfile(currentUserProfilePath).subscribe(profile => {
+    this.geni.fetchProfile(currentUserProfilePath).subscribe((profile) => {
       localStorage.setItem(
         currentUserProfileStorageKey,
         JSON.stringify(profile)

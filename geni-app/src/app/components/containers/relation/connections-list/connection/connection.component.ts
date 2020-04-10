@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { faAngleDown, faAngleUp } from '@fortawesome/free-solid-svg-icons';
+import { profileUrl } from 'src/app/app.constants';
 import { AuthService } from 'src/app/auth/auth.service';
 import { Gender, LivingDetails } from 'src/app/model/Profile';
 import Connection from 'src/app/model/ProfileRelation';
@@ -16,6 +17,7 @@ export class ConnectionComponent {
   @Input() direct?: boolean = false;
   @Input() isFinalIndirectConnection?: boolean = false;
   @Input() drawArrowDown?: boolean = false;
+  profileUrl = profileUrl;
 
   faAngleDown = faAngleDown;
   faAngleUp = faAngleUp;

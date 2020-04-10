@@ -19,10 +19,12 @@ export const homePath = '';
 export const welcomePath = 'welcome';
 export const menuPath = 'menu';
 export const relationPath = 'relation';
+export const profilePath = 'profile';
 
 export const homeUrl = `/${homePath}`;
 export const welcomeUrl = `/${welcomePath}`;
 export const menuUrl = `/${menuPath}`;
+export const profileUrl = `/${profilePath}`;
 
 export const welcomePhotos = [
   'assets/img/photos/photo_2.png',

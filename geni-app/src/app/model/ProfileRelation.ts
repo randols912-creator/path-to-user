@@ -5,4 +5,5 @@ export default interface Connection {
   relation: string;
   url: string;
   profile?: Profile;
+  id?: string;
 }

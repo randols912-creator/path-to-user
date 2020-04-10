@@ -8,6 +8,8 @@ export default interface Profile {
   middle_name?: string;
   maiden_name?: string;
   last_name?: string;
+  suffix?: string;
+  display_name?: string;
   name?: string;
   is_alive?: boolean;
   gender?: Gender;
@@ -31,6 +33,7 @@ export default interface Profile {
   created_at?: string;
   updated_at?: string;
   deleted?: boolean;
+  about_me?: string;
 }
 
 interface PhotoUrls {
@@ -52,11 +55,17 @@ export enum Gender {
 
 export interface LivingDetails {
   date: DateDetails;
+  location: PlaceDetails;
 }
 
-interface DateDetails {
+export interface DateDetails {
   day: number;
   month: number;
   year: number;
   formatted_date: string;
+}
+
+export interface PlaceDetails {
+  place_name: string;
+  formatted_location: string;
 }
