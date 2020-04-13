@@ -7,7 +7,6 @@ import { NgModule, Provider } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { ShowdownModule } from 'ngx-showdown';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AuthInterceptor } from './auth/auth.interceptor';
@@ -16,6 +15,7 @@ import { RelationCardComponent } from './components/containers/home/relations-li
 import { RelationsListComponent } from './components/containers/home/relations-list/relations-list.component';
 import { MenuComponent } from './components/containers/menu/menu.component';
 import { ProfileComponent } from './components/containers/profile/profile.component';
+import { ReadMoreFooterComponent } from './components/containers/profile/read-more-footer/read-more-footer.component';
 import { ConnectionComponent } from './components/containers/relation/connections-list/connection/connection.component';
 import { ConnectionsListComponent } from './components/containers/relation/connections-list/connections-list.component';
 import { GenderDotComponent } from './components/containers/relation/connections-list/gender-dot/gender-dot.component';
@@ -56,6 +56,7 @@ class JsonpInterceptorModule {}
     ConnectionComponent,
     GenderDotComponent,
     ProfileComponent,
+    ReadMoreFooterComponent,
   ],
   imports: [
     BrowserModule,
@@ -65,7 +66,6 @@ class JsonpInterceptorModule {}
     JsonpInterceptorModule, // Must be before the HttpClientJsonpModule to use interceptor
     HttpClientJsonpModule,
     FontAwesomeModule,
-    ShowdownModule,
   ],
   providers: [INTERCEPTOR_PROVIDER],
   bootstrap: [AppComponent],

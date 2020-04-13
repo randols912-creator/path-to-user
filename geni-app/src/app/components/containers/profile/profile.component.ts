@@ -3,6 +3,8 @@ import { ActivatedRoute } from '@angular/router';
 import Profile from 'src/app/model/Profile';
 import { GeniService } from 'src/app/services/geni.service';
 
+declare var Wiky: any;
+
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
@@ -49,7 +51,7 @@ export class ProfileComponent implements OnInit {
   }
 
   get about(): string {
-    return this.profile.about_me;
+    return Wiky.toHtml(this.profile.about_me);
   }
 
   get fullname(): string {

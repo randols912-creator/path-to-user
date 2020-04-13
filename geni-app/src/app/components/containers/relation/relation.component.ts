@@ -24,10 +24,13 @@ export class RelationComponent implements OnInit {
     this.relationService
       .getRelation(this.route.snapshot.params.id)
       .subscribe((relation) => {
-        relation.profile_relations.forEach((relation) => {
-          const urlParts = relation.url.split('/');
-          relation.id = urlParts[urlParts.length - 1];
-        });
+        if (relation.profile_relations) {
+          relation.profile_relations.forEach((relation) => {
+            const urlParts = relation.url.split('/');
+            relation.id = urlParts[urlParts.length - 1];
+          });
+        }
+
         this.relation = relation;
       });
   }

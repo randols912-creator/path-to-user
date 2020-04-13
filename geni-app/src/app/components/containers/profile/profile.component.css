@@ -1,26 +1,32 @@
-.profile {
-  font-size: 4.375vw;
+.profile ::ng-deep * {
+  font-size: 14px;
+  line-height: 16px;
 }
 
 .profile .profile-photo {
-  width: 100%;
-  height: 93.75vw;
-  overflow: hidden;
+  width: 320px;
+  height: 300px;
+  overflow-y: hidden;
 }
 
 .profile .profile-photo img {
-  width: 100%;
+  width: inherit;
 }
 
 .profile .profile-details {
-  padding: 4.688vw 3.125vw;
+  padding: 14px 10px;
 }
 
 .profile .profile-details * {
-  margin-bottom: 4.063vw;
+  margin-bottom: 13px;
 }
 
 .profile .profile-details h4 {
-  margin-bottom: 3.109vw;
   font-weight: bold;
+}
+
+.profile .about ::ng-deep p {
+  margin-bottom: 5px;
+  text-align: justify;
+  word-wrap: break-word;
 }
