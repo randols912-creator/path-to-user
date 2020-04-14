@@ -31,7 +31,10 @@ export class ProfileComponent implements OnInit {
   }
 
   get profilePhotoUrl(): string {
-    return this.profile.photo_urls && this.profile.photo_urls.large;
+    return (
+      this.profile.photo_urls &&
+      (this.profile.photo_urls.large || this.profile.photo_urls.medium)
+    );
   }
 
   get birthdate(): string {
