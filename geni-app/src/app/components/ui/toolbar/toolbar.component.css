@@ -5,14 +5,6 @@
   padding: 0 3vw;
 }
 
-.left-section button {
-  margin: 0 22px 0 0;
-}
-
-.left-section button:last-child img {
-  height: 9px;
-}
-
 img {
   margin-right: 4px;
   height: 11px;
