@@ -4,8 +4,8 @@
 }
 
 .profile .profile-photo {
-  width: 320px;
-  height: 300px;
+  width: 100%;
+  height: 50vh;
   overflow-y: hidden;
 }
 
