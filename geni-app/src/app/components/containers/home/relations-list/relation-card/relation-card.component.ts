@@ -70,18 +70,18 @@ export class RelationCardComponent implements OnInit {
       deathYear = '';
 
     if (this.relation.profile) {
-      if (this.relation.profile.birth) {
+      if (this.relation.profile.birth && this.relation.profile.birth.date) {
         const birth: LivingDetails = this.relation.profile.birth;
         birthYear = `${birth.date.year}`;
       }
 
-      if (this.relation.profile.death) {
+      if (this.relation.profile.death && this.relation.profile.death.date) {
         const death: LivingDetails = this.relation.profile.death;
-        deathYear = `${death.date.year}`;
+        deathYear = ` - ${death.date.year}`;
       }
     }
 
-    return `${birthYear}${deathYear ? ' - ' + deathYear : ''}`;
+    return `${birthYear}${deathYear}`;
   }
 
   get nicknames(): string {
