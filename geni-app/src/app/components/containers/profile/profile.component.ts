@@ -18,7 +18,7 @@ export class ProfileComponent implements OnInit {
   ngOnInit(): void {
     this.geni
       .fetchProfile(this.route.snapshot.params.id, [
-        'display_name',
+        'name',
         'first_name',
         'last_name',
         'photo_urls',
@@ -55,6 +55,8 @@ export class ProfileComponent implements OnInit {
   }
 
   get fullname(): string {
-    return `${this.profile.first_name} ${this.profile.last_name}`;
+    return this.profile.first_name && this.profile.last_name
+      ? `${this.profile.first_name} ${this.profile.last_name}`
+      : this.profile.name;
   }
 }

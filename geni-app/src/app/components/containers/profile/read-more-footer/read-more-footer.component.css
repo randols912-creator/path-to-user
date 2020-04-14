@@ -1,12 +1,14 @@
 .read-more-footer {
   background-color: #f3f3f3;
   padding: 11px 10px;
+  display: flex;
+  justify-content: center;
 }
 
 .read-more-footer .logo {
   display: inline-block;
   height: 42px;
-  margin-right: 6px;
+  margin-right: 10px;
 }
 
 .read-more-footer a {
