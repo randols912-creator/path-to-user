@@ -21,7 +21,7 @@ export class HomeComponent implements OnInit {
     if (!this.relations.length) {
       this.status = Status.SEARCHING;
       this.relationService.init().subscribe(
-        isEmptyUserProfile => {
+        (isEmptyUserProfile) => {
           if (isEmptyUserProfile) {
             console.log('Source or target profiles are empty');
             this.relationService.setupNewUserProfile();
@@ -29,7 +29,7 @@ export class HomeComponent implements OnInit {
             this.status = Status.READY;
           }
         },
-        reason => {
+        (reason) => {
           console.error(reason);
           this.status = Status.ERROR;
         }
@@ -46,7 +46,7 @@ export class HomeComponent implements OnInit {
   }
 
   get loading(): boolean {
-    return this.relationService.isLoading();
+    return this.status === Status.SEARCHING;
   }
 }
 

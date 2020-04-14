@@ -13,12 +13,8 @@ export class MenuComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  logoutHandler(name: string, realy = true): void {
-    console.log(`${name} clicked`); // TODO - remove in the end
-
-    if (realy) {
-      this.auth.logout();
-      this.router.navigate([welcomeUrl]);
-    }
+  logoutHandler(): void {
+    this.auth.logout();
+    this.router.navigate([welcomeUrl]);
   }
 }

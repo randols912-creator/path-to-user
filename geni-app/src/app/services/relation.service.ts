@@ -27,13 +27,13 @@ export class RelationService {
   constructor(private http: HttpClient) {}
 
   init(): Observable<boolean> {
-    return new Observable<boolean>(observer => {
+    return new Observable<boolean>((observer) => {
       this.http.get<RelationServiceResponse>(fetchRelationsUrl).subscribe(
-        resp => {
-          this.relations = resp.targets.slice(0, 50); // TODO temp
+        (resp) => {
+          this.relations = resp.targets;
           observer.next(isEmptyUserProfile(resp));
         },
-        reason => {
+        (reason) => {
           this.relations = [];
           observer.error(reason);
         }
@@ -47,7 +47,7 @@ export class RelationService {
 
   private fetchAll(): void {
     this.http.get<RelationServiceResponse>(fetchRelationsUrl).subscribe(
-      resp => {
+      (resp) => {
         if (
           this.intervalSub &&
           !this.intervalSub.closed &&
@@ -57,13 +57,13 @@ export class RelationService {
         }
 
         resp.targets
-          .filter(next => !this.uniqueIds.has(next.id))
-          .forEach(next => {
+          .filter((next) => !this.uniqueIds.has(next.id))
+          .forEach((next) => {
             this.uniqueIds.add(next.id);
             this.relations.push(next);
           });
       },
-      reason => {
+      (reason) => {
         console.error(reason);
       }
     );
@@ -71,7 +71,7 @@ export class RelationService {
 
   private triggerBackendWorkers(): void {
     console.log('Backend workers triggered!');
-    this.http.post(fetchRelationsUrl, {}).subscribe(resp => {
+    this.http.post(fetchRelationsUrl, {}).subscribe((resp) => {
       console.log(resp);
       this.toggleIntervalFetch(true);
     });
@@ -89,14 +89,14 @@ export class RelationService {
   }
 
   getRelation(id: string): Observable<Relation> {
-    return new Observable<Relation>(observer => {
+    return new Observable<Relation>((observer) => {
       if (!this.relations.length) {
         this.init().subscribe(() => {
-          const filtered = this.relations.filter(next => next.id === id);
+          const filtered = this.relations.filter((next) => next.id === id);
           observer.next(filtered && filtered[0]);
         });
       } else {
-        const filtered = this.relations.filter(next => next.id === id);
+        const filtered = this.relations.filter((next) => next.id === id);
         observer.next(filtered && filtered[0]);
       }
     });
@@ -104,9 +104,5 @@ export class RelationService {
 
   getRelations(): Array<Relation> {
     return this.relations;
-  }
-
-  isLoading(): boolean {
-    return;
   }
 }

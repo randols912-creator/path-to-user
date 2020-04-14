@@ -13,6 +13,7 @@ import { RelationService } from 'src/app/services/relation.service';
 })
 export class RelationComponent implements OnInit {
   relation: Relation;
+  loading: boolean;
 
   constructor(
     private relationService: RelationService,

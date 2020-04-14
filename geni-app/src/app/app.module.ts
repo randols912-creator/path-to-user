@@ -22,6 +22,7 @@ import { GenderDotComponent } from './components/containers/relation/connections
 import { RelationComponent } from './components/containers/relation/relation.component';
 import { WelcomeComponent } from './components/containers/welcome/welcome.component';
 import { InfoBarComponent } from './components/ui/info-bar/info-bar.component';
+import { SpinnerComponent } from './components/ui/spinner/spinner.component';
 import { TitleBarComponent } from './components/ui/title-bar/title-bar.component';
 import { ToolbarComponent } from './components/ui/toolbar/toolbar.component';
 
@@ -57,6 +58,7 @@ class JsonpInterceptorModule {}
     GenderDotComponent,
     ProfileComponent,
     ReadMoreFooterComponent,
+    SpinnerComponent,
   ],
   imports: [
     BrowserModule,

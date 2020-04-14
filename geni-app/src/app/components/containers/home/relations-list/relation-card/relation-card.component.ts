@@ -37,7 +37,7 @@ export class RelationCardComponent implements OnInit {
           'death',
           'nicknames',
         ])
-        .subscribe(profile => {
+        .subscribe((profile) => {
           this.relation.profile = profile;
         });
     }
@@ -62,19 +62,7 @@ export class RelationCardComponent implements OnInit {
   }
 
   get relationFullname(): string {
-    let full_name: string = this.relation.profile_name;
-
-    // TODO - some fullname logic?
-    // if (this.relation.profile) {
-    //   const { first_name, middle_name, last_name } = this.relation.profile;
-    //   full_name = `${first_name}${middle_name ? ' ' + middle_name : ''}${
-    //     last_name ? ' ' + last_name : ''
-    //   }`;
-    // } else {
-    //   full_name = this.relation.profile_name;
-    // }
-
-    return full_name;
+    return this.relation.profile_name;
   }
 
   get livingDates(): string {
@@ -98,7 +86,7 @@ export class RelationCardComponent implements OnInit {
 
   get nicknames(): string {
     return this.relation.profile && this.relation.profile.nicknames
-      ? this.relation.profile.nicknames.map(n => `"${n}"`).join(', ')
+      ? this.relation.profile.nicknames.map((n) => `"${n}"`).join(', ')
       : '';
   }
 

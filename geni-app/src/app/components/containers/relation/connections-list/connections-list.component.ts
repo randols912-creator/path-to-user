@@ -19,13 +19,13 @@ export class ConnectionsListComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.connections && this.connections.length) {
-      const unitializedConnections = this.connections.filter(c => !c.profile);
+      const unitializedConnections = this.connections.filter((c) => !c.profile);
 
       if (unitializedConnections.length) {
         this.loading = true;
 
         forkJoin(
-          unitializedConnections.map(c =>
+          unitializedConnections.map((c) =>
             this.geni.fetchProfileByLink(c.url, [
               'gender',
               'name',
@@ -34,7 +34,7 @@ export class ConnectionsListComponent implements OnInit {
               'death',
             ])
           )
-        ).subscribe(profiles => {
+        ).subscribe((profiles) => {
           for (let i = 0; i < unitializedConnections.length; i++) {
             const element = unitializedConnections[i];
             element.profile = profiles[i];

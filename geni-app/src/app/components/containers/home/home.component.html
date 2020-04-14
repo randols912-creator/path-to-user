@@ -13,4 +13,5 @@
   </app-info-bar>
 </div>
 <app-toolbar [user]="user" [relations]="relations"></app-toolbar>
+<app-spinner *ngIf="loading"></app-spinner>
 <app-relations-list [relations]="relations"></app-relations-list>
