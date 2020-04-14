@@ -87,6 +87,7 @@ html * {
 .general-link {
   text-decoration: underline;
   color: #353535;
+  padding: 0;
 }
 
 .btn-link:hover {
