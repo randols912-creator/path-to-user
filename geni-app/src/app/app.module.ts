@@ -28,6 +28,7 @@ import { InfoBarComponent } from './components/ui/info-bar/info-bar.component';
 import { SpinnerComponent } from './components/ui/spinner/spinner.component';
 import { TitleBarComponent } from './components/ui/title-bar/title-bar.component';
 import { ToolbarComponent } from './components/ui/toolbar/toolbar.component';
+import { RelationsSortByPipe } from './pipes/relations-sort-by.pipe';
 
 const INTERCEPTOR_PROVIDER: Provider = {
   provide: HTTP_INTERCEPTORS,
@@ -65,6 +66,7 @@ class JsonpInterceptorModule {}
     ProfileComponent,
     ReadMoreFooterComponent,
     SpinnerComponent,
+    RelationsSortByPipe,
   ],
   imports: [
     BrowserModule,
