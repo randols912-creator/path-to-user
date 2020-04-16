@@ -9,11 +9,3 @@ img {
   margin-right: 4px;
   height: 11px;
 }
-
-button {
-  padding: 0;
-}
-
-button:focus {
-  box-shadow: none;
-}

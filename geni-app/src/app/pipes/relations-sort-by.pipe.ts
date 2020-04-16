@@ -11,12 +11,23 @@ const compareByStepCount = (a: Relation, b: Relation): number =>
   name: 'relationsSortBy',
 })
 export class RelationsSortByPipe implements PipeTransform {
-  transform(relations: Relation[], key: string = ''): Relation[] {
+  constructor() {}
+
+  transform(
+    relations: Relation[],
+    order: RelationSortOrder = RelationSortOrder.DEFAULT
+  ): Relation[] {
     if (!relations.length) {
       return relations;
     }
 
-    switch (key) {
+    switch (order) {
+      case RelationSortOrder.NAME:
+        return [
+          ...relations.sort((a: Relation, b: Relation) =>
+            compareByProfileName(a, b)
+          ),
+        ];
       default:
         return [
           ...relations
@@ -32,4 +43,11 @@ export class RelationsSortByPipe implements PipeTransform {
         ];
     }
   }
+}
+
+export enum RelationSortOrder {
+  DEFAULT,
+  NAME,
+  THEME,
+  COUNTRY,
 }

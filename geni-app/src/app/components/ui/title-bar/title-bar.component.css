@@ -2,6 +2,11 @@ h4 {
   margin: 0;
 }
 
+img {
+  height: 11px;
+  margin-right: 4px;
+}
+
 .title-bar {
   height: 6.1vh;
   border: 1px solid #efefef;
@@ -33,11 +38,13 @@ button:focus {
 
 .icon-container-left {
   min-width: 75px;
-  display: flex;
-  justify-content: flex-start;
 }
 
-.icon-container-left .small-text {
+.icon-container-left a {
+  margin-left: 13px;
+}
+
+.icon-container-left .btn.btn-lnk.small-text {
   padding-left: 10px;
   color: #535453;
   font-weight: bold;
@@ -48,4 +55,8 @@ button:focus {
   min-width: 75px;
   display: flex;
   justify-content: flex-end;
+}
+
+.active-settings-action {
+  border-bottom: 3px solid #ff9e1e;
 }

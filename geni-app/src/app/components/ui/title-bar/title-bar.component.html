@@ -1,21 +1,44 @@
 <div class="title-bar">
   <div class="icon-container-left">
-    <button *ngIf="isMenu()" (click)="goToPreviousLocation()" class="btn">
+    <button *ngIf="showGoBack" (click)="location.back()" class="btn">
       <img class="close-menu-icon" src="assets/img/x.svg" alt="" />
     </button>
     <button
-      *ngIf="!isMenu() && !isHome()"
+      *ngIf="showGoToAllResultsButton"
+      (click)="goToAllResults()"
+      class="btn"
+    >
+      <img class="close-menu-icon" src="assets/img/x.svg" alt="" />
+    </button>
+    <button
+      *ngIf="showGoToAllResultsText"
       (click)="goToAllResults()"
       class="btn btn-lnk small-text"
     >
       to all results
     </button>
+    <a
+      *ngIf="showSettings"
+      [ngClass]="{ 'active-settings-action': settingsAction === 'sort' }"
+      [routerLink]="[settingsUrl, { action: 'sort' }]"
+    >
+      <img src="assets/img/sort.svg" alt="" />
+      <span class="small-text">Sort by</span>
+    </a>
+    <a
+      *ngIf="showSettings"
+      [ngClass]="{ 'active-settings-action': settingsAction === 'search' }"
+      [routerLink]="[settingsUrl, { action: 'search' }]"
+    >
+      <img src="assets/img/search.svg" alt="" />
+      <span class="small-text">Search</span>
+    </a>
   </div>
-  <div class="title">
+  <div *ngIf="showTitle" class="title">
     <h4 class="accent-text">MJP & ME</h4>
   </div>
   <div class="icon-container-right">
-    <button *ngIf="!isMenu()" class="btn" (click)="gotoMenuHandler()">
+    <button *ngIf="showMenu" class="btn" (click)="gotoMenuHandler()">
       <img class="open-menu-icon" src="assets/img/menu.svg" alt="" />
     </button>
   </div>

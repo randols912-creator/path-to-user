@@ -5,6 +5,7 @@ import {
   menuPath,
   profilePath,
   relationPath,
+  settingsPath,
   welcomePath,
   welcomeUrl,
 } from './app.constants';
@@ -13,6 +14,7 @@ import { HomeComponent } from './components/containers/home/home.component';
 import { MenuComponent } from './components/containers/menu/menu.component';
 import { ProfileComponent } from './components/containers/profile/profile.component';
 import { RelationComponent } from './components/containers/relation/relation.component';
+import { SettingsComponent } from './components/containers/settings/settings.component';
 import { WelcomeComponent } from './components/containers/welcome/welcome.component';
 
 const routes: Routes = [
@@ -38,7 +40,11 @@ const routes: Routes = [
     component: ProfileComponent,
     canActivate: [AuthGuard],
   },
-
+  {
+    path: `${settingsPath}`,
+    component: SettingsComponent,
+    canActivate: [AuthGuard],
+  },
   { path: welcomePath, component: WelcomeComponent },
   { path: '**', redirectTo: welcomeUrl },
 ];

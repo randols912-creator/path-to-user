@@ -1,4 +1,4 @@
-<app-title-bar></app-title-bar>
+<app-title-bar [showGoToAllResultsText]="true"></app-title-bar>
 <div class="profile" *ngIf="profile">
   <div *ngIf="profilePhotoUrl" class="profile-photo">
     <img [src]="profilePhotoUrl" [alt]="profile.display_name" />

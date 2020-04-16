@@ -1,6 +1,6 @@
 <div class="relations-list">
   <app-relation-card
     [relation]="relation"
-    *ngFor="let relation of relations | relationsSortBy"
+    *ngFor="let relation of relations | relationsSortBy: sortOrder"
   ></app-relation-card>
 </div>

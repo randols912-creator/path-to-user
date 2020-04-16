@@ -4,6 +4,7 @@ import {
   HTTP_INTERCEPTORS,
 } from '@angular/common/http';
 import { NgModule, Provider } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -20,6 +21,8 @@ import { ConnectionComponent } from './components/containers/relation/connection
 import { ConnectionsListComponent } from './components/containers/relation/connections-list/connections-list.component';
 import { GenderDotComponent } from './components/containers/relation/connections-list/gender-dot/gender-dot.component';
 import { RelationComponent } from './components/containers/relation/relation.component';
+import { SettingsComponent } from './components/containers/settings/settings.component';
+import { SortComponent } from './components/containers/settings/sort/sort.component';
 import { WelcomeBottomComponent } from './components/containers/welcome/welcome-bottom/welcome-bottom.component';
 import { WelcomeMiddleComponent } from './components/containers/welcome/welcome-middle/welcome-middle.component';
 import { WelcomeTopComponent } from './components/containers/welcome/welcome-top/welcome-top.component';
@@ -67,6 +70,8 @@ class JsonpInterceptorModule {}
     ReadMoreFooterComponent,
     SpinnerComponent,
     RelationsSortByPipe,
+    SettingsComponent,
+    SortComponent,
   ],
   imports: [
     BrowserModule,
@@ -76,6 +81,8 @@ class JsonpInterceptorModule {}
     JsonpInterceptorModule, // Must be before the HttpClientJsonpModule to use interceptor
     HttpClientJsonpModule,
     FontAwesomeModule,
+    FormsModule,
+    ReactiveFormsModule,
   ],
   providers: [INTERCEPTOR_PROVIDER],
   bootstrap: [AppComponent],

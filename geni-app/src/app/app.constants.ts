@@ -10,6 +10,7 @@ export const currentUserProfilePath = 'profile';
 export const geniTokenStorageKey = 'gn-token';
 export const geniTokenExpiresStorageKey = 'gn-token-exp';
 export const currentUserProfileStorageKey = 'gn-user';
+export const appSettingsStorageKey = 'app-settings';
 
 export const fetchRelationsUrl = `${env.relationsServiceHost}/path-to-project`;
 export const geniTokenHeaderKey = 'geni-access-token';
@@ -20,11 +21,13 @@ export const welcomePath = 'welcome';
 export const menuPath = 'menu';
 export const relationPath = 'relation';
 export const profilePath = 'profile';
+export const settingsPath = 'settings';
 
 export const homeUrl = `/${homePath}`;
 export const welcomeUrl = `/${welcomePath}`;
 export const menuUrl = `/${menuPath}`;
 export const profileUrl = `/${profilePath}`;
+export const settingsUrl = `/${settingsPath}`;
 
 export const welcomePhotos = [
   'assets/img/photos/photo_2.png',

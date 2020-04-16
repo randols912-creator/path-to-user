@@ -1,5 +1,6 @@
+import { Location } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
-import Profile from 'src/app/model/Profile';
+import { settingsUrl } from 'src/app/app.constants';
 
 @Component({
   selector: 'app-toolbar',
@@ -7,14 +8,10 @@ import Profile from 'src/app/model/Profile';
   styleUrls: ['./toolbar.component.css'],
 })
 export class ToolbarComponent implements OnInit {
-  @Input() user: Profile;
-  @Input() relations: Array<any>;
+  @Input() spaceBetween: boolean = true;
+  settingsUrl = settingsUrl;
 
-  constructor() {}
+  constructor(public location: Location) {}
 
   ngOnInit(): void {}
-
-  dummyClickHandler(info: string): void {
-    console.log(info);
-  }
 }
