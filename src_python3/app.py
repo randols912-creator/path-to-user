@@ -31,6 +31,7 @@ def root_endpoint():
 def path_to_project_endpoint_get():
     geni_tokens = {'access_token': request.headers.get(GENI_ACCESS_TOKEN_HEADER_KEY)}
     user_profile_info, _ = geni_client.get_profile_details(geni_tokens)
+    logging.info(f"/path-to-project: getting user profile info: {user_profile_info}") 
     response: dict = get_user_relations(user_profile_info)
     response['workers_busy'] = not queue.empty() or sum([i.value for i in app.config['worker_busy_flags']]) > 0
 
@@ -123,6 +124,8 @@ def init_profiles(token):
 
 
 def status_watchdog(number, busy_flag):
+    logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.DEBUG)
+    logging.info(f"Starting watchdog {number}")
     # print to main stdout
     sys.stdout.flush()
 
