@@ -240,7 +240,9 @@ def save_profiles_relations(status, target_profiles, not_found_param=None):
 
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.DEBUG)
+    import multiprocessing_logging
 
+    multiprocessing_logging.install_mp_handler()
     queue = Queue()
     control_queue = Queue()
     control_queue.put([])
