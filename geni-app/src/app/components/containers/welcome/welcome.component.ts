@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { welcomePhotos } from 'src/app/app.constants';
+import { homePath, welcomePhotos } from 'src/app/app.constants';
 import { AuthService } from 'src/app/auth/auth.service';
 
 @Component({
@@ -13,9 +13,9 @@ export class WelcomeComponent implements OnInit {
 
   constructor(private authService: AuthService, private router: Router) {}
 
-  ngOnInit(): void {}
-
-  loginHandler(): void {
-    this.authService.login();
+  ngOnInit(): void {
+    if (this.authService.isAuthenticated) {
+      this.router.navigate([homePath]);
+    }
   }
 }

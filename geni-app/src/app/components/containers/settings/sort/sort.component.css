@@ -1,0 +1,32 @@
+.sort-settings-form {
+  padding: 26px 10px;
+}
+
+.sort-settings-option {
+  display: flex;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.sort-settings-option input {
+  height: 0;
+  width: 0;
+}
+
+.sort-settings-option .checkmark {
+  margin-right: 10px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border-color: #ececec;
+  opacity: 1;
+  background: transparent
+    radial-gradient(closest-side at 27% 26%, #ffffff 0%, #cecece 100%) 0% 0%
+    no-repeat padding-box;
+}
+
+.sort-settings-option .checkmark.active {
+  background: transparent
+    radial-gradient(closest-side at 27% 26%, #ffdba7 0%, #ff9e1e 100%) 0% 0%
+    no-repeat padding-box;
+}

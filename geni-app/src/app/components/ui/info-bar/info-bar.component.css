@@ -1,0 +1,8 @@
+.info-bar {
+  margin: 2vh 3vw;
+  text-align: center;
+}
+
+:host /deep/ b {
+  color: #353535;
+}

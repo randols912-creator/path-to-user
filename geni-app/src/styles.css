@@ -1,5 +1,5 @@
-body,
 html,
+body,
 app-root {
   height: 100%;
 }
@@ -16,6 +16,10 @@ app-root {
   font-style: normal;
   font-weight: 400;
   src: url(assets/fonts/OpenSansHebrew-Regular.ttf) format('truetype');
+}
+
+html * {
+  font-family: Open Sans Hebrew;
 }
 
 .title-text {
@@ -48,8 +52,14 @@ app-root {
   color: #878787;
 }
 
-.small-text {
+.small-regular-text {
   font: normal 11px Open Sans Hebrew;
+  letter-spacing: 0;
+  color: #000;
+}
+
+.small-text {
+  font: normal 10px Open Sans Hebrew;
   letter-spacing: 0;
   color: #353535;
 }
@@ -60,4 +70,39 @@ app-root {
   height: 1vh;
   margin-left: auto;
   margin-right: auto;
+}
+
+.gender-male {
+  background-color: #47c3d3;
+}
+
+.gender-female {
+  background-color: #cb5947;
+}
+
+.gender-undefined {
+  background-color: #45a80b;
+}
+
+.general-link {
+  text-decoration: underline;
+  color: #353535;
+  padding: 0;
+}
+
+.btn-link:hover {
+  color: unset;
+}
+
+.arrow-down {
+  margin: auto;
+  width: 0;
+  height: 0;
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-top: 5px solid #9a9a9a;
+}
+
+.light-grey-text {
+  color: #878787;
 }

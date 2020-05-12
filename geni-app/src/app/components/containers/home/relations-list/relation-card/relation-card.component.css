@@ -1,0 +1,89 @@
+.relation-card {
+  padding: 2vh 3vw;
+  border-bottom: 1px solid #9a9a9a;
+}
+
+a {
+  color: #000;
+}
+
+.photo-section {
+  display: inline-block;
+  width: 35%;
+}
+
+.info-section {
+  width: 65%;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.info-section-upper {
+  min-height: 65px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.categories {
+  vertical-align: bottom;
+}
+
+.brief-info {
+  border-top: 1px dashed #c9c9c9;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.brief-info * {
+  color: #000000;
+}
+
+.brief-info .small-text {
+  color: #878787;
+}
+
+.info-section .fullname {
+  font: normal 15px/20px Open Sans Hebrew;
+  letter-spacing: 0;
+  color: #000000;
+}
+
+.collapsed {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.photo-section img {
+  height: 90px;
+  width: 90px;
+  border-radius: 50%;
+}
+
+.profile-photo {
+  object-fit: cover;
+}
+
+.no-profile-photo {
+  padding: 15px;
+  object-fit: contain;
+}
+
+.chevron {
+  padding: 0;
+  margin: 0;
+  float: right;
+}
+
+.chevron:focus {
+  box-shadow: none;
+}
+
+.category {
+  display: inline-block;
+  border-radius: 9px;
+  color: #535453;
+  padding: 0 5px;
+}

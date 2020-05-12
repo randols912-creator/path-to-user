@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import {
+  currentUserProfilePath,
   currentUserProfileStorageKey,
   geniTokenExpiresStorageKey,
   geniTokenStorageKey,
@@ -26,7 +27,7 @@ export class AuthService {
     expires_in: string
   ): void {
     this.setToken(access_token, expires_in);
-    this.geni.fetchCurrentUserProfile().subscribe(profile => {
+    this.geni.fetchProfile(currentUserProfilePath).subscribe((profile) => {
       localStorage.setItem(
         currentUserProfileStorageKey,
         JSON.stringify(profile)

@@ -1,1 +1,10 @@
-<h1>toolbar</h1>
+<div class="toolbar">
+  <a [routerLink]="[settingsUrl, { action: 'sort' }]">
+    <img src="assets/img/sort.svg" alt="" />
+    <span class="small-text">Sort by</span>
+  </a>
+  <a [routerLink]="[settingsUrl, { action: 'search' }]">
+    <img src="assets/img/search.svg" alt="" />
+    <span class="small-text">Search</span>
+  </a>
+</div>

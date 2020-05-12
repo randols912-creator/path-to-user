@@ -9,7 +9,7 @@ import {
 } from '@angular/animations';
 
 export const routeChangeAnimation = trigger('routeChangeAnimation', [
-  transition('home => menu', [
+  transition('* => menu', [
     query(':enter, :leave', [
       style({
         position: 'absolute',
@@ -29,7 +29,7 @@ export const routeChangeAnimation = trigger('routeChangeAnimation', [
     ]),
     query(':enter', animateChild()),
   ]),
-  transition('menu => home', [
+  transition('menu => *', [
     query(':enter, :leave', [
       style({
         position: 'absolute',

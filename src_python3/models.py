@@ -12,6 +12,7 @@ class GeniProfiles(db.Model):
     profile_name = db.Column(db.String(255))
     profile_details_link = db.Column(db.String(255))
     is_user = db.Column(db.Boolean, default=True)
+    # TODO profile_details = db.Column(db.JSON)
 
 
 class ProfileToProfile(db.Model):

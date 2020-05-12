@@ -1,0 +1,40 @@
+.connection-list {
+  margin: 1vh 3vw;
+}
+
+.flex-box {
+  padding: 10px 0;
+  margin-bottom: 15px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.flex-box > * {
+  margin: 3px 4px;
+}
+
+.link-box {
+  text-align: center;
+}
+
+.connections-count-badge {
+  background-color: #47c3d3;
+  border-radius: 50%;
+  display: inline-block;
+  width: 26px;
+  height: 26px;
+  padding: 3px;
+}
+
+.subtitle-text {
+  font-weight: bold;
+}
+
+.arrow-down {
+  margin: auto;
+  width: 0;
+  height: 0;
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-top: 5px solid #9a9a9a;
+}

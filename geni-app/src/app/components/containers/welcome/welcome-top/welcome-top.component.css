@@ -1,0 +1,27 @@
+.welcome-top {
+  height: auto;
+  margin-top: 5.8vh;
+}
+
+.welcome-top > h1 {
+  margin-bottom: 0;
+  text-align: center;
+}
+
+.welcome-top > h4 {
+  margin-top: 5.2vh;
+  margin-bottom: 0;
+  text-align: center;
+}
+
+.welcome-top > .circles-separator {
+  margin-top: 2.9vh;
+}
+
+.welcome-top > p {
+  text-align: center;
+  margin-left: 3.1vw;
+  margin-right: 3.1vw;
+  margin-top: 5.2vh;
+  margin-bottom: 5.2vh;
+}

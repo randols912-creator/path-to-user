@@ -1,0 +1,28 @@
+.settings ::ng-deep .title-bar {
+  background: #fff 0% 0% no-repeat padding-box;
+  box-shadow: 0px 3px 3px #00000029;
+}
+
+.settings ::ng-deep .title-bar a:hover {
+  text-decoration: none;
+}
+
+.settings .finish-button {
+  padding: 0;
+  margin: 0;
+  border: none;
+  width: 100%;
+
+  position: absolute;
+  bottom: 0;
+  left: 0;
+
+  font: Bold 16px Open Sans Hebrew;
+  line-height: 32px;
+  letter-spacing: 0;
+
+  background-color: unset;
+  background: transparent linear-gradient(263deg, #ffdba7 0%, #ff9e1e 100%) 0%
+    0% no-repeat padding-box;
+  opacity: 1;
+}

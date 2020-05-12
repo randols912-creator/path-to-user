@@ -1,0 +1,142 @@
+.connection {
+  margin: 12px 0 12px;
+}
+
+.connection * {
+  color: #333;
+}
+
+.connection .connection-badge {
+  line-height: 0;
+  border-radius: 35px;
+}
+
+.indirect .connection-badge {
+  display: inline-block;
+  width: 70%;
+}
+
+.indirect .connection-badge.expanded {
+  display: inline-block;
+  width: 100%;
+}
+
+.connection-male .connection-badge {
+  background-color: #c0edf3;
+}
+
+.connection-female .connection-badge {
+  background-color: #f2d7d2;
+}
+
+.connection-undefined .connection-badge {
+  background-color: #a8ff76;
+}
+
+.profile-photo {
+  object-fit: cover;
+}
+
+.connection-photo {
+  display: inline-block;
+  margin-right: 5px;
+}
+
+.connection-photo img {
+  border-radius: 50%;
+}
+
+.direct .connection-photo img {
+  width: 42px;
+  height: 42px;
+}
+
+.indirect .connection-photo img {
+  width: 20px;
+  height: 20px;
+}
+
+.indirect .expanded .connection-photo img {
+  width: 68px;
+  height: 68px;
+}
+
+.no-profile-photo {
+  padding: 3px;
+  object-fit: contain;
+}
+
+.indirect .name-section {
+  width: 100%;
+  vertical-align: middle;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.indirect .expanded .name-section {
+  width: 95%;
+  white-space: normal;
+  vertical-align: top;
+  margin-top: 2px;
+}
+
+.name-section {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.chevron {
+  line-height: 0;
+  padding: 3px 7px 3px 7px;
+  float: right;
+  border: 0;
+  margin: 0;
+}
+
+.chevron:focus {
+  box-shadow: none;
+}
+
+.relation {
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-left: 3.5%;
+  width: 25%;
+}
+
+.indirect .arrow-down {
+  margin-left: 30%;
+}
+
+.direct .info-section {
+  width: 80%;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.indirect .info-section {
+  width: 72%;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.indirect .expanded .info-section {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.info-section-upper {
+  min-height: 35px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.brief-info {
+  border-top: 1px dashed #707070;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}

@@ -1,0 +1,11 @@
+<div class="settings">
+  <app-title-bar
+    [settingsAction]="action"
+    [showGoToAllResultsButton]="true"
+    [showSettings]="true"
+    [showTitle]="false"
+    [showMenu]="false"
+  ></app-title-bar>
+  <app-sort *ngIf="action === 'sort'"></app-sort>
+  <button class="finish-button" (click)="goToAllResults()">Finish</button>
+</div>

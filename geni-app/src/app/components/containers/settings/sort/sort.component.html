@@ -1,0 +1,18 @@
+<form class="sort-settings-form" [formGroup]="sortForm">
+  <label
+    for="sortOption{{ i }}"
+    *ngFor="let option of sortOrderOptions; let i = index"
+    class="sort-settings-option subtitle-text"
+    ><span
+      [ngClass]="{ active: sortForm.value.sortOrder === i }"
+      class="checkmark"
+    ></span>
+    {{ option }}
+    <input
+      formControlName="sortOrder"
+      type="radio"
+      [value]="i"
+      id="sortOption{{ i }}"
+    />
+  </label>
+</form>

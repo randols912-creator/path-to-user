@@ -1,0 +1,15 @@
+<app-title-bar [showGoToAllResultsText]="true"> </app-title-bar>
+<div *ngIf="relation">
+  <app-info-bar *ngIf="user">
+    <div class="small-text">
+      <b>{{ relation.profile_name }}</b> is
+      <span *ngIf="!relation.profile_relations">not related to </span
+      ><b>{{ user.name }}</b>
+      <span
+        *ngIf="relation.profile_relations && relation.profile_relations.length"
+        ><b>'s</b> {{ relation.profiles_relationship }}</span
+      >
+    </div>
+  </app-info-bar>
+  <app-connections-list [connections]="connections"></app-connections-list>
+</div>

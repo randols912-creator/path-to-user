@@ -1,26 +1,15 @@
-<app-title-bar
-  [icons]="['close']"
-  (onToggleMenu)="goToPreviousLocation()"
-></app-title-bar>
+<app-title-bar [showMenu]="false" [showGoBack]="true"></app-title-bar>
 <div class="menu-container">
-  <button
-    (click)="logoutHandler(false)"
-    type="button"
-    class="btn btn-link bigger-text"
-  >
+  <button type="button" class="btn btn-link bigger-text">
     עברית
   </button>
   <img src="assets/img/lineOfCircles.svg" class="circles-separator" />
-  <button
-    (click)="logoutHandler(false)"
-    type="button"
-    class="btn btn-link bigger-text"
-  >
+  <button type="button" class="btn btn-link bigger-text">
     About
   </button>
   <img src="assets/img/lineOfCircles.svg" class="circles-separator" />
   <button
-    (click)="logoutHandler(true)"
+    (click)="logoutHandler()"
     type="button"
     class="btn btn-link bigger-text"
   >

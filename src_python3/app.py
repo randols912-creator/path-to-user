@@ -118,6 +118,11 @@ def init_profiles(token):
             target_profile.profile_details_link = target['url']
             target_profile.is_user = False
 
+            # TODO
+            # profile_details: dict = geni_client.geni_api_call(target['url'], token)[0]
+            # [profile_details.pop(k) for k in ['api_errors', 'internal_errors', 'is_success']]
+            # target_profile.profile_details = profile_details
+
             db.session.add(target_profile)
 
     db.session.commit()

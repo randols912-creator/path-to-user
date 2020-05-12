@@ -1,0 +1,22 @@
+<app-title-bar [showGoToAllResultsText]="true"></app-title-bar>
+<div class="profile" *ngIf="profile">
+  <div *ngIf="profilePhotoUrl" class="profile-photo">
+    <img [src]="profilePhotoUrl" [alt]="profile.display_name" />
+  </div>
+  <div class="profile-details">
+    <h4 class="subtitle-text">
+      {{ fullname }}
+    </h4>
+    <div class="birthdate">
+      <span class="light-grey-text">Birthdate:</span> {{ birthdate }}
+    </div>
+    <div class="birthplace">
+      <span class="light-grey-text">Birthplace:</span> {{ birthplace }}
+    </div>
+    <div *ngIf="about" class="about">
+      <span class="light-grey-text">About {{ fullname }}:</span>
+      <div [innerHTML]="about"></div>
+    </div>
+  </div>
+  <app-read-more-footer [fullname]="fullname"></app-read-more-footer>
+</div>

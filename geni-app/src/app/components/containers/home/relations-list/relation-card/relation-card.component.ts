@@ -1,0 +1,96 @@
+import { Component, Input, OnInit } from '@angular/core';
+import { relationPath } from 'src/app/app.constants';
+import { Category, getColor } from 'src/app/model/Category';
+import { Gender, LivingDetails } from 'src/app/model/Profile';
+import Relation from 'src/app/model/Relation';
+import { GeniService } from 'src/app/services/geni.service';
+
+const randomCategory = (): Category => {
+  return Category[
+    Object.keys(Category)[
+      Math.floor(Math.random() * (Object.keys(Category).length - 1))
+    ]
+  ];
+};
+
+@Component({
+  selector: 'app-relation-card',
+  templateUrl: './relation-card.component.html',
+  styleUrls: ['./relation-card.component.css'],
+})
+export class RelationCardComponent implements OnInit {
+  @Input() relation: Relation;
+  collapsed: boolean = true;
+  // TODO - real categories?
+  categories: Array<Category> = [randomCategory()];
+  relationPath: string = relationPath;
+
+  constructor(private geni: GeniService) {}
+
+  ngOnInit(): void {
+    if (!this.relation.profile) {
+      this.geni
+        .fetchProfileByLink(this.relation.profile_link, [
+          'gender',
+          'photo_urls',
+          'birth',
+          'death',
+          'nicknames',
+        ])
+        .subscribe((profile) => {
+          this.relation.profile = profile;
+        });
+    }
+  }
+
+  collapseFullnameHandler(): void {
+    this.collapsed = !this.collapsed;
+  }
+
+  get gender(): Gender {
+    return this.relation.profile && this.relation.profile.gender
+      ? this.relation.profile.gender
+      : Gender.UNDEFINED;
+  }
+
+  get relationImgUlr(): string {
+    return (
+      this.relation.profile &&
+      this.relation.profile.photo_urls &&
+      this.relation.profile.photo_urls.medium
+    );
+  }
+
+  get relationFullname(): string {
+    return this.relation.profile_name;
+  }
+
+  get livingDates(): string {
+    let birthYear = '',
+      deathYear = '';
+
+    if (this.relation.profile) {
+      if (this.relation.profile.birth && this.relation.profile.birth.date) {
+        const birth: LivingDetails = this.relation.profile.birth;
+        birthYear = `${birth.date.year}`;
+      }
+
+      if (this.relation.profile.death && this.relation.profile.death.date) {
+        const death: LivingDetails = this.relation.profile.death;
+        deathYear = ` - ${death.date.year}`;
+      }
+    }
+
+    return `${birthYear}${deathYear}`;
+  }
+
+  get nicknames(): string {
+    return this.relation.profile && this.relation.profile.nicknames
+      ? this.relation.profile.nicknames.map((n) => `"${n}"`).join(', ')
+      : '';
+  }
+
+  categoryColor(category: Category): string {
+    return getColor(category);
+  }
+}
