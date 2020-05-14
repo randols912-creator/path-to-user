@@ -13,6 +13,9 @@ from geni_client import GeniClient
 
 app = Flask(__name__, static_folder='templates/')
 env = DotEnv(app)
+env.eval({
+    'SQLALCHEMY_ENGINE_OPTIONS': dict
+})
 CORS(app)
 
 db = SQLAlchemy(app)
