@@ -23,3 +23,5 @@ include/*
 env/
 
 **/Pipfile.lock
+**/.venv
+**/.vscode

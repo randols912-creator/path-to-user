@@ -42,16 +42,13 @@ def path_to_project_endpoint_get():
 def path_to_project_endpoint_post():
     geni_tokens = {'access_token': request.headers.get(GENI_ACCESS_TOKEN_HEADER_KEY)}
 
-    if models.GeniProfiles.query.count() == 0:
-        init_profiles(geni_tokens)
-
     user_profile_info, _ = geni_client.get_profile_details(geni_tokens)
     source_id = user_profile_info['focus']['id'].split('-')[-1]
     sources_list = control_queue.get()
 
     etalon_target_profiles = {
         record.profile_id: record.id
-        for record in models.GeniProfiles.query.filter_by(is_user=False).all()
+        for record in db.session.query(models.GeniProfiles).filter_by(is_user=False).all()
     }
 
     if source_id not in sources_list:
@@ -69,12 +66,24 @@ def path_to_project_endpoint_post():
     return jsonify({'result': 'Done'})
 
 
+@app.route('/profiles-count', methods=['GET'])
+def profiles_count():
+    return {'profiles_count': db.session.query(models.GeniProfiles).count()}
+
+
+@app.route('/init-profiles', methods=['POST'])
+def init_profiles_():
+    init_profiles(
+        {'access_token': request.headers.get(GENI_ACCESS_TOKEN_HEADER_KEY)}
+    )
+    return {'profiles_count': db.session.query(models.GeniProfiles).count()}
+
 def get_user_relations(user_profile_info):
     response = {
         'source': {},
         'targets': []
     }
-    user_obj = models.GeniProfiles.query.filter_by(
+    user_obj = db.session.query(models.GeniProfiles).filter_by(
         profile_id=user_profile_info['focus']['id'].split('-')[-1]
     ).first()
 
@@ -84,12 +93,12 @@ def get_user_relations(user_profile_info):
             'name': user_obj.profile_name,
             'profile_link': user_obj.profile_details_link
         })
-        relations = models.ProfileToProfile.query.filter_by(
+        relations = db.session.query(models.ProfileToProfile).filter_by(
             source_profile_id=user_obj.id
         ).all()
 
         for relation_obj in relations:
-            rel = models.GeniProfiles.query.filter_by(id=relation_obj.target_profile_id).first()
+            rel = db.session.query(models.GeniProfiles).filter_by(id=relation_obj.target_profile_id).first()
             response['targets'].append({
                 'id': f'profile-{rel.profile_id}',
                 'step_count': relation_obj.step_count,
@@ -107,7 +116,7 @@ def init_profiles(token):
     target_profiles, token = geni_client.get_target_profiles(token)
 
     for target in target_profiles:
-        exists_target = models.GeniProfiles.query.filter_by(
+        exists_target = db.session.query(models.GeniProfiles).filter_by(
             profile_id=target['id'].split('-')[-1]
         ).first()
 
@@ -137,7 +146,7 @@ def status_watchdog(number, busy_flag):
     #status_watchdog_kicker()
     etalon_target_profiles = {
         record.profile_id: record.id
-        for record in models.GeniProfiles.query.filter_by(is_user=False).all()
+        for record in db.session.query(models.GeniProfiles).filter_by(is_user=False).all()
     }
     source_info = None
     geni_token = None
@@ -208,7 +217,7 @@ def save_profiles_relations(status, target_profiles, not_found_param=None):
         source_profile_id = status['relations'][0]['url'].split('-')[-1]
         target_profile_id = status['relations'][-1]['url'].split('-')[-1]
 
-    source = models.GeniProfiles.query.filter_by(
+    source = db.session.query(models.GeniProfiles).filter_by(
         profile_id=source_profile_id
     ).first()
 
@@ -220,7 +229,7 @@ def save_profiles_relations(status, target_profiles, not_found_param=None):
         db.session.add(source)
         db.session.commit()
 
-    profile2profile = models.ProfileToProfile.query.filter_by(
+    profile2profile = db.session.query(models.ProfileToProfile).filter_by(
         source_profile_id=source.id,
         target_profile_id=target_profiles[target_profile_id]
     ).first()
