@@ -2,10 +2,10 @@ import { Pipe, PipeTransform } from '@angular/core';
 import Relation from '../model/Relation';
 
 const compareByProfileName = (a: Relation, b: Relation): number =>
-  `${a.profile.last_name ? a.profile.last_name : ''}${
+  `${a.profile.last_name ? a.profile.last_name : a.profile.maiden_name}${
     a.profile.first_name ? a.profile.first_name : a.profile_name
   }` >
-  `${b.profile.last_name ? b.profile.last_name : ''}${
+  `${b.profile.last_name ? b.profile.last_name : b.profile.maiden_name}${
     b.profile.first_name ? b.profile.first_name : b.profile_name
   }`
     ? 1
