@@ -2,7 +2,14 @@ import { Pipe, PipeTransform } from '@angular/core';
 import Relation from '../model/Relation';
 
 const compareByProfileName = (a: Relation, b: Relation): number =>
-  a.profile_name > b.profile_name ? 1 : -1;
+  `${a.profile.last_name ? a.profile.last_name : ''}${
+    a.profile.first_name ? a.profile.first_name : a.profile_name
+  }` >
+  `${b.profile.last_name ? b.profile.last_name : ''}${
+    b.profile.first_name ? b.profile.first_name : b.profile_name
+  }`
+    ? 1
+    : -1;
 
 const compareByStepCount = (a: Relation, b: Relation): number =>
   a.step_count > b.step_count ? 1 : -1;
