@@ -10,6 +10,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 import models
 from geni_client import GeniClient
+from operator import and_
 
 app = Flask(__name__, static_folder='templates/')
 env = DotEnv(app)
@@ -96,8 +97,11 @@ def get_user_relations(user_profile_info):
             'name': user_obj.profile_name,
             'profile_link': user_obj.profile_details_link
         })
-        relations = db.session.query(models.ProfileToProfile).filter_by(
-            source_profile_id=user_obj.id
+        relations = db.session.query(models.ProfileToProfile).filter(
+            and_(
+                models.ProfileToProfile.source_profile_id == user_obj.id,
+                models.ProfileToProfile.step_count > 0
+            )
         ).all()
 
         for relation_obj in relations:
