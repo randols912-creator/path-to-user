@@ -113,7 +113,8 @@ def get_user_relations(user_profile_info):
                 'profiles_relationship': relation_obj.profiles_relationship,
                 'profile_name': rel.profile_name,
                 'profile_link': rel.profile_details_link,
-                'profile_relations': relation_obj.profile_relations
+                'profile_relations': relation_obj.profile_relations,
+                'profile': rel.profile
             })
 
     return response
@@ -133,6 +134,7 @@ def init_profiles(token):
             target_profile.profile_name = target['name']
             target_profile.profile_details_link = target['url']
             target_profile.is_user = False
+            target_profile.profile = target
 
             # TODO
             # profile_details: dict = geni_client.geni_api_call(target['url'], token)[0]

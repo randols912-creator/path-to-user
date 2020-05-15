@@ -30,9 +30,21 @@ class GeniClient:
     def get_target_profiles(self, token):
         url: str = self.BASE_URL + self.PROFILES_FROM_PROJECT
         profiles = []
-
+        fields = [
+            'id',
+            'name',
+            'url',
+            'first_name',
+            'last_name',
+            'gender',
+            'photo_urls',
+            'birth',
+            'death',
+            'nicknames'
+        ]
         while url:
-            part_profiles, token = self.geni_api_call(url, token)
+            print(f'querying {url}')
+            part_profiles, token = self.geni_api_call(url, token, fields)
             url = part_profiles.get('next_page')
 
             if part_profiles['is_success']:
@@ -69,7 +81,7 @@ class GeniClient:
 
     @sleep_and_retry
     @limits(calls=1, period=1)
-    def geni_api_call(self, url, token):
+    def geni_api_call(self, url, token, fields=None):
         result = {
             'api_errors': [],
             'internal_errors': [],
@@ -77,6 +89,8 @@ class GeniClient:
         }
 
         payload = {'access_token': token['access_token']} if token else dict()
+        if fields is not None:
+            payload['fields'] = ','.join(fields)
 
         try:
             response_raw = self.session.get(url, params=payload, timeout=20)
