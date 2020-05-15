@@ -35,9 +35,9 @@ def root_endpoint():
 def path_to_project_endpoint_get():
     geni_tokens = {'access_token': request.headers.get(GENI_ACCESS_TOKEN_HEADER_KEY)}
     user_profile_info, _ = geni_client.get_profile_details(geni_tokens)
-    logging.info(f"/path-to-project: getting user profile info: {user_profile_info}") 
     response: dict = get_user_relations(user_profile_info)
     response['workers_busy'] = not queue.empty() or sum([i.value for i in app.config['worker_busy_flags']]) > 0
+    logging.info(f"Querying ready connections for {user_profile_info['focus']}, ready relations: {len(response['targets'])}");
 
     return jsonify(response)
 
@@ -50,12 +50,14 @@ def path_to_project_endpoint_post():
     source_id = user_profile_info['focus']['id'].split('-')[-1]
     sources_list = control_queue.get()
 
+    logging.info(f"Initalizing search for user profile {source_id}");
     etalon_target_profiles = {
         record.profile_id: record.id
         for record in db.session.query(models.GeniProfiles).filter_by(is_user=False).all()
     }
 
-    if source_id not in sources_list:
+#    if source_id not in sources_list:
+    if count_user_relations(user_profile_info) == 0:
         for profile_id,id in etalon_target_profiles.items():
             queue.put({
                 'source_id': user_profile_info['focus']['id'].split('-')[-1],
@@ -63,7 +65,10 @@ def path_to_project_endpoint_post():
                 'init_geni_targets': False,
                 'target_profiles': {profile_id: id}
             })
+            logging.info(f"Queuing {source_id} -> {id} search");
         sources_list.append(source_id)
+    else:
+      logging.info(f"User profile search {source_id} has already been running");
 
     control_queue.put(sources_list)
 
@@ -81,6 +86,17 @@ def init_profiles_():
         {'access_token': request.headers.get(GENI_ACCESS_TOKEN_HEADER_KEY)}
     )
     return {'profiles_count': db.session.query(models.GeniProfiles).count()}
+
+def count_user_relations(user_profile_info):
+    id = user_profile_info['focus']['id'].split('-')[-1]
+    relations_count = db.session.query(models.ProfileToProfile).filter(
+            and_(
+                models.ProfileToProfile.source_profile_id == id,
+                models.ProfileToProfile.step_count > 0
+            )
+        ).count()
+    return relations_count
+
 
 def get_user_relations(user_profile_info):
     response = {
@@ -151,6 +167,9 @@ def status_watchdog(number, busy_flag):
     logging.info(f"Starting watchdog {number}")
     # print to main stdout
     sys.stdout.flush()
+
+    db.engine.dispose()
+    db.engine.connect()
 
     #status_watchdog_kicker()
     etalon_target_profiles = {
@@ -266,6 +285,8 @@ def save_profiles_relations(status, target_profiles, session, not_found_param=No
 
 
 if __name__ == '__main__':
+    from gevent.pywsgi import WSGIServer
+
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.DEBUG)
     import multiprocessing_logging
 
@@ -279,7 +300,6 @@ if __name__ == '__main__':
     worker_busy_flags = [Value('i', 0) for i in range(quantity)]
     app.config['worker_busy_flags'] = worker_busy_flags
 
-    Process(target=app.run, kwargs={'port': app.config.get('PORT')}).start()
 
     for counter in range(quantity):
         Process(
@@ -288,3 +308,7 @@ if __name__ == '__main__':
                     'busy_flag': worker_busy_flags[counter]},
             name=str(counter)
         ).start()
+
+    http_server = WSGIServer(('', int(app.config.get('PORT'))), app)
+    http_server.serve_forever()
+
