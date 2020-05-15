@@ -156,7 +156,10 @@ def status_watchdog(number, busy_flag):
     done_profiles = 0
     while True:
         task = queue.get()
+        
         busy_flag.value = 1
+        session = db.create_scoped_session()
+
         if not geni_token:
             source_info, geni_token = geni_client.get_profile_details(task['geni_token'])
         next_target_profiles = {}
@@ -175,7 +178,7 @@ def status_watchdog(number, busy_flag):
             logging.info("[{}] Status for {} -> {}".format(os.getpid(), target_id, status.get('status')))
             if status.get('status') == 'done':
                 done_profiles += 1
-                save_profiles_relations(status, target_profiles)
+                save_profiles_relations(status, target_profiles, session)
 
             elif status.get('status') == 'not found':
                 done_profiles += 1
@@ -185,7 +188,7 @@ def status_watchdog(number, busy_flag):
                     source_info
                 )
                 save_profiles_relations(
-                    status, target_profiles, not_found_param=not_found
+                    status, target_profiles, session, not_found_param=not_found
                 )
 
             elif status.get('status') == 'pending' or status['is_success'] == False:
@@ -205,10 +208,11 @@ def status_watchdog(number, busy_flag):
                 'geni_token': task['geni_token']
             })
 
+        session.close()
         busy_flag.value = 0
 
 
-def save_profiles_relations(status, target_profiles, not_found_param=None):
+def save_profiles_relations(status, target_profiles, session, not_found_param=None):
     if not_found_param:
         source_profile_id = not_found_param[0]
         target_profile_id = not_found_param[1]
@@ -220,7 +224,7 @@ def save_profiles_relations(status, target_profiles, not_found_param=None):
         source_profile_id = status['relations'][0]['url'].split('-')[-1]
         target_profile_id = status['relations'][-1]['url'].split('-')[-1]
 
-    source = db.session.query(models.GeniProfiles).filter_by(
+    source = session.query(models.GeniProfiles).filter_by(
         profile_id=source_profile_id
     ).first()
 
@@ -229,10 +233,10 @@ def save_profiles_relations(status, target_profiles, not_found_param=None):
         source.profile_name = source_name if not_found_param else status['relations'][0]['name']
         source.profile_details_link = source_link if not_found_param else status['relations'][0]['url']
         source.profile_id = source_profile_id
-        db.session.add(source)
-        db.session.commit()
+        session.add(source)
+        session.commit()
 
-    profile2profile = db.session.query(models.ProfileToProfile).filter_by(
+    profile2profile = session.query(models.ProfileToProfile).filter_by(
         source_profile_id=source.id,
         target_profile_id=target_profiles[target_profile_id]
     ).first()
@@ -250,9 +254,9 @@ def save_profiles_relations(status, target_profiles, not_found_param=None):
     profile2profile.profile_relations = status['relations'] if 'relations' in status else None
 
     if add_flag:
-        db.session.add(profile2profile)
+        session.add(profile2profile)
 
-    db.session.commit()
+    session.commit()
 
 
 if __name__ == '__main__':
