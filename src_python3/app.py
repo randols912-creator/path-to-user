@@ -35,11 +35,32 @@ def root_endpoint():
 def path_to_project_endpoint_get():
     geni_tokens = {'access_token': request.headers.get(GENI_ACCESS_TOKEN_HEADER_KEY)}
     user_profile_info, _ = geni_client.get_profile_details(geni_tokens)
-    response: dict = get_user_relations(user_profile_info)
+    logging.info(f"/path-to-project: getting user profile info: {user_profile_info}") 
+    response: dict = get_user_relations(
+        user_profile_info,
+        int(request.args.get('offset', 0))
+    )
     response['workers_busy'] = not queue.empty() or sum([i.value for i in app.config['worker_busy_flags']]) > 0
     logging.info(f"Querying ready connections for {user_profile_info['focus']}, ready relations: {len(response['targets'])}");
 
     return jsonify(response)
+
+
+@app.route('/relations-count', methods=["GET"])
+def get_relations_count():
+    user: models.GeniProfiles = db.session.query(models.GeniProfiles).filter(
+        models.GeniProfiles.profile_id == request.args.get('userId').split('-')[1]
+    ).first()
+
+    return {
+        'relations_count': 
+        db.session.query(models.ProfileToProfile).filter(
+            and_(
+                models.ProfileToProfile.source_profile_id == user.id,
+                models.ProfileToProfile.step_count > 0
+            )
+        ).count()
+    }
 
 
 @app.route('/path-to-project', methods=["POST"])
@@ -98,7 +119,7 @@ def count_user_relations(user_profile_info):
     return relations_count
 
 
-def get_user_relations(user_profile_info):
+def get_user_relations(user_profile_info, offset=0):
     response = {
         'source': {},
         'targets': []
@@ -118,7 +139,7 @@ def get_user_relations(user_profile_info):
                 models.ProfileToProfile.source_profile_id == user_obj.id,
                 models.ProfileToProfile.step_count > 0
             )
-        ).all()
+        ).offset(offset).all()
 
         for relation_obj in relations:
             rel = db.session.query(models.GeniProfiles).filter_by(id=relation_obj.target_profile_id).first()

@@ -1,7 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { interval, Observable, Subscription } from 'rxjs';
-import { fetchRelationsUrl, millisBetweenBackendCalls } from '../app.constants';
+import {
+  fetchRelationsUrl,
+  millisBetweenBackendCalls,
+} from '../app.constants';
 import Relation from '../model/Relation';
 
 // TODO - strict type for source?
@@ -45,28 +48,30 @@ export class RelationService {
     this.triggerBackendWorkers();
   }
 
-  private fetchAll(): void {
-    this.http.get<RelationServiceResponse>(fetchRelationsUrl).subscribe(
-      (resp) => {
-        if (
-          this.intervalSub &&
-          !this.intervalSub.closed &&
-          !resp.workers_busy
-        ) {
-          this.toggleIntervalFetch(false);
-        }
+  private fetchAll(offset: number): void {
+    this.http
+      .get<RelationServiceResponse>(`${fetchRelationsUrl}?offset=${offset}`)
+      .subscribe(
+        (resp) => {
+          if (
+            this.intervalSub &&
+            !this.intervalSub.closed &&
+            !resp.workers_busy
+          ) {
+            this.toggleIntervalFetch(false);
+          }
 
-        resp.targets
-          .filter((next) => !this.uniqueIds.has(next.id))
-          .forEach((next) => {
-            this.uniqueIds.add(next.id);
-            this.relations.push(next);
-          });
-      },
-      (reason) => {
-        console.error(reason);
-      }
-    );
+          resp.targets
+            .filter((next) => !this.uniqueIds.has(next.id))
+            .forEach((next) => {
+              this.uniqueIds.add(next.id);
+              this.relations.push(next);
+            });
+        },
+        (reason) => {
+          console.error(reason);
+        }
+      );
   }
 
   private triggerBackendWorkers(): void {
@@ -80,7 +85,7 @@ export class RelationService {
   private toggleIntervalFetch(enable: boolean): void {
     if (enable) {
       this.intervalSub = this.interval$.subscribe(() => {
-        this.fetchAll();
+        this.fetchAll(this.relations.length);
       });
     } else {
       this.intervalSub.unsubscribe();

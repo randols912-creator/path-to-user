@@ -36,6 +36,7 @@ class GeniClient:
             'url',
             'first_name',
             'last_name',
+            'maiden_name',
             'gender',
             'photo_urls',
             'birth',
