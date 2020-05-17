@@ -30,18 +30,27 @@ def root_endpoint():
     """Handle the index page"""
     return send_file('templates/index.html')
 
+profile_cache = dict()
 
 @app.route('/path-to-project', methods=["GET"])
 def path_to_project_endpoint_get():
-    geni_tokens = {'access_token': request.headers.get(GENI_ACCESS_TOKEN_HEADER_KEY)}
-    user_profile_info, _ = geni_client.get_profile_details(geni_tokens)
-    logging.info(f"/path-to-project: getting user profile info: {user_profile_info}") 
+    token = request.headers.get(GENI_ACCESS_TOKEN_HEADER_KEY)
+    geni_tokens = {'access_token': token}
+    if token in profile_cache:
+        user_profile_info =  profile_cache[token]
+    else:
+        user_profile_info, _ = geni_client.get_profile_details(geni_tokens)
+        profile_cache[token] = user_profile_info
+    offset = int(request.args.get('offset', 0))
     response: dict = get_user_relations(
         user_profile_info,
-        int(request.args.get('offset', 0))
-    )
-    response['workers_busy'] = not queue.empty() or sum([i.value for i in app.config['worker_busy_flags']]) > 0
-    logging.info(f"Querying ready connections for {user_profile_info['focus']}, ready relations: {len(response['targets'])}");
+        offset)
+    response['workers_busy'] = not queue.empty() \
+                               or sum([i.value for i in app.config['worker_busy_flags']]) > 0 \
+                               or offset == 0 \
+                               or count_user_relations(user_profile_info) > offset
+
+    logging.info(f"Querying ready connections for {user_profile_info['focus']}, ready relations: {len(response['targets'])}")
 
     return jsonify(response)
 
@@ -71,7 +80,7 @@ def path_to_project_endpoint_post():
     source_id = user_profile_info['focus']['id'].split('-')[-1]
     sources_list = control_queue.get()
 
-    logging.info(f"Initalizing search for user profile {source_id}");
+    logging.info(f"Initalizing search for user profile {source_id}")
     etalon_target_profiles = {
         record.profile_id: record.id
         for record in db.session.query(models.GeniProfiles).filter_by(is_user=False).all()
@@ -86,10 +95,10 @@ def path_to_project_endpoint_post():
                 'init_geni_targets': False,
                 'target_profiles': {profile_id: id}
             })
-            logging.info(f"Queuing {source_id} -> {id} search");
+            logging.info(f"Queuing {source_id} -> {id} search")
         sources_list.append(source_id)
     else:
-      logging.info(f"User profile search {source_id} has already been running");
+      logging.info(f"User profile search {source_id} has already been running")
 
     control_queue.put(sources_list)
 
@@ -244,8 +253,7 @@ def status_watchdog(number, busy_flag):
 
             else:
                 # Unexpected status
-                print("Jesus Christ, it's Jason Bourne.")
-                print(status)
+                logging.error(f"Unexpected status: {status.get('status')}")
 
         if next_target_profiles:
             queue.put({
