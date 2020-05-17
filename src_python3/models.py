@@ -19,18 +19,19 @@ class ProfileToProfile(db.Model):
     __tablename__ = 'profile_to_profile'
 
     id = db.Column(db.Integer, primary_key=True)
-    source_profile_id = db.Column(db.Integer, ForeignKey("geni_profiles.id"), nullable=False)
-    target_profile_id = db.Column(db.Integer, ForeignKey("geni_profiles.id"), nullable=False)
-    joint_url = db.Column(db.String(255))
+    source_id = db.Column(db.Integer, ForeignKey("geni_profiles.id"), nullable=False)
+    target_id = db.Column(db.Integer, ForeignKey("geni_profiles.id"), nullable=False)
+    joint_url = db.Column(db.String(500))
     step_count = db.Column(db.Integer)
     profiles_relationship = db.Column(db.String(255))
     profile_relations = db.Column(db.JSON)
+    created_on = db.Column(db.DateTime, server_default=db.func.now())
+    updated_on = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now())
+    user_profile_id_fk = relationship('GeniProfiles', foreign_keys=[source_id])
+    target_profile_id_fk = relationship('GeniProfiles', foreign_keys=[target_id])
 
-    user_profile_id_fk = relationship('GeniProfiles', foreign_keys=[source_profile_id])
-    target_profile_id_fk = relationship('GeniProfiles', foreign_keys=[target_profile_id])
 
-
-Index('profile_to_profile_index', ProfileToProfile.source_profile_id, ProfileToProfile.target_profile_id)
+Index('profile_to_profile_index', ProfileToProfile.source_id, ProfileToProfile.target_id)
 
 
 def db_init():

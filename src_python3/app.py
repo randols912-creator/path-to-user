@@ -2,6 +2,7 @@ import sys
 import os
 from multiprocessing import Process, Queue, cpu_count, Value
 import logging
+import datetime
 
 from flask import Flask, send_file, request, redirect, session, jsonify
 from flask_cors import CORS
@@ -42,18 +43,62 @@ def path_to_project_endpoint_get():
         user_profile_info, _ = geni_client.get_profile_details(geni_tokens)
         profile_cache[token] = user_profile_info
     offset = int(request.args.get('offset', 0))
+    limit = int(request.args.get('limit', 50))
+
     response: dict = get_user_relations(
         user_profile_info,
-        offset)
-    response['workers_busy'] = not queue.empty() \
-                               or sum([i.value for i in app.config['worker_busy_flags']]) > 0 \
-                               or offset == 0 \
-                               or count_user_relations(user_profile_info) > offset
-
-    logging.info(f"Querying ready connections for {user_profile_info['focus']}, ready relations: {len(response['targets'])}")
+        offset,
+        limit)
+    num_profiles = count_profiles()
+    # Workers are busy if counted found relations are less than total profiles count or there are pending profiles
+    response['workers_busy'] =  ( count_user_relations(user_profile_info, connected_only=False) < num_profiles
+                  or count_user_relations(user_profile_info, connected_only=False, relation ='pending') > 0
+                  or offset + len(response['targets']) < num_profiles
+     )
+    logging.info(f"Querying ready connections for {user_profile_info['focus']}"
+                 f", workers_busy: {response['workers_busy']}"
+                 f", ready relations: {len(response['targets'])}"
+                 f", pending: {count_user_relations(user_profile_info, connected_only=False, relation ='pending')}"
+                 f", relations: {count_user_relations(user_profile_info, connected_only=False)}"
+                 f", profiles: {count_profiles()}")
 
     return jsonify(response)
 
+def path_has_timedout(user_profile_info):
+    TIMEOUT_SECS = 60
+    user: models.GeniProfiles = db.session.query(models.GeniProfiles).filter(
+        models.GeniProfiles.profile_id == user_profile_info['focus']['id'].split('-')[-1]
+    ).first()
+    last_relation = db.session.query(models.ProfileToProfile).filter(models.ProfileToProfile.source_id==user.id)\
+        .order_by(models.ProfileToProfile.updated_on.desc()).first()
+    if not last_relation: return False
+    return bool((datetime.datetime.now() - last_relation.updated_on).seconds > TIMEOUT_SECS)
+
+@app.route('/path-to-project', methods=["POST"])
+def path_to_project_endpoint_post():
+    geni_tokens = {'access_token': request.headers.get(GENI_ACCESS_TOKEN_HEADER_KEY)}
+
+    user_profile_info, _ = geni_client.get_profile_details(geni_tokens)
+    source_id = user_profile_info['focus']['id'].split('-')[-1]
+
+    logging.info(f"Initalizing search for user profile {source_id}")
+    etalon_target_profiles = {
+        record.profile_id: record.id
+        for record in db.session.query(models.GeniProfiles).filter_by(is_user=False).all()
+    }
+
+    if count_user_relations(user_profile_info) == 0:
+        for profile_id,id in etalon_target_profiles.items():
+            queue.put({
+                'source_id': user_profile_info['focus']['id'].split('-')[-1],
+                'geni_token': geni_tokens,
+                'target_profile': (profile_id, id)
+            })
+            logging.info(f"Queuing {source_id} -> {id} search")
+    else:
+      logging.info(f"User profile search {source_id} has already been running")
+
+    return jsonify({'result': 'Done'})
 
 @app.route('/relations-count', methods=["GET"])
 def get_relations_count():
@@ -62,73 +107,43 @@ def get_relations_count():
     ).first()
 
     return {
-        'relations_count': 
+        'relations_count':
         db.session.query(models.ProfileToProfile).filter(
             and_(
-                models.ProfileToProfile.source_profile_id == user.id,
+                models.ProfileToProfile.source_id == user.id,
                 models.ProfileToProfile.step_count > 0
             )
         ).count()
     }
 
-
-@app.route('/path-to-project', methods=["POST"])
-def path_to_project_endpoint_post():
-    geni_tokens = {'access_token': request.headers.get(GENI_ACCESS_TOKEN_HEADER_KEY)}
-
-    user_profile_info, _ = geni_client.get_profile_details(geni_tokens)
-    source_id = user_profile_info['focus']['id'].split('-')[-1]
-    sources_list = control_queue.get()
-
-    logging.info(f"Initalizing search for user profile {source_id}")
-    etalon_target_profiles = {
-        record.profile_id: record.id
-        for record in db.session.query(models.GeniProfiles).filter_by(is_user=False).all()
-    }
-
-#    if source_id not in sources_list:
-    if count_user_relations(user_profile_info) == 0:
-        for profile_id,id in etalon_target_profiles.items():
-            queue.put({
-                'source_id': user_profile_info['focus']['id'].split('-')[-1],
-                'geni_token': geni_tokens,
-                'init_geni_targets': False,
-                'target_profiles': {profile_id: id}
-            })
-            logging.info(f"Queuing {source_id} -> {id} search")
-        sources_list.append(source_id)
-    else:
-      logging.info(f"User profile search {source_id} has already been running")
-
-    control_queue.put(sources_list)
-
-    return jsonify({'result': 'Done'})
-
-
 @app.route('/profiles-count', methods=['GET'])
 def profiles_count():
-    return {'profiles_count': db.session.query(models.GeniProfiles).count()}
+    return {'profiles_count': count_profiles()}
 
+def count_profiles():
+    return db.session.query(models.GeniProfiles).filter(models.GeniProfiles.is_user==False).count()
 
 @app.route('/init-profiles', methods=['POST'])
 def init_profiles_():
     init_profiles(
         {'access_token': request.headers.get(GENI_ACCESS_TOKEN_HEADER_KEY)}
     )
-    return {'profiles_count': db.session.query(models.GeniProfiles).count()}
+    return {'profiles_count': count_profiles()}
 
-def count_user_relations(user_profile_info):
-    id = user_profile_info['focus']['id'].split('-')[-1]
-    relations_count = db.session.query(models.ProfileToProfile).filter(
-            and_(
-                models.ProfileToProfile.source_profile_id == id,
-                models.ProfileToProfile.step_count > 0
-            )
-        ).count()
+def count_user_relations(user_profile_info, connected_only=True,relation=None):
+    user: models.GeniProfiles = db.session.query(models.GeniProfiles).filter(
+        models.GeniProfiles.profile_id == user_profile_info['focus']['id'].split('-')[-1]
+    ).first()
+    query = db.session.query(models.ProfileToProfile).filter(models.ProfileToProfile.source_id==user.id)
+    if connected_only:
+        query = query.filter(models.ProfileToProfile.step_count > 0)
+    if relation:
+        query = query.filter(models.ProfileToProfile.profiles_relationship == relation)
+    relations_count = query.count()
     return relations_count
 
 
-def get_user_relations(user_profile_info, offset=0):
+def get_user_relations(user_profile_info, offset=0, limit=50):
     response = {
         'source': {},
         'targets': []
@@ -145,13 +160,13 @@ def get_user_relations(user_profile_info, offset=0):
         })
         relations = db.session.query(models.ProfileToProfile).filter(
             and_(
-                models.ProfileToProfile.source_profile_id == user_obj.id,
+                models.ProfileToProfile.source_id == user_obj.id,
                 models.ProfileToProfile.step_count > 0
             )
-        ).offset(offset).all()
+        ).offset(offset).limit(limit).all()
 
         for relation_obj in relations:
-            rel = db.session.query(models.GeniProfiles).filter_by(id=relation_obj.target_profile_id).first()
+            rel = db.session.query(models.GeniProfiles).filter_by(id=relation_obj.target_id).first()
             response['targets'].append({
                 'id': f'profile-{rel.profile_id}',
                 'step_count': relation_obj.step_count,
@@ -192,7 +207,7 @@ def init_profiles(token):
     db.session.commit()
 
 
-def status_watchdog(number, busy_flag):
+def geni_worker(number):
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.DEBUG)
     logging.info(f"Starting watchdog {number}")
     # print to main stdout
@@ -201,72 +216,69 @@ def status_watchdog(number, busy_flag):
     db.engine.dispose()
     db.engine.connect()
 
-    #status_watchdog_kicker()
-    etalon_target_profiles = {
-        record.profile_id: record.id
-        for record in db.session.query(models.GeniProfiles).filter_by(is_user=False).all()
-    }
     source_info = None
     geni_token = None
     done_profiles = 0
     while True:
         task = queue.get()
         
-        busy_flag.value = 1
         session = db.create_scoped_session()
 
         if not geni_token:
             source_info, geni_token = geni_client.get_profile_details(task['geni_token'])
-        next_target_profiles = {}
-        target_profiles = task['target_profiles']
-        source_id = task['source_id']
-        if not target_profiles:
-            target_profiles = etalon_target_profiles.copy()
-            target_profiles.pop(source_id, None)
+        next_target_profile = {}
+        target_profile = task['target_profile']
+        source_profile_id = task['source_id']
 
-        for target_id in target_profiles:
-            status, geni_token = geni_client.get_geni_path_to(
-                source_id,
-                target_id,
-                task['geni_token']
+        status, geni_token = geni_client.get_geni_path_to(
+            source_profile_id,
+            target_profile[0],
+            task['geni_token']
+        )
+        logging.info("[{}] Status for {} -> {}".format(os.getpid(), target_profile[0], status.get('status')))
+        if status.get('status') == 'done':
+            done_profiles += 1
+            save_profiles_relations(status, target_profile, session)
+
+        elif status.get('status') == 'not found':
+            done_profiles += 1
+            not_found = (
+                source_profile_id,
+                target_profile[0],
+                source_info,
+                'not found'
             )
-            logging.info("[{}] Status for {} -> {}".format(os.getpid(), target_id, status.get('status')))
-            if status.get('status') == 'done':
-                done_profiles += 1
-                save_profiles_relations(status, target_profiles, session)
+            save_profiles_relations(
+                status, target_profile, session, not_found_param=not_found
+            )
 
-            elif status.get('status') == 'not found':
-                done_profiles += 1
-                not_found = (
-                    source_id,
-                    target_id,
-                    source_info
-                )
-                save_profiles_relations(
-                    status, target_profiles, session, not_found_param=not_found
-                )
+        elif status.get('status') == 'pending' or status['is_success'] == False:
+            next_target_profile = target_profile
+            pending = (
+                source_profile_id,
+                target_profile[0],
+                source_info,
+                'pending'
+            )
+            save_profiles_relations(
+                status, target_profile, session, not_found_param=pending
+            )
 
-            elif status.get('status') == 'pending' or status['is_success'] == False:
-                next_target_profiles.update({
-                    target_id: target_profiles[target_id]
-                })
+        else:
+            # Unexpected status
+            logging.error(f"Unexpected status: {status.get('status')}")
 
-            else:
-                # Unexpected status
-                logging.error(f"Unexpected status: {status.get('status')}")
-
-        if next_target_profiles:
+        if next_target_profile:
             queue.put({
-                'target_profiles': next_target_profiles,
+                'target_profile': next_target_profile,
                 'source_id': task['source_id'],
                 'geni_token': task['geni_token']
             })
 
         session.close()
-        busy_flag.value = 0
 
 
-def save_profiles_relations(status, target_profiles, session, not_found_param=None):
+def save_profiles_relations(status, target_profile, session, not_found_param=None):
     if not_found_param:
         source_profile_id = not_found_param[0]
         target_profile_id = not_found_param[1]
@@ -281,6 +293,9 @@ def save_profiles_relations(status, target_profiles, session, not_found_param=No
     source = session.query(models.GeniProfiles).filter_by(
         profile_id=source_profile_id
     ).first()
+    target = session.query(models.GeniProfiles).filter_by(
+        profile_id=target_profile_id
+    ).first()
 
     if not source:
         source = models.GeniProfiles()
@@ -291,8 +306,8 @@ def save_profiles_relations(status, target_profiles, session, not_found_param=No
         session.commit()
 
     profile2profile = session.query(models.ProfileToProfile).filter_by(
-        source_profile_id=source.id,
-        target_profile_id=target_profiles[target_profile_id]
+        source_id=source.id,
+        target_id=target.id
     ).first()
 
     add_flag = False
@@ -300,11 +315,11 @@ def save_profiles_relations(status, target_profiles, session, not_found_param=No
         profile2profile = models.ProfileToProfile()
         add_flag = True
 
-    profile2profile.source_profile_id = source.id
+    profile2profile.source_id = source.id
     profile2profile.joint_url = '' if not_found_param else status['url']
     profile2profile.step_count = 0 if not_found_param else status['step_count']
-    profile2profile.profiles_relationship = 'not found' if not_found_param else status['relationship']
-    profile2profile.target_profile_id = target_profiles[target_profile_id]
+    profile2profile.profiles_relationship = not_found_param[3] if not_found_param else status['relationship']
+    profile2profile.target_id = target_profile[1]
     profile2profile.profile_relations = status['relations'] if 'relations' in status else None
 
     if add_flag:
@@ -321,20 +336,13 @@ if __name__ == '__main__':
 
     multiprocessing_logging.install_mp_handler()
     queue = Queue()
-    control_queue = Queue()
-    control_queue.put([])
     process_quantity = int(sys.argv[1]) if len(sys.argv) > 1 else 0
-    quantity = process_quantity if process_quantity else cpu_count()
-
-    worker_busy_flags = [Value('i', 0) for i in range(quantity)]
-    app.config['worker_busy_flags'] = worker_busy_flags
-
+    quantity = process_quantity if process_quantity else cpu_count()*2+1
 
     for counter in range(quantity):
         Process(
-            target=status_watchdog,
-            kwargs={'number': counter,
-                    'busy_flag': worker_busy_flags[counter]},
+            target=geni_worker,
+            kwargs={'number': counter},
             name=str(counter)
         ).start()
 
