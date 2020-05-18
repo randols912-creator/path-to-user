@@ -16,6 +16,7 @@ const compareByStepCount = (a: Relation, b: Relation): number =>
 
 @Pipe({
   name: 'relationsSortBy',
+  pure: false
 })
 export class RelationsSortByPipe implements PipeTransform {
   constructor() {}
