@@ -45,18 +45,16 @@ def path_to_project_endpoint_get():
     offset = int(request.args.get('offset', 0))
     limit = int(request.args.get('limit', 50))
 
-    response: dict = get_user_relations(
-        user_profile_info,
-        offset,
-        limit)
+    response: dict = get_user_relations(user_profile_info, offset, limit)
     num_profiles = count_profiles()
     # Workers are busy if counted found relations are less than total profiles count or there are pending profiles
-    response['workers_busy'] =  ( count_user_relations(user_profile_info, connected_only=False) < num_profiles
-                  or count_user_relations(user_profile_info, connected_only=False, relation ='pending') > 0
-                  or offset + len(response['targets']) < num_profiles
+    response['is_not_ready'] = ( 
+        count_user_relations(user_profile_info, connected_only=False) < num_profiles
+        or count_user_relations(user_profile_info, connected_only=False, relation ='pending') > 0
+        or offset + len(response['targets']) < count_user_relations(user_profile_info, connected_only=True)
      )
     logging.info(f"Querying ready connections for {user_profile_info['focus']}"
-                 f", workers_busy: {response['workers_busy']}"
+                 f", is_not_ready: {response['is_not_ready']}"
                  f", ready relations: {len(response['targets'])}"
                  f", pending: {count_user_relations(user_profile_info, connected_only=False, relation ='pending')}"
                  f", relations: {count_user_relations(user_profile_info, connected_only=False)}"
@@ -130,10 +128,14 @@ def init_profiles_():
     )
     return {'profiles_count': count_profiles()}
 
-def count_user_relations(user_profile_info, connected_only=True,relation=None):
+def count_user_relations(user_profile_info, connected_only=True, relation=None):
     user: models.GeniProfiles = db.session.query(models.GeniProfiles).filter(
         models.GeniProfiles.profile_id == user_profile_info['focus']['id'].split('-')[-1]
     ).first()
+
+    if not user:
+        return 0
+
     query = db.session.query(models.ProfileToProfile).filter(models.ProfileToProfile.source_id==user.id)
     if connected_only:
         query = query.filter(models.ProfileToProfile.step_count > 0)

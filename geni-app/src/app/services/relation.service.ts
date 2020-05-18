@@ -1,17 +1,20 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { interval, Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription, interval } from 'rxjs';
 import {
   fetchRelationsUrl,
+  getRelationsCountUrl,
   millisBetweenBackendCalls,
 } from '../app.constants';
+
+import { AuthService } from '../auth/auth.service';
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import Relation from '../model/Relation';
 
 // TODO - strict type for source?
 interface RelationServiceResponse {
   source: object;
   targets: Array<Relation>;
-  workers_busy: boolean;
+  is_not_ready: boolean;
 }
 
 const isEmptyUserProfile = (resp: RelationServiceResponse): boolean => {
@@ -22,30 +25,29 @@ const isEmptyUserProfile = (resp: RelationServiceResponse): boolean => {
   providedIn: 'root',
 })
 export class RelationService {
+  status = new BehaviorSubject<Status>(Status.INITIALIZING);
   private relations: Array<Relation> = [];
   private uniqueIds: Set<string> = new Set<string>();
   private interval$ = interval(millisBetweenBackendCalls);
   private intervalSub: Subscription;
 
-  constructor(private http: HttpClient) {}
-
-  init(): Observable<boolean> {
-    return new Observable<boolean>((observer) => {
-      this.http.get<RelationServiceResponse>(fetchRelationsUrl).subscribe(
-        (resp) => {
-          this.relations = resp.targets;
-          observer.next(isEmptyUserProfile(resp));
-        },
-        (reason) => {
-          this.relations = [];
-          observer.error(reason);
+  constructor(private http: HttpClient, private auth: AuthService) {
+    this.http.get<RelationServiceResponse>(fetchRelationsUrl).subscribe(
+      (resp) => {
+        if (isEmptyUserProfile(resp)) {
+          console.log('Source or target profiles are empty');
+          this.triggerBackendWorkers();
         }
-      );
-    });
-  }
 
-  setupNewUserProfile(): void {
-    this.triggerBackendWorkers();
+        if (resp.is_not_ready) {
+          this.toggleIntervalFetch(true);
+        }
+      },
+      (reason) => {
+        console.error(reason);
+        this.status.next(Status.ERROR);
+      }
+    );
   }
 
   private fetchAll(offset: number): void {
@@ -56,58 +58,60 @@ export class RelationService {
           if (
             this.intervalSub &&
             !this.intervalSub.closed &&
-            !resp.workers_busy
+            !resp.is_not_ready
           ) {
             this.toggleIntervalFetch(false);
           }
 
-          resp.targets
-            .filter((next) => !this.uniqueIds.has(next.id))
-            .forEach((next) => {
-              this.uniqueIds.add(next.id);
-              this.relations.push(next);
-            });
+          const newRelations = resp.targets.filter(
+            (next) => !this.uniqueIds.has(next.id)
+          );
+
+          newRelations.forEach((next) => {
+            this.uniqueIds.add(next.id);
+            this.relations.push(next);
+          });
         },
         (reason) => {
+          this.status.next(Status.ERROR);
+          this.toggleIntervalFetch(false);
           console.error(reason);
         }
       );
   }
 
   private triggerBackendWorkers(): void {
-    console.log('Backend workers triggered!');
-    this.http.post(fetchRelationsUrl, {}).subscribe((resp) => {
-      console.log(resp);
-      this.toggleIntervalFetch(true);
+    this.http.post(fetchRelationsUrl, {}).subscribe(() => {
+      console.log('Backend workers triggered!');
     });
   }
 
   private toggleIntervalFetch(enable: boolean): void {
     if (enable) {
+      this.status.next(Status.FETCHING);
       this.intervalSub = this.interval$.subscribe(() => {
         this.fetchAll(this.relations.length);
       });
     } else {
+      this.status.next(Status.READY);
       this.intervalSub.unsubscribe();
     }
     console.log(`Interval fetch ${enable === true ? 'enabled' : 'disabled'}`);
   }
 
-  getRelation(id: string): Observable<Relation> {
-    return new Observable<Relation>((observer) => {
-      if (!this.relations.length) {
-        this.init().subscribe(() => {
-          const filtered = this.relations.filter((next) => next.id === id);
-          observer.next(filtered && filtered[0]);
-        });
-      } else {
-        const filtered = this.relations.filter((next) => next.id === id);
-        observer.next(filtered && filtered[0]);
-      }
-    });
+  getRelation(id: string): Relation {
+    const filtered = this.relations.filter((next) => next.id === id);
+    return filtered && filtered[0];
   }
 
   getRelations(): Array<Relation> {
     return this.relations;
   }
+}
+
+export enum Status {
+  INITIALIZING,
+  FETCHING,
+  READY,
+  ERROR,
 }

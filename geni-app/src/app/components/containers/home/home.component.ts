@@ -1,8 +1,12 @@
 import { Component, OnInit } from '@angular/core';
+import {
+  RelationService,
+  Status as ServiceStatus,
+} from 'src/app/services/relation.service';
+
 import { AuthService } from 'src/app/auth/auth.service';
 import Profile from 'src/app/model/Profile';
 import Relation from 'src/app/model/Relation';
-import { RelationService } from 'src/app/services/relation.service';
 
 @Component({
   selector: 'app-home',
@@ -18,23 +22,18 @@ export class HomeComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    if (!this.relations.length) {
-      this.status = Status.SEARCHING;
-      this.relationService.init().subscribe(
-        (isEmptyUserProfile) => {
-          if (isEmptyUserProfile) {
-            console.log('Source or target profiles are empty');
-            this.relationService.setupNewUserProfile();
-          } else {
-            this.status = Status.READY;
-          }
-        },
-        (reason) => {
-          console.error(reason);
+    this.relationService.status.subscribe((status) => {
+      switch (status) {
+        case ServiceStatus.READY:
+          this.status = Status.READY;
+          break;
+        case ServiceStatus.ERROR:
           this.status = Status.ERROR;
-        }
-      );
-    }
+          break;
+        default:
+          this.status = Status.SEARCHING;
+      }
+    });
   }
 
   get user(): Profile {

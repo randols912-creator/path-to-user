@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
+import { RelationService, Status } from 'src/app/services/relation.service';
+
 import { ActivatedRoute } from '@angular/router';
 import { AuthService } from 'src/app/auth/auth.service';
-import Profile from 'src/app/model/Profile';
 import Connection from 'src/app/model/ProfileRelation';
+import Profile from 'src/app/model/Profile';
 import Relation from 'src/app/model/Relation';
-import { RelationService } from 'src/app/services/relation.service';
 
 @Component({
   selector: 'app-relation',
@@ -22,9 +23,12 @@ export class RelationComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.relationService
-      .getRelation(this.route.snapshot.params.id)
-      .subscribe((relation) => {
+    this.relationService.status.subscribe((status) => {
+      if (status === Status.READY) {
+        const relation: Relation = this.relationService.getRelation(
+          this.route.snapshot.params.id
+        );
+
         if (relation.profile_relations) {
           relation.profile_relations.forEach((relation) => {
             const urlParts = relation.url.split('/');
@@ -33,7 +37,8 @@ export class RelationComponent implements OnInit {
         }
 
         this.relation = relation;
-      });
+      }
+    });
   }
 
   get user(): Profile {

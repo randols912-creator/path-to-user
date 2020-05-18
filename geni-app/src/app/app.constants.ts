@@ -13,6 +13,7 @@ export const currentUserProfileStorageKey = 'gn-user';
 export const appSettingsStorageKey = 'app-settings';
 
 export const fetchRelationsUrl = `${env.relationsServiceHost}/path-to-project`;
+export const getRelationsCountUrl = `${env.relationsServiceHost}/relations-count`;
 export const geniTokenHeaderKey = 'geni-access-token';
 export const millisBetweenBackendCalls = 1000;
 
