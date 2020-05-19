@@ -288,13 +288,11 @@ def save_profiles_relations(status, target_profile, session, not_found_param=Non
         target_profile_id = not_found_param[1]
         source_name = not_found_param[2]['focus']['name']
         source_link = 'https://www.geni.com/api/' + not_found_param[2]['focus']['id']
-        finished_on = datetime.datetime.now() if not_found_param[2] !="pending" else None
 
     else:
         # Example of user link -> 'https://www.geni.com/api/profile-34747685358'
         source_profile_id = status['relations'][0]['url'].split('-')[-1]
         target_profile_id = status['relations'][-1]['url'].split('-')[-1]
-        finished_on = datetime.datetime.now()
 
     source = session.query(models.GeniProfiles).filter_by(
         profile_id=source_profile_id
@@ -327,8 +325,8 @@ def save_profiles_relations(status, target_profile, session, not_found_param=Non
     profile2profile.profiles_relationship = not_found_param[3] if not_found_param else status['relationship']
     profile2profile.target_id = target_profile[1]
     profile2profile.profile_relations = status['relations'] if 'relations' in status else None
-    if finished_on:
-        profile2profile.finished_on = finished_on
+    if not not_found_param or not_found_param[2] != "pending":
+        profile2profile.finished_on = models.CURRENT_TIMESTAMP
 
     if add_flag:
         session.add(profile2profile)
