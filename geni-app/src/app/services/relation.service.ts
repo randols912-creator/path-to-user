@@ -1,9 +1,5 @@
-import { BehaviorSubject, Observable, Subscription, interval } from 'rxjs';
-import {
-  fetchRelationsUrl,
-  getRelationsCountUrl,
-  millisBetweenBackendCalls,
-} from '../app.constants';
+import { BehaviorSubject, Subject, Subscription } from 'rxjs';
+import { fetchRelationsUrl, millisBetweenBackendCalls } from '../app.constants';
 
 import { AuthService } from '../auth/auth.service';
 import { HttpClient } from '@angular/common/http';
@@ -28,10 +24,8 @@ export class RelationService {
   status = new BehaviorSubject<Status>(Status.INITIALIZING);
   private relations: Array<Relation> = [];
   private uniqueIds: Set<string> = new Set<string>();
-  private interval$ = interval(millisBetweenBackendCalls);
-  private intervalSub: Subscription;
 
-  constructor(private http: HttpClient, private auth: AuthService) {
+  constructor(private http: HttpClient) {
     this.http.get<RelationServiceResponse>(fetchRelationsUrl).subscribe(
       (resp) => {
         if (isEmptyUserProfile(resp)) {
@@ -40,7 +34,9 @@ export class RelationService {
         }
 
         if (resp.is_not_ready) {
-          this.toggleIntervalFetch(true);
+          console.log('Interval fetch enabled');
+          this.status.next(Status.FETCHING);
+          this.fetchAll(this.relations.length);
         }
       },
       (reason) => {
@@ -55,26 +51,26 @@ export class RelationService {
       .get<RelationServiceResponse>(`${fetchRelationsUrl}?offset=${offset}`)
       .subscribe(
         (resp) => {
-          if (
-            this.intervalSub &&
-            !this.intervalSub.closed &&
-            !resp.is_not_ready
-          ) {
-            this.toggleIntervalFetch(false);
-          }
+          const filtered = resp.targets
+            .filter((next) => !this.uniqueIds.has(next.id));
 
-          const newRelations = resp.targets.filter(
-            (next) => !this.uniqueIds.has(next.id)
-          );
-
-          newRelations.forEach((next) => {
+          filtered.forEach((next) => {
             this.uniqueIds.add(next.id);
             this.relations.push(next);
           });
+
+          if (resp.is_not_ready) {
+            setTimeout(
+              () => this.fetchAll(this.relations.length),
+              filtered.length > 0 ? 0 : millisBetweenBackendCalls
+            );
+          } else {
+            this.status.next(Status.READY);
+            console.log('Interval fetch disabled');
+          }
         },
         (reason) => {
           this.status.next(Status.ERROR);
-          this.toggleIntervalFetch(false);
           console.error(reason);
         }
       );
@@ -84,19 +80,6 @@ export class RelationService {
     this.http.post(fetchRelationsUrl, {}).subscribe(() => {
       console.log('Backend workers triggered!');
     });
-  }
-
-  private toggleIntervalFetch(enable: boolean): void {
-    if (enable) {
-      this.status.next(Status.FETCHING);
-      this.intervalSub = this.interval$.subscribe(() => {
-        this.fetchAll(this.relations.length);
-      });
-    } else {
-      this.status.next(Status.READY);
-      this.intervalSub.unsubscribe();
-    }
-    console.log(`Interval fetch ${enable === true ? 'enabled' : 'disabled'}`);
   }
 
   getRelation(id: string): Relation {
