@@ -1,6 +1,8 @@
 import datetime
 from sqlalchemy import Index, ForeignKey
 from sqlalchemy.orm import relationship
+from sqlalchemy.dialects import mysql
+from sqlalchemy import sql
 
 from app import db
 
@@ -16,6 +18,13 @@ class GeniProfiles(db.Model):
     profile = db.Column(db.JSON)
 
 
+# Define timestamp with precision of 10^-6 second
+DT_MICRO = mysql.DATETIME(fsp=6)
+class current_timestamp(sql.functions.GenericFunction):
+    type = DT_MICRO
+
+CURRENT_TIMESTAMP = current_timestamp(6)
+
 class ProfileToProfile(db.Model):
     __tablename__ = 'profile_to_profile'
 
@@ -28,7 +37,7 @@ class ProfileToProfile(db.Model):
     profile_relations = db.Column(db.JSON)
     created_on = db.Column(db.DateTime, server_default=db.func.now())
     updated_on = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now())
-    finished_on = db.Column(db.DateTime, default=datetime.datetime.min)
+    finished_on = db.Column(DT_MICRO, default=datetime.datetime.min)
     user_profile_id_fk = relationship('GeniProfiles', foreign_keys=[source_id])
     target_profile_id_fk = relationship('GeniProfiles', foreign_keys=[target_id])
 

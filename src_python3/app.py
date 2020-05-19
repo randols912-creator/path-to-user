@@ -58,7 +58,8 @@ def path_to_project_endpoint_get():
                  f", is_not_ready: {response['is_not_ready']}"
                  f", ready relations: {len(response['targets'])}"
                  f", relations: {count_user_relations(user_profile_info, connected_only=False)}"
-                 f", profiles: {num_profiles}")
+                 f", profiles: {num_profiles}"
+                 f", targets: {[r['id'] for r in response['targets']]}")
 
     return jsonify(response)
 
@@ -332,6 +333,7 @@ def save_profiles_relations(status, target_profile, session, not_found_param=Non
     if add_flag:
         session.add(profile2profile)
 
+    logging.info(f"Saving relation {profile2profile.source_id} -> {profile2profile.target_id}, relationship: {profile2profile.profiles_relationship}")
     session.commit()
 
 
