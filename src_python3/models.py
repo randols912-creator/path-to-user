@@ -1,3 +1,4 @@
+import datetime
 from sqlalchemy import Index, ForeignKey
 from sqlalchemy.orm import relationship
 
@@ -27,6 +28,7 @@ class ProfileToProfile(db.Model):
     profile_relations = db.Column(db.JSON)
     created_on = db.Column(db.DateTime, server_default=db.func.now())
     updated_on = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now())
+    finished_on = db.Column(db.DateTime, default=datetime.datetime.min)
     user_profile_id_fk = relationship('GeniProfiles', foreign_keys=[source_id])
     target_profile_id_fk = relationship('GeniProfiles', foreign_keys=[target_id])
 

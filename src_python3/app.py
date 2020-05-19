@@ -8,7 +8,7 @@ from flask import Flask, send_file, request, redirect, session, jsonify
 from flask_cors import CORS
 from flask_dotenv import DotEnv
 from flask_sqlalchemy import SQLAlchemy
-
+from sqlalchemy import asc
 import models
 from geni_client import GeniClient
 from operator import and_
@@ -50,14 +50,15 @@ def path_to_project_endpoint_get():
     # Workers are busy if counted found relations are less than total profiles count or there are pending profiles
     response['is_not_ready'] = ( 
         count_user_relations(user_profile_info, connected_only=False) < num_profiles
+        or count_user_relations(user_profile_info, connected_only=False, relation='pending') > 0
         or offset + len(response['targets']) < count_user_relations(user_profile_info, connected_only=True)
      )
     logging.info(f"Querying ready connections for {user_profile_info['focus']}"
+                 f", offset: {offset}"
                  f", is_not_ready: {response['is_not_ready']}"
                  f", ready relations: {len(response['targets'])}"
-                 f", pending: {count_user_relations(user_profile_info, connected_only=False, relation ='pending')}"
                  f", relations: {count_user_relations(user_profile_info, connected_only=False)}"
-                 f", profiles: {count_profiles()}")
+                 f", profiles: {num_profiles}")
 
     return jsonify(response)
 
@@ -164,7 +165,7 @@ def get_user_relations(user_profile_info, offset=0, limit=50):
                 models.ProfileToProfile.source_id == user_obj.id,
                 models.ProfileToProfile.step_count > 0
             )
-        ).offset(offset).limit(limit).all()
+        ).order_by(asc(models.ProfileToProfile.finished_on)).offset(offset).limit(limit).all()
 
         for relation_obj in relations:
             rel = db.session.query(models.GeniProfiles).filter_by(id=relation_obj.target_id).first()
@@ -255,6 +256,17 @@ def geni_worker(number):
 
         elif status.get('status') == 'pending' or status['is_success'] == False:
             next_target_profile = target_profile
+
+            pending = (
+                source_profile_id,
+                target_profile[0],
+                source_info,
+                'pending'
+            )
+            save_profiles_relations(
+                status, target_profile, session, not_found_param=pending
+            )
+
         else:
             # Unexpected status
             logging.error(f"Unexpected status: {status.get('status')}")
@@ -275,11 +287,13 @@ def save_profiles_relations(status, target_profile, session, not_found_param=Non
         target_profile_id = not_found_param[1]
         source_name = not_found_param[2]['focus']['name']
         source_link = 'https://www.geni.com/api/' + not_found_param[2]['focus']['id']
+        finished_on = datetime.datetime.now() if not_found_param[2] !="pending" else None
 
     else:
         # Example of user link -> 'https://www.geni.com/api/profile-34747685358'
         source_profile_id = status['relations'][0]['url'].split('-')[-1]
         target_profile_id = status['relations'][-1]['url'].split('-')[-1]
+        finished_on = datetime.datetime.now()
 
     source = session.query(models.GeniProfiles).filter_by(
         profile_id=source_profile_id
@@ -312,6 +326,8 @@ def save_profiles_relations(status, target_profile, session, not_found_param=Non
     profile2profile.profiles_relationship = not_found_param[3] if not_found_param else status['relationship']
     profile2profile.target_id = target_profile[1]
     profile2profile.profile_relations = status['relations'] if 'relations' in status else None
+    if finished_on:
+        profile2profile.finished_on = finished_on
 
     if add_flag:
         session.add(profile2profile)
