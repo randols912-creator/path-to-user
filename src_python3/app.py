@@ -50,7 +50,6 @@ def path_to_project_endpoint_get():
     # Workers are busy if counted found relations are less than total profiles count or there are pending profiles
     response['is_not_ready'] = ( 
         count_user_relations(user_profile_info, connected_only=False) < num_profiles
-        or count_user_relations(user_profile_info, connected_only=False, relation ='pending') > 0
         or offset + len(response['targets']) < count_user_relations(user_profile_info, connected_only=True)
      )
     logging.info(f"Querying ready connections for {user_profile_info['focus']}"
@@ -256,16 +255,6 @@ def geni_worker(number):
 
         elif status.get('status') == 'pending' or status['is_success'] == False:
             next_target_profile = target_profile
-            pending = (
-                source_profile_id,
-                target_profile[0],
-                source_info,
-                'pending'
-            )
-            save_profiles_relations(
-                status, target_profile, session, not_found_param=pending
-            )
-
         else:
             # Unexpected status
             logging.error(f"Unexpected status: {status.get('status')}")
