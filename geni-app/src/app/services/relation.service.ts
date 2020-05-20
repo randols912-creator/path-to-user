@@ -35,7 +35,6 @@ export class RelationService {
 
         if (resp.is_not_ready) {
           console.log('Interval fetch enabled');
-          this.status.next(Status.FETCHING);
           this.fetchAll(this.relations.length);
         }
       },
@@ -47,6 +46,7 @@ export class RelationService {
   }
 
   private fetchAll(offset: number): void {
+    this.status.next(Status.FETCHING);
     this.http
       .get<RelationServiceResponse>(`${fetchRelationsUrl}?offset=${offset}`)
       .subscribe(
@@ -59,15 +59,17 @@ export class RelationService {
             this.relations.push(next);
           });
 
+          this.status.next(Status.PART_FETCHED);
           if (resp.is_not_ready) {
             setTimeout(
               () => this.fetchAll(this.relations.length),
               filtered.length > 0 ? 0 : millisBetweenBackendCalls
             );
           } else {
-            this.status.next(Status.READY);
             console.log('Interval fetch disabled');
+            this.status.next(Status.READY);
           }
+
         },
         (reason) => {
           this.status.next(Status.ERROR);
@@ -83,18 +85,18 @@ export class RelationService {
   }
 
   getRelation(id: string): Relation {
-    const filtered = this.relations.filter((next) => next.id === id);
-    return filtered && filtered[0];
+    return this.relations.filter((next) => next.id === id).shift();
   }
 
   getRelations(): Array<Relation> {
-    return this.relations;
+    return [...this.relations];
   }
 }
 
 export enum Status {
   INITIALIZING,
   FETCHING,
+  PART_FETCHED,
   READY,
   ERROR,
 }
