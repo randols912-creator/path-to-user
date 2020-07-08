@@ -24,21 +24,28 @@ export class RelationComponent implements OnInit {
 
   ngOnInit(): void {
     this.relationService.status.subscribe((status) => {
-      if (status === Status.READY) {
-        const relation: Relation = this.relationService.getRelation(
-          this.route.snapshot.params.id
-        );
-
-        if (relation.profile_relations) {
-          relation.profile_relations.forEach((relation) => {
-            const urlParts = relation.url.split('/');
-            relation.id = urlParts[urlParts.length - 1];
-          });
-        }
-
-        this.relation = relation;
+      if (
+        !this.relation &&
+        (status == Status.READY || status == Status.PART_FETCHED)
+      ) {
+        this.prepareRelation();
       }
     });
+  }
+
+  private prepareRelation(): void {
+    const relation = this.relationService.getRelation(
+      this.route.snapshot.params.id
+    );
+
+    if (relation && relation.profile_relations) {
+      relation.profile_relations.forEach((relation) => {
+        const urlParts = relation.url.split('/');
+        relation.id = urlParts[urlParts.length - 1];
+      });
+
+      this.relation = relation;
+    }
   }
 
   get user(): Profile {
