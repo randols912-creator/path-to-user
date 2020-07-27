@@ -4,7 +4,7 @@ import requests
 
 from dotenv import load_dotenv
 
-from sanic import Sanic, Blueprint, response
+from sanic import Sanic, response
 from sanic.response import text, json
 from sanic.views import HTTPMethodView
 from sanic.exceptions import abort
@@ -12,13 +12,15 @@ from sanic_openapi import doc, swagger_blueprint, api
 from jinja2 import Environment, PackageLoader, select_autoescape
 from databases import Database
 from sqlalchemy import create_engine
+
+from api.utils import Utils
 from api.models import metadata
 # Enabling async template execution which allows you to take advantage
 # of newer Python features requires Python 3.6 or later.
 enable_async = sys.version_info >= (3, 6)
 
 app = Sanic()
-
+app.static('/', './templates/')
 # Load parameters
 load_dotenv()
 # Initialize database
@@ -40,18 +42,13 @@ async def root(request):
     rendered_template = await template.render_async()
     return response.html(rendered_template)
 
-def create_blueprint(name):
-    prefix = "/api/v1/"
-    return Blueprint(f"{name}", url_prefix=f"{prefix}{name}")
-
-bp_profiles = create_blueprint("profiles")
-bp_paths = create_blueprint("paths")
+bp_profiles = Utils.create_blueprint("profiles")
+bp_paths = Utils.create_blueprint("paths")
 
 
 class Pagination:
     offset = doc.Integer()
     limit = doc.Integer()
-
 
 
 class ProfileView(HTTPMethodView):
@@ -79,13 +76,9 @@ class PathView(HTTPMethodView):
     def get_personalities(request):
         return text("I am get method")
 
-
-def add_blueprint(bp, view):
-    bp.add_route(view.as_view(), "/")
-    app.blueprint(bp)
-
-add_blueprint(bp_profiles, ProfileView)
-add_blueprint(bp_paths, PathView)
+# Add blueprints to the app
+Utils.add_blueprint(app, bp_profiles, ProfileView)
+Utils.add_blueprint(app, bp_paths, PathView)
 
 if __name__ == "__main__":
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.DEBUG)
