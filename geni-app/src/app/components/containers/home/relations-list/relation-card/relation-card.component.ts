@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { relationPath } from 'src/app/app.constants';
-import { Category, getColor } from 'src/app/model/Category';
+import { Category, getColor, getText } from 'src/app/model/Category';
 import { Gender, LivingDetails } from 'src/app/model/Profile';
 import Relation from 'src/app/model/Relation';
 import { GeniService } from 'src/app/services/geni.service';
@@ -22,7 +22,7 @@ export class RelationCardComponent implements OnInit {
   @Input() relation: Relation;
   collapsed: boolean = true;
   // TODO - real categories?
-  categories: Array<Category> = [randomCategory()];
+  categories: Array<Category> = [];
   relationPath: string = relationPath;
 
   constructor(private geni: GeniService) {}
@@ -40,6 +40,8 @@ export class RelationCardComponent implements OnInit {
         .subscribe((profile) => {
           this.relation.profile = profile;
         });
+    } else {
+        this.categories.push(this.relation.profile.bh_theme)
     }
   }
 
@@ -93,4 +95,9 @@ export class RelationCardComponent implements OnInit {
   categoryColor(category: Category): string {
     return getColor(category);
   }
+
+  categoryText(category: Category): string {
+    return getText(category);
+  }
+
 }

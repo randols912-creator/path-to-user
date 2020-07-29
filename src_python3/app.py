@@ -12,6 +12,7 @@ from sqlalchemy import asc
 import models
 from geni_client import GeniClient
 from operator import and_
+from bh import BHData
 
 app = Flask(__name__, static_folder='templates/')
 env = DotEnv(app)
@@ -23,6 +24,7 @@ CORS(app)
 db = SQLAlchemy(app)
 logger = app.logger
 geni_client = GeniClient()
+bh_data = BHData(os.path.join("..", "data", "personalities.csv"))
 GENI_ACCESS_TOKEN_HEADER_KEY = 'Geni-access-token'
 
 
@@ -48,7 +50,7 @@ def path_to_project_endpoint_get():
     response: dict = get_user_relations(user_profile_info, offset, limit)
     num_profiles = count_profiles()
     # Workers are busy if counted found relations are less than total profiles count or there are pending profiles
-    response['is_not_ready'] = ( 
+    response['is_not_ready'] = (len(response['targets']) or not path_has_timedout(user_profile_info)) and (
         count_user_relations(user_profile_info, connected_only=False) < num_profiles
         or count_user_relations(user_profile_info, connected_only=False, relation='pending') > 0
         or offset + len(response['targets']) < count_user_relations(user_profile_info, connected_only=True)
@@ -60,11 +62,11 @@ def path_to_project_endpoint_get():
                  f", relations: {count_user_relations(user_profile_info, connected_only=False)}"
                  f", profiles: {num_profiles}"
                  f", targets: {[r['id'] for r in response['targets']]}")
-
+    #logging.info(response)
     return jsonify(response)
 
 def path_has_timedout(user_profile_info):
-    TIMEOUT_SECS = 60
+    TIMEOUT_SECS = 30
     user: models.GeniProfiles = db.session.query(models.GeniProfiles).filter(
         models.GeniProfiles.profile_id == user_profile_info['focus']['id'].split('-')[-1]
     ).first()
@@ -170,6 +172,8 @@ def get_user_relations(user_profile_info, offset=0, limit=50):
 
         for relation_obj in relations:
             rel = db.session.query(models.GeniProfiles).filter_by(id=relation_obj.target_id).first()
+            tgt_profile = rel.profile
+            tgt_profile.update(bh_data.get_bh_profile(rel.profile['id']))
             response['targets'].append({
                 'id': f'profile-{rel.profile_id}',
                 'step_count': relation_obj.step_count,
@@ -178,7 +182,7 @@ def get_user_relations(user_profile_info, offset=0, limit=50):
                 'profile_name': rel.profile_name,
                 'profile_link': rel.profile_details_link,
                 'profile_relations': relation_obj.profile_relations,
-                'profile': rel.profile
+                'profile': tgt_profile
             })
 
     return response
@@ -199,7 +203,13 @@ def init_profiles(token):
             target_profile.profile_details_link = target['url']
             target_profile.is_user = False
             target_profile.profile = target
-
+            # Add BH data fields
+            bh_profile = bh_data.get_bh_profile(target['id'])
+            logging.info(f"Profile id: {target['id']}, BH: {bh_profile}")
+            if bh_profile:
+                target_profile.bh_theme = bh_profile["bh_theme"]
+                target_profile.bh_floor = bh_profile["bh_floor"] if bh_profile["bh_floor"] else None
+                target_profile.bh_location = bh_profile["bh_location"]
             # TODO
             # profile_details: dict = geni_client.geni_api_call(target['url'], token)[0]
             # [profile_details.pop(k) for k in ['api_errors', 'internal_errors', 'is_success']]

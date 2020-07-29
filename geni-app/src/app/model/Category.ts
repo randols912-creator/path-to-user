@@ -9,16 +9,61 @@ export enum Category {
   MILITARY = 'military',                           //'Military',
   LITERATURE = 'literature',                       //'Literature',
   PLASTIC_ART = 'plastic_art',                     //'Plastic Art',
+  VISUAL_ART = 'visual_art',                       //'Visual Art',
   CLASSICAL_MUSIC = 'classical_music',             //'Classical Music',
   POPULAR_MUSIC = 'popular_music',                 //'Popular Music',
   ARCHITECTURE = 'architecture',                   //'Architecture',
   THEATRE = 'theatre',                             //'Theatre',
   CINEMA = 'cinema',                               //'Cinema & Television',
-  PHOTOGRAPHY = 'photography',                     //'Photography & Comics',
   HUMOR = 'humor',                                 //'Humor',
   SPORTS = 'sports',                               //'Sports',
   OTHER = 'other',                                 //'Other',
+
 }
+
+export const getText = (category: Category) => {
+  switch (category) {
+    case Category.HUMANITIES:
+      return 'Humanities & Religion';
+    case Category.SCIENCE:
+      return 'Science';
+    case Category.DIPLOMACY:
+      return 'Diplomacy';
+    case Category.LAW:
+      return 'Law';
+    case Category.ECONOMICS:
+      return 'Economics';
+    case Category.HOLOCAUST:
+      return 'The Holocaust';
+    case Category.PRESS:
+      return 'Press & Media';
+    case Category.MILITARY:
+      return 'Military';
+    case Category.LITERATURE:
+      return 'Literature & Poetry';
+    case Category.PLASTIC_ART:
+      return 'Plastic Art';
+    case Category.VISUAL_ART:
+      return 'Visual Art';
+    case Category.CLASSICAL_MUSIC:
+      return 'Classical Music';
+    case Category.POPULAR_MUSIC:
+      return 'Popular Music';
+    case Category.ARCHITECTURE:
+      return 'Architecture';
+    case Category.THEATRE:
+      return 'Theatre';
+    case Category.CINEMA:
+      return 'Cinema & Television';
+    case Category.HUMOR:
+      return 'Humor';
+    case Category.SPORTS:
+      return 'Sports';
+    default:
+      return 'Other';
+  }
+};
+
 
 export const getColor = (category: Category) => {
   switch (category) {
@@ -42,7 +87,9 @@ export const getColor = (category: Category) => {
       return '#E1FEC7';
     case Category.PLASTIC_ART:
       return '#CDFEC7';
-    case Category.CLASSICAL_MUSIC:
+    case Category.VISUAL_ART:
+      return '#CDFEA7';
+      case Category.CLASSICAL_MUSIC:
       return '#C7FED6';
     case Category.POPULAR_MUSIC:
       return '#C7FEEB';
@@ -52,8 +99,6 @@ export const getColor = (category: Category) => {
       return '#C7F3FE';
     case Category.CINEMA:
       return '#C7E4FE';
-    case Category.PHOTOGRAPHY:
-      return '#C7D2FE';
     case Category.HUMOR:
       return '#CEC7FE';
     case Category.SPORTS:

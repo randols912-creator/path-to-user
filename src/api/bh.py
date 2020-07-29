@@ -38,7 +38,7 @@ class BHData:
         print(self.data)
 
     def get_bh_profile(self, geni_id):
-        return self.data.get(geni_id)
+        return self.data.get(geni_id, dict())
 
 if __name__ == "__main__":
     import sys

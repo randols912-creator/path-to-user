@@ -16,6 +16,10 @@ class GeniProfiles(db.Model):
     profile_details_link = db.Column(db.String(255))
     is_user = db.Column(db.Boolean, default=True)
     profile = db.Column(db.JSON)
+    # BH data fields
+    bh_theme = db.Column(db.String(255))
+    bh_floor = db.Column(db.Integer)
+    bh_location = db.Column(db.String(255))
 
 
 # Define timestamp with precision of 10^-6 second

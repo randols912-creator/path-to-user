@@ -1,3 +1,5 @@
+import { Category } from './Category';
+
 export default interface Profile {
   id?: string;
   url?: string;
@@ -34,6 +36,11 @@ export default interface Profile {
   updated_at?: string;
   deleted?: boolean;
   about_me?: string;
+
+  bh_theme?: Category;
+  bh_floor?: number;
+  bh_location?: string;
+
 }
 
 interface PhotoUrls {
