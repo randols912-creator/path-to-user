@@ -70,6 +70,7 @@ def path_has_timedout(user_profile_info):
     user: models.GeniProfiles = db.session.query(models.GeniProfiles).filter(
         models.GeniProfiles.profile_id == user_profile_info['focus']['id'].split('-')[-1]
     ).first()
+    if not user: return False
     last_relation = db.session.query(models.ProfileToProfile).filter(models.ProfileToProfile.source_id==user.id)\
         .order_by(models.ProfileToProfile.updated_on.desc()).first()
     if not last_relation: return False
