@@ -1,5 +1,8 @@
 import csv
 import re
+import os
+
+DEFAULT_PERSONALITIES_CSV = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "data", "personalities.csv")
 
 
 class BHData:
@@ -25,7 +28,7 @@ class BHData:
         "The Holocaust": 'holocaust'
     }
 
-    def __init__(self, personalities_csv):
+    def __init__(self, personalities_csv=DEFAULT_PERSONALITIES_CSV):
         self.data = dict()
         with open(personalities_csv, "r") as f:
             csv_f = csv.reader(f)
@@ -35,7 +38,6 @@ class BHData:
                 row_dict = dict(zip(headers, row))
                 row_dict['bh_theme'] = self.THEME_MAP.get(row_dict['bh_theme'].strip(), "other")
                 self.data[row_dict['geni_id']] = row_dict
-        print(self.data)
 
     def get_bh_profile(self, geni_id):
         return self.data.get(geni_id, dict())

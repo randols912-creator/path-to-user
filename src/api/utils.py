@@ -1,12 +1,13 @@
 from sanic import Blueprint
-
+import logging
 
 class Utils:
 
     @staticmethod
     def create_blueprint(name):
-        prefix = "/api/v1/"
-        return Blueprint(f"{name}", url_prefix=f"{prefix}{name}")
+        url_prefix = "/api/v1/" + name
+        logging.info(f"Creating blueprint {url_prefix}")
+        return Blueprint(f"{name}", url_prefix=url_prefix)
 
     @staticmethod
     def add_blueprint(app, bp, view):

@@ -27,8 +27,8 @@ class GeniClient:
 
         return status, token
 
-    def get_personalities_profiles(self, token):
-        url: str = self.BASE_URL + self.PROFILES_FROM_PROJECT
+    def get_personalities_profiles(self, token, next_page_url=None):
+        url: str = self.BASE_URL + self.PROFILES_FROM_PROJECT if not next_page_url else next_page_url
         profiles = []
         fields = [
             'id',
@@ -43,21 +43,22 @@ class GeniClient:
             'death',
             'nicknames'
         ]
-        while url:
-            print(f'querying {url}')
-            part_profiles, token = self._geni_api_call(url, token, fields)
-            url = part_profiles.get('next_page')
+        print(f'querying {url}')
+        part_profiles, token = self._geni_api_call(url, token, fields)
+        next_page_url = part_profiles.get('next_page')
+        print(part_profiles)
+        if part_profiles['is_success']:
+            profiles += part_profiles['results']
 
-            if part_profiles['is_success']:
-                profiles += part_profiles['results']
-
-        return profiles, token
+        return profiles, next_page_url
 
     def build_auth_url(self):
         """Create the OAuth url for the application"""
         params = {
             'client_id': self.CLIENT_ID,
-            'redirect_uri': self.REDIRECT_URL
+            'response_type' : 'token',
+            'display': 'mobile'
+            #'redirect_uri': self.REDIRECT_URL
         }
         params = '&'.join(['%s=%s' % (k, v) for k, v in params.items()])
         url = f'{self.BASE_URL}{self.AUTH_URL}?{params}'
@@ -88,7 +89,7 @@ class GeniClient:
             'is_success': False
         }
 
-        payload = {'access_token': token['access_token']} if token else dict()
+        payload = {'access_token': token} if token else dict()
         if fields is not None:
             payload['fields'] = ','.join(fields)
 
@@ -145,3 +146,4 @@ class GeniClient:
             token_result['tokenExpiration'] = response['expires_in']
 
         return token_result
+

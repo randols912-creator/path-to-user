@@ -6,15 +6,21 @@ from dotenv import load_dotenv
 
 from sanic import Sanic, response
 from sanic.response import text, json
+from sanic.request import Request
 from sanic.views import HTTPMethodView
 from sanic.exceptions import abort
 from sanic_openapi import doc, swagger_blueprint, api
 from jinja2 import Environment, PackageLoader, select_autoescape
 from databases import Database
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, and_
+
+from multiprocessing import Process, Queue, cpu_count
 
 from api.utils import Utils
-from api.models import metadata
+from api.models import metadata, paths_table, profiles_table
+from api.geni import GeniClient
+from api.path import PathManager
+from api.profile import ProfileManager
 # Enabling async template execution which allows you to take advantage
 # of newer Python features requires Python 3.6 or later.
 enable_async = sys.version_info >= (3, 6)
@@ -25,9 +31,12 @@ app.static('/', './templates/')
 load_dotenv()
 # Initialize database
 db_url = os.getenv("SQLALCHEMY_DATABASE_URI")
-metadata.create_all(create_engine(db_url, echo = True))
-database = Database(db_url)
+engine = create_engine(db_url, echo = True)
+metadata.create_all(engine)
 
+task_queue = Queue()
+
+geni = GeniClient()
 # Load the template environment with async support
 template_env = Environment(
     loader=PackageLoader('geni', 'templates'),
@@ -50,27 +59,79 @@ class Pagination:
     offset = doc.Integer()
     limit = doc.Integer()
 
+class Token:
+    access_token = doc.String(name="access_token", description="Geni access token")
 
 class ProfileView(HTTPMethodView):
+    @bp_profiles.get("/cache")
+    @doc.consumes(Token, location='headers')
+    @doc.summary("Cache personality profiles from Geni")
+    async def post(self, request: Request):
+        token = request.headers.get('access_token')
+        if not token:
+            abort(403, "Access token is missing")
 
-    @bp_profiles.get("/<profile_id>")
+        with Database(db_url) as database:
+            num_profiles = await ProfileManager(database, geni, token).cache_personalities()
+        return json(num_profiles)
+
+
+    @doc.consumes(Token, location='headers')
+    @doc.consumes(doc.String(name="id", description="Profile id"))
     @doc.summary("Get profile by id")
-    def get_one(item_id):
-        return text("I am get method")
+    async def get(self, request: Request):
+        token = request.headers.get('access_token')
+        profile_id = request.args.get('id')
+        if not profile_id:
+            abort(403, "Profile id is missing")
+        with Database(db_url) as database:
+            profile = await ProfileManager(database, geni, token).get(profile_id)
+        output = {"profile":  profile if profile else dict()}
+        return json(output)
 
-    @bp_profiles.get("/personalities/count")
-    @doc.summary("Count personalities profiles")
-    def get_count(request):
-        return text("I am get method")
+    @staticmethod
+    @bp_profiles.get("/count")
+    @doc.consumes(Token, location='headers')
+    @doc.consumes(doc.String(name="type", description="Profile type", choices=['personality', 'user']))
+    @doc.summary("Count profiles")
+    async def get_count(request):
+        token = request.headers.get('access_token')
+        type = request.args.get('id')
+        is_user = (type == 'user')
+
+        with Database(db_url) as database:
+            count = await ProfileManager(database, geni, token).count(is_user)
+        return json({"count": count[0]})
+
+
 
 class PathView(HTTPMethodView):
 
-    @bp_paths.post("/personalities/search")
+    @doc.summary("Get path details")
+    @doc.consumes(Token, location='headers')
+    @doc.consumes(doc.String(name="source_id", description="Source profile id"))
+    @doc.consumes(doc.String(name="target_id", description="Target profile id"))
+    async def get(self, request):
+        token = request.headers.get('access_token')
+        source_id = request.args.get('source_id')
+        target_id = request.args.get('target_id')
+        if not source_id or not target_id:
+            abort(403, "Source and/or target profile id is missing")
+
+        with Database(db_url) as database:
+            path = await PathManager(database, geni, token).get(source_id, target_id)
+        return json({"path": path})
+
+    @staticmethod
+    @bp_paths.post("/personalities")
+    @doc.consumes(Token, location='headers')
     @doc.summary("Initiate path search from current user to all personalities")
-    def post_search(request):
+    def post_search_personalities(request):
         return text("I am get method")
 
+    @staticmethod
     @bp_paths.get("/personalities")
+    @doc.consumes(Token, location='headers')
     @doc.consumes(Pagination)
     @doc.summary("Get found paths from current user to all personalities")
     def get_personalities(request):
@@ -82,4 +143,20 @@ Utils.add_blueprint(app, bp_paths, PathView)
 
 if __name__ == "__main__":
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.DEBUG)
-    app.run(host="0.0.0.0", port=3030)
+    import multiprocessing_logging
+    from api.path import path_finder_worker
+    multiprocessing_logging.install_mp_handler()
+    process_quantity = int(sys.argv[1]) if len(sys.argv) > 1 else 0
+    quantity = process_quantity if process_quantity else cpu_count()*2+1
+
+    for counter in range(quantity):
+        Process(
+            target=path_finder_worker,
+            kwargs={'number': counter,
+                    'queue': task_queue,
+                    'db_url': db_url,
+                    'geni': geni},
+            name=str(counter)
+        ).start()
+
+    app.run(host="0.0.0.0", port=4200, debug=True)

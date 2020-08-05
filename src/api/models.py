@@ -21,7 +21,12 @@ profiles_table = sqlalchemy.Table(
     sqlalchemy.Column("name", sqlalchemy.String(255)),
     sqlalchemy.Column("url", sqlalchemy.String(255)),
     sqlalchemy.Column("details", sqlalchemy.JSON),
-    sqlalchemy.Column("is_user", sqlalchemy.Boolean, default=True)
+    sqlalchemy.Column("is_user", sqlalchemy.Boolean, default=True),
+    # BH data fields
+    sqlalchemy.Column("bh_theme", sqlalchemy.String(255)),
+    sqlalchemy.Column("bh_floor", sqlalchemy.Integer),
+    sqlalchemy.Column("bh_location", sqlalchemy.String(255)),
+
 )
 
 paths_table = sqlalchemy.Table(
