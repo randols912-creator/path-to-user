@@ -15,10 +15,11 @@ from databases import Database
 from sqlalchemy import create_engine, and_
 
 from multiprocessing import Process, Queue, cpu_count
+from asyncio import Queue as AsyncQueue
 
 from api.utils import Utils
 from api.models import metadata, paths_table, profiles_table
-from api.geni import GeniClient
+from api.geni import GeniClient, GeniClientAsync
 from api.path import PathManager
 from api.profile import ProfileManager
 # Enabling async template execution which allows you to take advantage
@@ -34,9 +35,7 @@ db_url = os.getenv("SQLALCHEMY_DATABASE_URI")
 engine = create_engine(db_url, echo = True)
 metadata.create_all(engine)
 
-task_queue = Queue()
-
-geni = GeniClient()
+geni = GeniClientAsync()
 # Load the template environment with async support
 template_env = Environment(
     loader=PackageLoader('geni', 'templates'),
@@ -126,7 +125,18 @@ class PathView(HTTPMethodView):
     @bp_paths.post("/personalities")
     @doc.consumes(Token, location='headers')
     @doc.summary("Initiate path search from current user to all personalities")
-    def post_search_personalities(request):
+    async def post_search_personalities(request):
+        token = request.headers.get('access_token')
+        async with Database(db_url) as database:
+            pm = ProfileManager(database, geni, token)
+            my_profile = await pm.cache()
+            # First, save/update current user's profile
+            await pm.save(my_profile, is_user=True)
+            # Enqueue tasks for finding paths to all personalities
+            async for personality in pm.iterate_personalities():
+                await task_queue.put({"source_id": my_profile['id'],
+                                "target_id": personality.id,
+                                "token": token})
         return text("I am get method")
 
     @staticmethod
@@ -144,19 +154,35 @@ Utils.add_blueprint(app, bp_paths, PathView)
 if __name__ == "__main__":
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.DEBUG)
     import multiprocessing_logging
-    from api.path import path_finder_worker
+    from api.path import path_finder_worker, path_finder_async
+    import asyncio
+    import concurrent
+
     multiprocessing_logging.install_mp_handler()
     process_quantity = int(sys.argv[1]) if len(sys.argv) > 1 else 0
     quantity = process_quantity if process_quantity else cpu_count()*2+1
 
+    loop = asyncio.get_event_loop()
+    task_queue = AsyncQueue(loop=loop)  # Queue()
+    workers = []
+    # Create concurrent tasks (workers)
     for counter in range(quantity):
-        Process(
-            target=path_finder_worker,
-            kwargs={'number': counter,
-                    'queue': task_queue,
-                    'db_url': db_url,
-                    'geni': geni},
-            name=str(counter)
-        ).start()
+        workers.append(loop.create_task(path_finder_async(counter, task_queue, db_url, geni)))
 
-    app.run(host="0.0.0.0", port=4200, debug=True)
+    srv_coro = app.create_server(
+        port=4200,
+        debug=False,
+        return_asyncio_server=True,
+        asyncio_server_kwargs=dict(
+            start_serving=False
+        )
+    )
+    srv = loop.run_until_complete(srv_coro)
+    try:
+        assert srv.is_serving() is False
+        loop.run_until_complete(srv.start_serving())
+        assert srv.is_serving() is True
+        loop.run_until_complete(asyncio.gather(srv.serve_forever(), *workers))
+    except KeyboardInterrupt:
+        srv.close()
+        loop.close()

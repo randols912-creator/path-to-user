@@ -1,13 +1,13 @@
 import sys, os
 import logging
-from api.geni import GeniClient
+from api.geni import GeniClient, GeniClientAsync
 from api.models import CURRENT_TIMESTAMP, paths_table, profiles_table
 from sqlalchemy import and_
 from databases import Database
 from api.bh import BHData
 
 class ProfileManager:
-    def __init__(self, database: Database, geni: GeniClient, token: str):
+    def __init__(self, database: Database, geni: GeniClientAsync, token: str):
         self.geni = geni
         self.database = database
         self.token = token
@@ -18,13 +18,40 @@ class ProfileManager:
         profile = await self.database.fetch_one(query=query)
         return profile
 
+    async def save(self, profile_dict, is_user):
+        profile = {k:v for k,v in profile_dict.items() if k in ["id", "name", "url"]}
+        profile["is_user"] = is_user
+        print("save: ", profile)
+        profile_db = await self.get(profile['id'])
+        # Insert or update
+        if not profile_db:
+            query = profiles_table.insert().values(profile)
+        else:
+            query = profiles_table.update().where(profiles_table.c.id == profile['id']).values(profile)
+
+        await self.database.execute(query)
+
+    async def cache(self, profile_id=None):
+        print("token: ", self.token)
+        profile, self.token = await self.geni.get_profile_details(self.token)
+        print(profile)
+        return profile
+
     async def count(self, is_user):
         query = profiles_table.count().where(profiles_table.c.is_user == is_user)
         count = await self.database.fetch_one(query=query)
         return count
 
+    async def iterate_personalities(self):
+        query = profiles_table.select().where(profiles_table.c.is_user == False)
+        # TODO: iterate instead of fetching all values
+        #profiles = await self.database.fetch_all(query=query)
+        #return profiles
+        async for row in self.database.iterate(query=query):
+            yield row
+
     async def cache_personalities(self):
-        profiles, next_page_url = self.geni.get_personalities_profiles(self.token)
+        profiles, next_page_url = await self.geni.get_personalities_profiles(self.token)
 
         while profiles:
             for profile in profiles:
@@ -48,11 +75,11 @@ class ProfileManager:
                 await self.database.execute(query)
             # Get next page
             if not next_page_url: break
-            profiles, next_page_url = self.geni.get_personalities_profiles(self.token, next_page_url)
+            profiles, next_page_url = await self.geni.get_personalities_profiles(self.token, next_page_url)
 
 async def cache_personalities():
     from dotenv import load_dotenv
-    geni = GeniClient()
+    geni = GeniClientAsync()
     authorize_url = geni.build_auth_url()
     print(f"""Caching BH personalities from Geni. Please goto: 
 

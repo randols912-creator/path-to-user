@@ -1,12 +1,15 @@
 import sys, os
 import logging
-from api.geni import GeniClient
+from api.geni import GeniClient, GeniClientAsync
 from api.models import CURRENT_TIMESTAMP, paths_table, profiles_table
 from sqlalchemy import and_
 from databases import Database
 
+import asyncio
+import random
+
 class PathManager:
-    def __init__(self, database: Database, geni: GeniClient, token: str):
+    def __init__(self, database: Database, geni: GeniClientAsync, token: str):
         self.geni = geni
         self.database = database
         self.token = token
@@ -17,7 +20,7 @@ class PathManager:
         # First, save source profile to DB (if not saved yet). TODO: save outside of PathFinder
         # self._save_profile(session, self.source_profile)
         # Call Geni API to find path between source and target profiles
-        result, self.token = self.geni.get_path_to(source_id, target_id, self.token)
+        result, self.token = await self.geni.get_path_to(source_id, target_id, self.token)
 
         logging.info("[{}] Status for {} -> {}".format(os.getpid(), target_id, result.get('status')))
         # Save resulted path (or its pending status) to DB
@@ -50,6 +53,7 @@ class PathManager:
                   'step_count': result.get('step_count', 0),
                   'relationship': result.get('relationship', ''),
                   'relations': result.get('relations', '')}
+        print("values: ", values)
         if not pending:
             values['finished_on'] = CURRENT_TIMESTAMP
         # Insert or update
@@ -57,6 +61,7 @@ class PathManager:
             query = paths_table.insert().values(values)
         else:
             query = paths_table.update().where(paths_table.c.id==path['id']).values(values)
+        print(query)
         await self.database.execute(query)
 
 
@@ -75,3 +80,25 @@ async def path_finder_worker(number, queue, db_url, geni):
             if pending:
                 queue.put(task)
 
+async def path_finder_async(number, queue, db_url, geni):
+    logging.info(f"Starting process: {number}")
+    async with Database(db_url) as database:
+        while True:
+            task = await queue.get()
+            pm = PathManager(database, geni, task['token'])
+            # find_coro = pm.find(task['source_id'], task['target_id'])
+            # tasks.append(task)
+            # coros.append(find_coro)
+            # if len(tasks) >= 25:
+            #     responses = await asyncio.gather(*coros)
+            #     for task, pending in zip(tasks,responses):
+            #         if pending:
+            #             await queue.put(task)
+            #     tasks.clear()
+            #     coros.clear()
+            #pending = await asyncio.create_task(pm.find(task['source_id'], task['target_id']))
+            pending = await pm.find(task['source_id'], task['target_id'])
+            if pending:
+                await queue.put(task)
+            # simulate i/o operation using sleep
+            await asyncio.sleep(random.random())
