@@ -1,26 +1,27 @@
-P2U - Geni Path 2 User
-=======
+# GeniApp
 
-Geni application that explores the path to user functionality of the Geni API.  Allows users to find:
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.0.3.
 
-	* Path to a specific account
-	* Path from an account to another account
-	* Path to US Presidents
-	* Path to World Monarchs
-	* Path to selected Geni projects (Nobel Prize winners, Olympians, British Monarchs, etc)
-	* Path to Geni project by project id - limited to first 200 
+## Development server
 
-Stack : Flask, Oauth2, MySql
+Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
+## Code scaffolding
 
-*Not associated with Geni.com
+Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
 
+## Build
 
-How to run:
-## 1. Run RQ worker
-> rqworker p2u_high p2u_default
+Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
 
-## 2. Run P2U
-> python p2u.py
+## Running unit tests
 
-## 3. Goto http://localhost:5050
+Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+
+## Running end-to-end tests
+
+Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+
+## Further help
+
+To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
