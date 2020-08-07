@@ -1,8 +1,8 @@
 import sys, os
 import logging
-from api.geni import GeniClient, GeniClientAsync
+from api.geni import GeniClientAsync
 from api.models import CURRENT_TIMESTAMP, paths_table, profiles_table
-from sqlalchemy import and_
+from sqlalchemy import and_, select, join
 from databases import Database
 
 import asyncio
@@ -34,6 +34,19 @@ class PathManager:
             and_(paths_table.c.source_id == source_id, paths_table.c.target_id == target_id))
         path = await self.database.fetch_one(query=query)
         return path
+
+    async def get_personalities_paths(self, source_id: str, offset: int, limit: int):
+        j = join(profiles_table, paths_table, profiles_table.c.id == paths_table.c.target_id)
+        query = select([paths_table.c.source_id,
+                        paths_table.c.target_id,
+                        paths_table.c.step_count,
+                        profiles_table.c.details.label("target_profile")]).select_from(j) \
+                .where(
+                    and_(paths_table.c.source_id == source_id, paths_table.c.step_count > 0))\
+                .order_by(paths_table.c.finished_on).offset(offset).limit(limit)
+
+        paths = await self.database.fetch_all(query=query)
+        return paths
 
     async def _save_profile(self, profile):
         query = profiles_table.select().where(profiles_table.c.id==profile['id'])

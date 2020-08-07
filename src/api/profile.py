@@ -1,12 +1,14 @@
 import sys, os
 import logging
-from api.geni import GeniClient, GeniClientAsync
+from api.geni import GeniClientAsync
 from api.models import CURRENT_TIMESTAMP, paths_table, profiles_table
 from sqlalchemy import and_
 from databases import Database
 from api.bh import BHData
 
 class ProfileManager:
+    TOKEN_TO_PROFILE = dict()
+
     def __init__(self, database: Database, geni: GeniClientAsync, token: str):
         self.geni = geni
         self.database = database
@@ -32,9 +34,11 @@ class ProfileManager:
         await self.database.execute(query)
 
     async def cache(self, profile_id=None):
-        print("token: ", self.token)
+        # TODO: check if token has expired
+        if self.token in self.TOKEN_TO_PROFILE: return self.TOKEN_TO_PROFILE[self.token]
         profile, self.token = await self.geni.get_profile_details(self.token)
-        print(profile)
+        self.TOKEN_TO_PROFILE[self.token] = profile
+
         return profile
 
     async def count(self, is_user):

@@ -1,6 +1,6 @@
 import sys, os
 import logging
-import requests
+import datetime
 
 from dotenv import load_dotenv
 
@@ -19,7 +19,7 @@ from asyncio import Queue as AsyncQueue
 
 from api.utils import Utils
 from api.models import metadata, paths_table, profiles_table
-from api.geni import GeniClient, GeniClientAsync
+from api.geni import GeniClientAsync
 from api.path import PathManager
 from api.profile import ProfileManager
 # Enabling async template execution which allows you to take advantage
@@ -58,17 +58,32 @@ class Pagination:
     offset = doc.Integer()
     limit = doc.Integer()
 
+TOKEN_PARAM = 'access_token'
+
 class Token:
-    access_token = doc.String(name="access_token", description="Geni access token")
+    access_token = doc.String(name=TOKEN_PARAM, description="Geni access token")
+    cache = dict()
+    cache_valid_seconds = 300
+
+    @staticmethod
+    async def validate(request):
+        token = request.headers.get(TOKEN_PARAM)
+        if token in Token.cache and (datetime.datetime.now() - Token.cache[token]) < datetime.timedelta(seconds=Token.cache_valid_seconds):
+            return token
+        if not token or not await geni.validate_token(token):
+            # clear from cache
+            Token.cache.pop(token, None)
+            abort(400, "Invalid access token")
+        # put into the cache
+        Token.cache[token] = datetime.datetime.now()
+        return token
 
 class ProfileView(HTTPMethodView):
     @bp_profiles.get("/cache")
     @doc.consumes(Token, location='headers')
     @doc.summary("Cache personality profiles from Geni")
     async def post(self, request: Request):
-        token = request.headers.get('access_token')
-        if not token:
-            abort(403, "Access token is missing")
+        token = await Token.validate(request)
 
         with Database(db_url) as database:
             num_profiles = await ProfileManager(database, geni, token).cache_personalities()
@@ -79,7 +94,7 @@ class ProfileView(HTTPMethodView):
     @doc.consumes(doc.String(name="id", description="Profile id"))
     @doc.summary("Get profile by id")
     async def get(self, request: Request):
-        token = request.headers.get('access_token')
+        token = await Token.validate(request)
         profile_id = request.args.get('id')
         if not profile_id:
             abort(403, "Profile id is missing")
@@ -94,7 +109,7 @@ class ProfileView(HTTPMethodView):
     @doc.consumes(doc.String(name="type", description="Profile type", choices=['personality', 'user']))
     @doc.summary("Count profiles")
     async def get_count(request):
-        token = request.headers.get('access_token')
+        token = await Token.validate(request)
         type = request.args.get('id')
         is_user = (type == 'user')
 
@@ -102,7 +117,10 @@ class ProfileView(HTTPMethodView):
             count = await ProfileManager(database, geni, token).count(is_user)
         return json({"count": count[0]})
 
-
+def dt_converter(o):
+    if isinstance(o, datetime.datetime):
+        return o.__str__()
+    return o
 
 class PathView(HTTPMethodView):
 
@@ -111,22 +129,23 @@ class PathView(HTTPMethodView):
     @doc.consumes(doc.String(name="source_id", description="Source profile id"))
     @doc.consumes(doc.String(name="target_id", description="Target profile id"))
     async def get(self, request):
-        token = request.headers.get('access_token')
+        token = await Token.validate(request)
         source_id = request.args.get('source_id')
         target_id = request.args.get('target_id')
         if not source_id or not target_id:
             abort(403, "Source and/or target profile id is missing")
 
-        with Database(db_url) as database:
+        async with Database(db_url) as database:
             path = await PathManager(database, geni, token).get(source_id, target_id)
-        return json({"path": path})
+        path = {k:dt_converter(v) for k,v in dict(path).items()}
+        return json({"path": path}, escape_forward_slashes=False)
 
     @staticmethod
     @bp_paths.post("/personalities")
     @doc.consumes(Token, location='headers')
     @doc.summary("Initiate path search from current user to all personalities")
     async def post_search_personalities(request):
-        token = request.headers.get('access_token')
+        token = await Token.validate(request)
         async with Database(db_url) as database:
             pm = ProfileManager(database, geni, token)
             my_profile = await pm.cache()
@@ -137,15 +156,23 @@ class PathView(HTTPMethodView):
                 await task_queue.put({"source_id": my_profile['id'],
                                 "target_id": personality.id,
                                 "token": token})
-        return text("I am get method")
+        return json({"status": "Started paths search"})
 
     @staticmethod
     @bp_paths.get("/personalities")
     @doc.consumes(Token, location='headers')
     @doc.consumes(Pagination)
     @doc.summary("Get found paths from current user to all personalities")
-    def get_personalities(request):
-        return text("I am get method")
+    async def get_personalities(request):
+        token = await Token.validate(request)
+        offset = request.args.get('offset', 0)
+        limit = request.args.get('limit', 50)
+        async with Database(db_url) as database:
+            pm = ProfileManager(database, geni, token)
+            my_profile = await pm.cache()
+            print(my_profile)
+            paths = await PathManager(database, geni, token).get_personalities_paths(my_profile['id'], offset, limit)
+        return json({"paths": [dict(p) for p in paths]}, escape_forward_slashes=False)
 
 # Add blueprints to the app
 Utils.add_blueprint(app, bp_profiles, ProfileView)
@@ -153,12 +180,9 @@ Utils.add_blueprint(app, bp_paths, PathView)
 
 if __name__ == "__main__":
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.DEBUG)
-    import multiprocessing_logging
-    from api.path import path_finder_worker, path_finder_async
+    from api.path import path_finder_async
     import asyncio
-    import concurrent
 
-    multiprocessing_logging.install_mp_handler()
     process_quantity = int(sys.argv[1]) if len(sys.argv) > 1 else 0
     quantity = process_quantity if process_quantity else cpu_count()*2+1
 
@@ -168,7 +192,7 @@ if __name__ == "__main__":
     # Create concurrent tasks (workers)
     for counter in range(quantity):
         workers.append(loop.create_task(path_finder_async(counter, task_queue, db_url, geni)))
-
+    # Create Sanic server
     srv_coro = app.create_server(
         port=4200,
         debug=False,
@@ -177,6 +201,7 @@ if __name__ == "__main__":
             start_serving=False
         )
     )
+    # Run Sanic server and path workers as concurrent tasks
     srv = loop.run_until_complete(srv_coro)
     try:
         assert srv.is_serving() is False
