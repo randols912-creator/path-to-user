@@ -28,6 +28,8 @@ enable_async = sys.version_info >= (3, 6)
 
 app = Sanic()
 app.static('/', './templates/')
+app.blueprint(swagger_blueprint)
+
 # Load parameters
 load_dotenv()
 # Initialize database
