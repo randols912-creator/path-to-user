@@ -31,9 +31,14 @@ export const profileUrl = `/${profilePath}`;
 export const settingsUrl = `/${settingsPath}`;
 
 export const welcomePhotos = [
-  'assets/img/photos/photo_2.png',
-  'assets/img/photos/photo_1.png',
-  'assets/img/photos/photo_3.png',
-  'assets/img/photos/photo_1.png',
-  'assets/img/photos/photo_2.png',
+  'assets/img/photos/0.jpg',
+  'assets/img/photos/1.jpg',
+  'assets/img/photos/2.jpg',
+  'assets/img/photos/3.jpg',
+  'assets/img/photos/4.jpg',
+  'assets/img/photos/5.jpg',
+  'assets/img/photos/6.jpg',
+  'assets/img/photos/7.jpg',
+  'assets/img/photos/8.jpg',
+  'assets/img/photos/9.jpg',
 ];

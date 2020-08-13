@@ -23,9 +23,6 @@ import { GenderDotComponent } from './components/containers/relation/connections
 import { RelationComponent } from './components/containers/relation/relation.component';
 import { SettingsComponent } from './components/containers/settings/settings.component';
 import { SortComponent } from './components/containers/settings/sort/sort.component';
-import { WelcomeBottomComponent } from './components/containers/welcome/welcome-bottom/welcome-bottom.component';
-import { WelcomeMiddleComponent } from './components/containers/welcome/welcome-middle/welcome-middle.component';
-import { WelcomeTopComponent } from './components/containers/welcome/welcome-top/welcome-top.component';
 import { WelcomeComponent } from './components/containers/welcome/welcome.component';
 import { InfoBarComponent } from './components/ui/info-bar/info-bar.component';
 import { SpinnerComponent } from './components/ui/spinner/spinner.component';
@@ -52,9 +49,6 @@ class JsonpInterceptorModule {}
   declarations: [
     AppComponent,
     WelcomeComponent,
-    WelcomeTopComponent,
-    WelcomeMiddleComponent,
-    WelcomeBottomComponent,
     HomeComponent,
     TitleBarComponent,
     ToolbarComponent,

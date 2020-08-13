@@ -1,0 +1,93 @@
+/* Top */
+#title-text-ampersand {
+  width: 30px;
+}
+
+.welcome__top {
+  height: auto;
+  padding-top: 5.8vh;
+}
+
+.welcome__top h1 {
+  margin-bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.welcome__top h4 {
+  margin-top: 5.2vh;
+  margin-bottom: 0;
+  text-align: center;
+}
+
+.welcome__top .circles-separator {
+  margin-top: 2.9vh;
+}
+
+.welcome__top p {
+  text-align: center;
+  margin-left: 3.1vw;
+  margin-right: 3.1vw;
+  margin-top: 5.2vh;
+  margin-bottom: 5.2vh;
+}
+
+/* Middle */
+.welcome__middle {
+  height: auto;
+  background: #f3f3f3 0% 0% no-repeat padding-box;
+}
+
+.welcome__middle .general-link {
+  width: 100%;
+  padding-top: 4.2vh;
+  padding-bottom: 3.8vh;
+}
+
+.welcome__middle .welcome__photos-row-image {
+  margin-left: 3vw;
+}
+
+.welcome__middle p {
+  text-align: center;
+  margin-bottom: 0;
+  padding-left: 3.1vw;
+  padding-right: 3.1vw;
+  padding-top: 1.8vh;
+  padding-bottom: 3.8vh;
+}
+
+.welcome__photos-row {
+  height: 10vh;
+  display: flex;
+  overflow-x: scroll;
+}
+
+.welcome__photos-row img {
+  height: 90%;
+  border-radius: 50%;
+  margin: 0 5px;
+}
+
+/* Bootom */
+.welcome__bottom {
+  height: auto;
+  padding: 28px 10px 17px;
+}
+
+.welcome__bottom * {
+  text-align: center;
+}
+
+.other-platform,
+.none-platform {
+  margin-bottom: 28px;
+}
+
+.bottom-logo {
+  display: block;
+  margin: 20px auto 0;
+  width: 30.5vw;
+}

@@ -18,4 +18,8 @@ export class WelcomeComponent implements OnInit {
       this.router.navigate([homePath]);
     }
   }
+
+  loginHandler(): void {
+    this.authService.login();
+  }
 }

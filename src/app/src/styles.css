@@ -22,6 +22,11 @@ html * {
   font-family: Open Sans Hebrew;
 }
 
+.box {
+  max-width: 93.75%;
+  margin: auto;
+}
+
 .title-text {
   font: bold 24px Open Sans Hebrew;
   letter-spacing: 0;
