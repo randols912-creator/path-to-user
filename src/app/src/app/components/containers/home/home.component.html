@@ -12,6 +12,7 @@
     </div>
   </app-info-bar>
 </div>
-<app-toolbar></app-toolbar>
+<!-- TODO hidden for now -->
+<app-toolbar *ngIf="false"></app-toolbar>
 <app-spinner *ngIf="loading"></app-spinner>
 <app-relations-list [relations]="relations"></app-relations-list>
