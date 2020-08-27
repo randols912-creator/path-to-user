@@ -1,12 +1,11 @@
 <app-title-bar [showMenu]="false" [showGoBack]="true"></app-title-bar>
 <div class="menu-container">
-  <button type="button" class="btn btn-link bigger-text">
-    עברית
-  </button>
-  <img src="assets/img/lineOfCircles.svg" class="circles-separator" />
-  <button type="button" class="btn btn-link bigger-text">
-    About
-  </button>
+  <!-- TODO hidden for now -->
+  <div *ngIf="false">
+    <button type="button" class="btn btn-link bigger-text">עברית</button>
+    <img src="assets/img/lineOfCircles.svg" class="circles-separator" />
+    <button type="button" class="btn btn-link bigger-text">About</button>
+  </div>
   <img src="assets/img/lineOfCircles.svg" class="circles-separator" />
   <button
     (click)="logoutHandler()"
