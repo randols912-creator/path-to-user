@@ -20,6 +20,11 @@
 .direct .connection-badge .info-section {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+}
+
+.direct .connection-badge .info-section .name-section {
+  max-width: 85%;
 }
 
 .indirect .connection-badge {
