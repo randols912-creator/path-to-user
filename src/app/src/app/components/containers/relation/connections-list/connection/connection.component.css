@@ -9,6 +9,17 @@
 .connection .connection-badge {
   line-height: 0;
   border-radius: 35px;
+  width: 100%;
+}
+
+.direct .connection-badge {
+  display: flex;
+  align-items: center;
+}
+
+.direct .connection-badge .info-section {
+  display: flex;
+  justify-content: space-between;
 }
 
 .indirect .connection-badge {
@@ -111,7 +122,7 @@
 }
 
 .direct .info-section {
-  width: 80%;
+  width: 85%;
   display: inline-block;
   vertical-align: middle;
 }

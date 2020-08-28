@@ -40,6 +40,9 @@
           {{ connection.profile && connection.profile.name }}
         </a>
       </div>
+      <div *ngIf="relatedConnection && direct" class="small-text">
+        {{ relation }}
+      </div>
       <div *ngIf="!direct && expanded" class="small-text">
         {{ relation }}
         <button

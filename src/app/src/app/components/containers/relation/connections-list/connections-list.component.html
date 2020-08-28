@@ -45,9 +45,7 @@
     *ngFor="let c of connections; index as i"
     [connection]="c"
     [step_count]="i"
-    [relatedConnection]="
-      !isDirectConnection(i) ? connections[i - 1] : undefined
-    "
+    [relatedConnection]="connections[i - 1]"
     [direct]="isDirectConnection(i)"
     [isFinalIndirectConnection]="connections.length - i === 2"
     [drawArrowDown]="c != finalConnection"
