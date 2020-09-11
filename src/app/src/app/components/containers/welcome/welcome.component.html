@@ -1,4 +1,5 @@
 <div class="welcome">
+  <app-title-bar [showTitle]="false"></app-title-bar>
   <section class="box welcome__top">
     <h1 class="title-text">
       MJP
@@ -9,6 +10,9 @@
       />
       ME
     </h1>
+    <h2 class="subtitle-text">
+      <span>M</span>useum of the <span>J</span>ewish <span>P</span>eople
+    </h2>
     <h4 class="subtitle-text">
       Wouldn’t it be great to know if you have a family connection to famous
       Jewish people like Albert Einstein, Golda Meir or Barbra Streisand?
@@ -25,6 +29,7 @@
         (click)="loginHandler()"
         type="button"
         class="btn btn-link accent-text general-link"
+        [disabled]="!agreeToTerms || !agreeToConnectRelatives"
       >
         Log in to your Geni account
       </button>
@@ -37,6 +42,31 @@
         reveal the exact location in the museum. You may even find your
         relationship to other museum visitors!
       </p>
+      <label>
+        <input
+          type="checkbox"
+          [checked]="agreeToTerms"
+          (change)="checkboxCheckHandler($event, 'agreeToTerms')"
+        />
+        <span
+          >I Agree to
+          <a [href]="termsOfUseUrl" target="_blank" rel="nofollow noopener"
+            >Terms of Use</a
+          ></span
+        >
+      </label>
+      <label>
+        <input
+          type="checkbox"
+          [checked]="agreeToConnectRelatives"
+          (change)="checkboxCheckHandler($event, 'agreeToConnectRelatives')"
+        />
+        <span>
+          I Agree to allow this app to
+          <a href="#">connect me with relatives</a> who may now be in the museum
+          itself
+        </span>
+      </label>
     </div>
   </section>
   <section class="box welcome__bottom">

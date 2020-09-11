@@ -17,4 +17,8 @@ export class MenuComponent implements OnInit {
     this.auth.logout();
     this.router.navigate([welcomeUrl]);
   }
+
+  get isAuthenticated() {
+    return this.auth.isAuthenticated();
+  }
 }

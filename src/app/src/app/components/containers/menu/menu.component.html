@@ -8,6 +8,7 @@
   </div>
   <img src="assets/img/lineOfCircles.svg" class="circles-separator" />
   <button
+    *ngIf="isAuthenticated"
     (click)="logoutHandler()"
     type="button"
     class="btn btn-link bigger-text"

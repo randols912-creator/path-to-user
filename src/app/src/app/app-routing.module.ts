@@ -27,7 +27,6 @@ const routes: Routes = [
   {
     path: menuPath,
     component: MenuComponent,
-    canActivate: [AuthGuard],
     data: { animation: 'menu' },
   },
   {
