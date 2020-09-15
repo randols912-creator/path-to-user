@@ -95,7 +95,7 @@ app-title-bar::ng-deep .title-bar {
   margin: 0 5px;
 }
 
-.welcome__middle label {
+.welcome__middle .welcome__agree-box {
   display: flex;
   font-size: 12px;
   line-height: 1.5;
@@ -104,11 +104,11 @@ app-title-bar::ng-deep .title-bar {
   padding: 1vh 3.1vw;
 }
 
-.welcome__middle label input {
+.welcome__middle .welcome__agree-box input {
   margin: 2px 10px 0 0;
 }
 
-.welcome__middle label a {
+.welcome__middle .welcome__agree-box a {
   text-decoration: underline;
   color: #666666;
 }

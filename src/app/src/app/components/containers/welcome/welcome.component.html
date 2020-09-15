@@ -1,3 +1,4 @@
+<ng-template appRef></ng-template>
 <div class="welcome">
   <app-title-bar [showTitle]="false"></app-title-bar>
   <section class="box welcome__top">
@@ -42,11 +43,11 @@
         reveal the exact location in the museum. You may even find your
         relationship to other museum visitors!
       </p>
-      <label>
+      <div class="welcome__agree-box">
         <input
           type="checkbox"
           [checked]="agreeToTerms"
-          (change)="checkboxCheckHandler($event, 'agreeToTerms')"
+          (change)="agreeToTerms = !agreeToTerms"
         />
         <span
           >I Agree to
@@ -54,19 +55,21 @@
             >Terms of Use</a
           ></span
         >
-      </label>
-      <label>
+      </div>
+      <div class="welcome__agree-box">
         <input
           type="checkbox"
           [checked]="agreeToConnectRelatives"
-          (change)="checkboxCheckHandler($event, 'agreeToConnectRelatives')"
+          (change)="agreeToConnectRelatives = !agreeToConnectRelatives"
         />
         <span>
           I Agree to allow this app to
-          <a href="#">connect me with relatives</a> who may now be in the museum
-          itself
+          <a (click)="showModalConnectWithRelatives()"
+            >connect me with relatives</a
+          >
+          who may now be in the museum itself
         </span>
-      </label>
+      </div>
     </div>
   </section>
   <section class="box welcome__bottom">
