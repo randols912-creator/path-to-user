@@ -43,4 +43,5 @@ export const welcomePhotos = [
   'assets/img/photos/7.jpg',
   'assets/img/photos/8.jpg',
   'assets/img/photos/9.jpg',
+  'assets/img/photos/10.jpg',
 ];
