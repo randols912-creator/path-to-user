@@ -11,7 +11,7 @@ class GeniClientAsync:
     AUTH_URL = 'platform/oauth/authorize'
     TOKEN_URL = 'platform/oauth/request_token'
     VALIDATE_TOKEN_URL = 'platform/oauth/validate_token'
-    PROFILE_URL = 'api/profile?fields=id,name,guid,url'
+    PROFILE_URL = 'api/{profile}?fields=id,name,guid,url'
     PATH_BETWEEN_PROFILES_URL = 'api/{source}/path-to/{target}?skip_email=1&skip_notify=1'
     PROFILES_FROM_PROJECT = 'api/project-56250/profiles'
 
@@ -72,9 +72,9 @@ class GeniClientAsync:
 
         return url
 
-    async def get_profile_details(self, token):
-        """Get the profile details for the logged in account"""
-        url = self.BASE_URL + self.PROFILE_URL
+    async def get_profile_details(self, token, profile_id="profile"):
+        """Get the profile details. By default, return details of logged in account"""
+        url = self.BASE_URL + self.PROFILE_URL.format(profile=profile_id)
         counter = 0
 
         while counter < 5:
