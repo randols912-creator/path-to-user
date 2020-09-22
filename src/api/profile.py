@@ -64,7 +64,7 @@ class ProfileManager:
                           'url': profile['url'],
                           'details': profile,
                           'is_user': False}
-                # Add BH data fields
+                # Add BH data fields                
                 bh_profile = self.bh_data.get_bh_profile(profile['id'])
                 if bh_profile:
                     values.update({key: bh_profile[key] for key in ['bh_theme', 'bh_floor', 'bh_location'] if bh_profile[key]})

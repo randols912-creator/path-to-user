@@ -1,5 +1,6 @@
 import sys, os
 import logging
+logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.DEBUG)
 import datetime
 
 from dotenv import load_dotenv
@@ -18,6 +19,15 @@ from sqlalchemy import create_engine, and_
 from multiprocessing import Process, Queue, cpu_count
 from asyncio import Queue as AsyncQueue
 
+app = Sanic(name='api')
+CORS(app)
+app.blueprint(swagger_blueprint)
+
+# Load parameters
+load_dotenv()
+import os
+print(os.environ['SQLALCHEMY_DATABASE_URI'])
+
 from api.utils import Utils
 from api.models import metadata, paths_table, profiles_table
 from api.geni import GeniClientAsync
@@ -27,12 +37,6 @@ from api.profile import ProfileManager
 # of newer Python features requires Python 3.6 or later.
 enable_async = sys.version_info >= (3, 6)
 
-app = Sanic(name='api')
-CORS(app)
-app.blueprint(swagger_blueprint)
-
-# Load parameters
-load_dotenv()
 # Initialize database
 db_url = str(os.getenv("SQLALCHEMY_DATABASE_URI"))
 engine = create_engine(db_url, echo = True)
@@ -47,7 +51,7 @@ class Pagination:
     offset = doc.Integer()
     limit = doc.Integer()
 
-TOKEN_PARAM = 'access_token'
+TOKEN_PARAM = 'authorization'
 
 class Token:
     access_token = doc.String(name=TOKEN_PARAM, description="Geni access token")
@@ -56,11 +60,13 @@ class Token:
 
     @staticmethod
     async def validate(request):
+        logging.info(f"Headers: {request.headers}")
         token = request.headers.get(TOKEN_PARAM)
         if token in Token.cache and (datetime.datetime.now() - Token.cache[token]) < datetime.timedelta(seconds=Token.cache_valid_seconds):
             return token
         if not token or not await geni.validate_token(token):
             # clear from cache
+            logging.info(f"Token: {token} is invalid")
             Token.cache.pop(token, None)
             abort(400, "Invalid access token")
         # put into the cache
@@ -183,7 +189,6 @@ Utils.add_blueprint(app, bp_profiles, ProfileView)
 Utils.add_blueprint(app, bp_paths, PathView)
 
 if __name__ == "__main__":
-    logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.DEBUG)
     from api.path import path_finder_async
     import asyncio
 

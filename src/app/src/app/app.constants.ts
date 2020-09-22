@@ -16,7 +16,7 @@ export const fetchPathsUrl = `${env.relationsServiceHost}/api/v1/paths/personali
 export const pathsCountUrl = `${env.relationsServiceHost}/api/v1/paths/personalities/count`;
 export const profilesCountUrl = `${env.relationsServiceHost}/api/v1/profiles/count`;
 export const pathDetailsUrl = `${env.relationsServiceHost}/api/v1/paths`;
-export const geniTokenHeaderKey = 'access_token';
+export const geniTokenHeaderKey = 'authorization';
 export const millisBetweenBackendCalls = 1000;
 
 export const homePath = '';

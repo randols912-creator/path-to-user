@@ -1,9 +1,9 @@
+import logging
 import csv
 import re
 import os
 from collections import OrderedDict
 DEFAULT_PERSONALITIES_CSV = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "data", "personalities.csv")
-
 
 class BHData:
     THEME_MAP = {
@@ -36,7 +36,7 @@ class BHData:
             self.headers = [re.sub("\s+", "_", h).lower() for h in headers]
             for row in csv_f:
                 row_dict = OrderedDict(zip(self.headers, row))
-                row_dict['bh_theme'] = self.THEME_MAP.get(row_dict['bh_theme'].strip(), "other")
+                row_dict['bh_theme'] = row_dict['bh_theme'].strip() # self.THEME_MAP.get(row_dict['bh_theme'].strip(), "other")
                 self.data[row_dict['geni_id']] = row_dict
 
     def get_bh_profile(self, geni_id):
