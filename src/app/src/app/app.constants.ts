@@ -12,9 +12,11 @@ export const geniTokenExpiresStorageKey = 'gn-token-exp';
 export const currentUserProfileStorageKey = 'gn-user';
 export const appSettingsStorageKey = 'app-settings';
 
-export const fetchRelationsUrl = `${env.relationsServiceHost}/path-to-project`;
-export const getRelationsCountUrl = `${env.relationsServiceHost}/relations-count`;
-export const geniTokenHeaderKey = 'geni-access-token';
+export const fetchPathsUrl = `${env.relationsServiceHost}/api/v1/paths/personalities`;
+export const pathsCountUrl = `${env.relationsServiceHost}/api/v1/paths/personalities/count`;
+export const profilesCountUrl = `${env.relationsServiceHost}/api/v1/profiles/count`;
+export const pathDetailsUrl = `${env.relationsServiceHost}/api/v1/paths`;
+export const geniTokenHeaderKey = 'access_token';
 export const millisBetweenBackendCalls = 1000;
 
 export const homePath = '';

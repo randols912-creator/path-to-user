@@ -1,30 +1,42 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import Relation from '../model/Relation';
+import Path from '../model/Path';
 
-const compareByProfileName = (a: Relation, b: Relation): number =>
-  `${a.profile.last_name ? a.profile.last_name : a.profile.maiden_name}${
-    a.profile.first_name ? a.profile.first_name : a.profile_name
+const compareByProfileName = (a: Path, b: Path): number =>
+  `${
+    a.target_profile.last_name
+      ? a.target_profile.last_name
+      : a.target_profile.maiden_name
+  }${
+    a.target_profile.first_name
+      ? a.target_profile.first_name
+      : a.target_profile.name
   }` >
-  `${b.profile.last_name ? b.profile.last_name : b.profile.maiden_name}${
-    b.profile.first_name ? b.profile.first_name : b.profile_name
+  `${
+    b.target_profile.last_name
+      ? b.target_profile.last_name
+      : b.target_profile.maiden_name
+  }${
+    b.target_profile.first_name
+      ? b.target_profile.first_name
+      : b.target_profile.name
   }`
     ? 1
     : -1;
 
-const compareByStepCount = (a: Relation, b: Relation): number =>
+const compareByStepCount = (a: Path, b: Path): number =>
   a.step_count > b.step_count ? 1 : -1;
 
 @Pipe({
   name: 'relationsSortBy',
-  pure: false
+  pure: false,
 })
 export class RelationsSortByPipe implements PipeTransform {
   constructor() {}
 
   transform(
-    relations: Relation[],
+    relations: Path[],
     order: RelationSortOrder = RelationSortOrder.DEFAULT
-  ): Relation[] {
+  ): Path[] {
     if (!relations.length) {
       return relations;
     }
@@ -32,22 +44,20 @@ export class RelationsSortByPipe implements PipeTransform {
     switch (order) {
       case RelationSortOrder.NAME:
         return [
-          ...relations.sort((a: Relation, b: Relation) =>
-            compareByProfileName(a, b)
-          ),
+          ...relations.sort((a: Path, b: Path) => compareByProfileName(a, b)),
         ];
       default:
         return [
           ...relations
             .filter((r) => r.step_count > 0)
-            .sort((a: Relation, b: Relation) =>
+            .sort((a: Path, b: Path) =>
               a.step_count === b.step_count
                 ? compareByProfileName(a, b)
                 : compareByStepCount(a, b)
             ),
           ...relations
             .filter((r) => r.step_count === 0)
-            .sort((a: Relation, b: Relation) => compareByProfileName(a, b)),
+            .sort((a: Path, b: Path) => compareByProfileName(a, b)),
         ];
     }
   }

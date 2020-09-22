@@ -18,7 +18,7 @@ export class ConnectionsListComponent implements OnInit {
   constructor(private geni: GeniService) {}
 
   ngOnInit(): void {
-    if (this.connections && this.connections.length) {
+    if (this.connections?.length) {
       const unitializedConnections = this.connections.filter((c) => !c.profile);
 
       if (unitializedConnections.length) {
@@ -60,10 +60,12 @@ export class ConnectionsListComponent implements OnInit {
   }
 
   get userConnection(): Connection {
-    return this.connections && this.connections[0];
+    return this.connections?.length && this.connections[0];
   }
 
   get finalConnection(): Connection {
-    return this.connections && this.connections[this.connections.length - 1];
+    return (
+      this.connections?.length && this.connections[this.connections.length - 1]
+    );
   }
 }

@@ -35,18 +35,26 @@ class PathManager:
         path = await self.database.fetch_one(query=query)
         return path
 
-    async def get_personalities_paths(self, source_id: str, offset: int, limit: int):
+    async def get_personalities_paths(self, source_id: str, offset: int, limit: int, connected_only=True):
         j = join(profiles_table, paths_table, profiles_table.c.id == paths_table.c.target_id)
+        step_count_cond = (paths_table.c.step_count > 0) if connected_only else True
         query = select([paths_table.c.source_id,
                         paths_table.c.target_id,
                         paths_table.c.step_count,
+                        profiles_table.c.bh_theme,
                         profiles_table.c.details.label("target_profile")]).select_from(j) \
                 .where(
-                    and_(paths_table.c.source_id == source_id, paths_table.c.step_count > 0))\
-                .order_by(paths_table.c.finished_on).offset(offset).limit(limit)
+                    and_(paths_table.c.source_id == source_id, step_count_cond))\
+                .order_by(paths_table.c.finished_on).offset(offset)
+
+        if limit:
+            query = query.limit(limit)
 
         paths = await self.database.fetch_all(query=query)
         return paths
+
+    async def count_personalities_paths(self, source_id: str, connected_only=True):
+        return len(await self.get_personalities_paths(source_id, 0, 0, connected_only))
 
     async def _save_profile(self, profile):
         query = profiles_table.select().where(profiles_table.c.id==profile['id'])

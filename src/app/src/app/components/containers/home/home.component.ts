@@ -6,7 +6,7 @@ import {
 
 import { AuthService } from 'src/app/auth/auth.service';
 import Profile from 'src/app/model/Profile';
-import Relation from 'src/app/model/Relation';
+import Path from 'src/app/model/Path';
 
 @Component({
   selector: 'app-home',
@@ -40,7 +40,7 @@ export class HomeComponent implements OnInit {
     return this.auth.user;
   }
 
-  get relations(): Array<Relation> {
+  get relations(): Array<Path> {
     return this.relationService.getRelations();
   }
 

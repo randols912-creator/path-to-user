@@ -9,7 +9,7 @@ from sanic.response import text, json
 from sanic.request import Request
 from sanic.views import HTTPMethodView
 from sanic.exceptions import abort
-from sanic_openapi import doc, swagger_blueprint, api
+from sanic_openapi import doc, swagger_blueprint, api as sanic_api
 from jinja2 import Environment, PackageLoader, select_autoescape
 from databases import Database
 from sqlalchemy import create_engine, and_
@@ -26,35 +26,20 @@ from api.profile import ProfileManager
 # of newer Python features requires Python 3.6 or later.
 enable_async = sys.version_info >= (3, 6)
 
-app = Sanic()
-app.static('/', './templates/')
+app = Sanic(name='api')
 app.blueprint(swagger_blueprint)
 
 # Load parameters
 load_dotenv()
 # Initialize database
-db_url = os.getenv("SQLALCHEMY_DATABASE_URI")
+db_url = str(os.getenv("SQLALCHEMY_DATABASE_URI"))
 engine = create_engine(db_url, echo = True)
 metadata.create_all(engine)
 
 geni = GeniClientAsync()
-# Load the template environment with async support
-template_env = Environment(
-    loader=PackageLoader('geni', 'templates'),
-    autoescape=select_autoescape(['html', 'xml']),
-    enable_async=enable_async
-)
-# Load the template from file
-template = template_env.get_template("index.html")
-
-@app.route('/')
-async def root(request):
-    rendered_template = await template.render_async()
-    return response.html(rendered_template)
 
 bp_profiles = Utils.create_blueprint("profiles")
 bp_paths = Utils.create_blueprint("paths")
-
 
 class Pagination:
     offset = doc.Integer()
@@ -87,7 +72,7 @@ class ProfileView(HTTPMethodView):
     async def post(self, request: Request):
         token = await Token.validate(request)
 
-        with Database(db_url) as database:
+        async with Database(db_url) as database:
             num_profiles = await ProfileManager(database, geni, token).cache_personalities()
         return json(num_profiles)
 
@@ -100,7 +85,7 @@ class ProfileView(HTTPMethodView):
         profile_id = request.args.get('id')
         if not profile_id:
             abort(403, "Profile id is missing")
-        with Database(db_url) as database:
+        async with Database(db_url) as database:
             profile = await ProfileManager(database, geni, token).get(profile_id)
         output = {"profile":  profile if profile else dict()}
         return json(output)
@@ -115,7 +100,7 @@ class ProfileView(HTTPMethodView):
         type = request.args.get('id')
         is_user = (type == 'user')
 
-        with Database(db_url) as database:
+        async with Database(db_url) as database:
             count = await ProfileManager(database, geni, token).count(is_user)
         return json({"count": count[0]})
 
@@ -176,6 +161,21 @@ class PathView(HTTPMethodView):
             paths = await PathManager(database, geni, token).get_personalities_paths(my_profile['id'], offset, limit)
         return json({"paths": [dict(p) for p in paths]}, escape_forward_slashes=False)
 
+    @staticmethod
+    @bp_paths.get("/personalities/count")
+    @doc.consumes(Token, location='headers')
+    @doc.consumes(Pagination)
+    @doc.summary("Get found paths count for current user")
+    async def get_personalities_count(request):
+        token = await Token.validate(request)
+        connected_only = str(request.args.get('connected_only', True)).lower() == 'true'
+        async with Database(db_url) as database:
+            pm = ProfileManager(database, geni, token)
+            my_profile = await pm.cache()
+            print(my_profile)
+            count = await PathManager(database, geni, token).count_personalities_paths(my_profile['id'], connected_only)
+        return json({"count": count}, escape_forward_slashes=False)
+
 # Add blueprints to the app
 Utils.add_blueprint(app, bp_profiles, ProfileView)
 Utils.add_blueprint(app, bp_paths, PathView)
@@ -196,7 +196,7 @@ if __name__ == "__main__":
         workers.append(loop.create_task(path_finder_async(counter, task_queue, db_url, geni)))
     # Create Sanic server
     srv_coro = app.create_server(
-        port=4200,
+        port=int(os.environ.get('PORT', 4200)),
         debug=False,
         return_asyncio_server=True,
         asyncio_server_kwargs=dict(

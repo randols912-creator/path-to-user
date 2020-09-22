@@ -5,7 +5,7 @@
 export const environment = {
   production: false,
   host: 'http://localhost:4200',
-  relationsServiceHost: 'http://localhost:5050',
+  relationsServiceHost: '',
 };
 
 /*

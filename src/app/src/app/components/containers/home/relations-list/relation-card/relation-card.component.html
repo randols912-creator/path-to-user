@@ -1,6 +1,9 @@
 <div class="relation-card">
   <div class="photo-section">
-    <a [routerLink]="[relationPath, relation.id]" [state]="{ id: relation.id }">
+    <a
+      [routerLink]="[relationPath, relation.target_id]"
+      [state]="{ id: relation.target_id }"
+    >
       <img
         src="{{
           relationImgUlr
@@ -23,8 +26,8 @@
         </button>
         <div #fullname class="fullname" [ngClass]="{ collapsed: collapsed }">
           <a
-            [routerLink]="[relationPath, relation.id]"
-            [state]="{ id: relation.id }"
+            [routerLink]="[relationPath, relation.target_id]"
+            [state]="{ id: relation.target_id }"
             >{{ relationFullname }}</a
           >
         </div>

@@ -24,7 +24,7 @@ CORS(app)
 db = SQLAlchemy(app)
 logger = app.logger
 geni_client = GeniClient()
-bh_data = BHData(os.path.join("..", "data", "personalities.csv"))
+bh_data = BHData(os.path.join("..", "..", "data", "personalities.csv"))
 GENI_ACCESS_TOKEN_HEADER_KEY = 'Geni-access-token'
 
 

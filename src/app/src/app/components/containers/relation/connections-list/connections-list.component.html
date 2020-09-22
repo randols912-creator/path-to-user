@@ -1,8 +1,5 @@
 <app-spinner *ngIf="loading"></app-spinner>
-<div
-  class="connection-list"
-  *ngIf="connections && connections.length && !loading"
->
+<div class="connection-list" *ngIf="connections?.length && !loading">
   <div *ngIf="directConnectionsOnly; else allConnections">
     <app-connection
       [connection]="userConnection"
@@ -14,7 +11,7 @@
       <div class="flex-box">
         <app-gender-dot
           *ngFor="let c of connections"
-          [gender]="c.profile && c.profile.gender"
+          [gender]="c.profile?.gender"
           [inline]="false"
         ></app-gender-dot>
       </div>

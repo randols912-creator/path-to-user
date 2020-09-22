@@ -3,13 +3,10 @@
 <div *ngIf="relation">
   <app-info-bar *ngIf="user">
     <div class="small-text">
-      <b>{{ relation.profile_name }}</b> is
-      <span *ngIf="!relation.profile_relations">not related to </span
-      ><b>{{ user.name }}</b>
-      <span
-        *ngIf="relation.profile_relations && relation.profile_relations.length"
-        ><b>'s</b> {{ relation.profiles_relationship }}</span
-      >
+      <strong>{{ relation.target_profile.name }}</strong> is
+      <span *ngIf="!connections">not related to </span
+      ><strong>{{ user.name }}</strong>
+      <span *ngIf="relationship"><strong>'s</strong> {{ relationship }}</span>
     </div>
   </app-info-bar>
   <app-connections-list [connections]="connections"></app-connections-list>

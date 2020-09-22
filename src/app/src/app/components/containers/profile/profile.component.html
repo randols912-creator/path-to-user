@@ -1,7 +1,7 @@
 <app-title-bar [showGoToAllResultsText]="true"></app-title-bar>
 <div class="profile" *ngIf="profile">
   <div *ngIf="profilePhotoUrl" class="profile-photo">
-    <img [src]="profilePhotoUrl" [alt]="profile.display_name" />
+    <img [src]="profilePhotoUrl" [alt]="profile.name" />
   </div>
   <div class="profile-details">
     <h4 class="subtitle-text">

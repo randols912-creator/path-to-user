@@ -3,6 +3,10 @@
   width: 30px;
 }
 
+a {
+  cursor: pointer;
+}
+
 app-title-bar {
   position: absolute;
   width: 100%;

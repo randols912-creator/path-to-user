@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import Relation from 'src/app/model/Relation';
+import Path from 'src/app/model/Path';
 import { RelationSortOrder } from 'src/app/pipes/relations-sort-by.pipe';
 import { SettingsService } from 'src/app/services/settings.service';
 
@@ -9,7 +9,7 @@ import { SettingsService } from 'src/app/services/settings.service';
   styleUrls: ['./relations-list.component.css'],
 })
 export class RelationsListComponent implements OnInit {
-  @Input() relations: Array<Relation>;
+  @Input() relations: Array<Path>;
 
   constructor(private settingsService: SettingsService) {}
 
