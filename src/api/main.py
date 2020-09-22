@@ -5,6 +5,7 @@ import datetime
 from dotenv import load_dotenv
 
 from sanic import Sanic, response
+from sanic_cors import CORS, cross_origin
 from sanic.response import text, json
 from sanic.request import Request
 from sanic.views import HTTPMethodView
@@ -27,6 +28,7 @@ from api.profile import ProfileManager
 enable_async = sys.version_info >= (3, 6)
 
 app = Sanic(name='api')
+CORS(app)
 app.blueprint(swagger_blueprint)
 
 # Load parameters
