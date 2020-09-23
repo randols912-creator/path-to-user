@@ -25,8 +25,6 @@ app.blueprint(swagger_blueprint)
 
 # Load parameters
 load_dotenv()
-import os
-print(os.environ['SQLALCHEMY_DATABASE_URI'])
 
 from api.utils import Utils
 from api.models import metadata, paths_table, profiles_table
