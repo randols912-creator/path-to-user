@@ -1,20 +1,20 @@
 import { Category } from './Category';
 
 export default interface Profile {
-  birth: LivingDetails;
-  death: LivingDetails;
-  first_name: string;
-  gender: Gender;
-  id: string;
-  last_name: string;
-  maiden_name: string;
-  name: string;
-  photo_urls: PhotoUrls;
-  bh_theme: Category;
-  bh_floor: number;
-  bh_location: string;
-  url: string;
-  about_me: string;
+  birth?: LivingDetails;
+  death?: LivingDetails;
+  first_name?: string;
+  gender?: Gender;
+  id?: string;
+  last_name?: string;
+  maiden_name?: string;
+  name?: string;
+  photo_urls?: PhotoUrls;
+  bh_theme?: Category;
+  bh_floor?: number;
+  bh_location?: string;
+  url?: string;
+  about_me?: string;
 
   // profile_url?: string;
   // public?: boolean;

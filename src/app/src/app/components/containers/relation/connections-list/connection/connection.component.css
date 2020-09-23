@@ -25,6 +25,7 @@
 
 .direct .connection-badge .info-section .name-section {
   max-width: 85%;
+  justify-content: center;
 }
 
 .indirect .connection-badge {

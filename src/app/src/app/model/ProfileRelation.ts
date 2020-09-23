@@ -1,4 +1,4 @@
-import Profile from './Profile';
+import Profile, { Gender } from './Profile';
 
 export default interface Connection {
   name: string;
@@ -6,4 +6,5 @@ export default interface Connection {
   url: string;
   profile?: Profile;
   id?: string;
+  gender?: Gender;
 }

@@ -1,22 +1,23 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { faAngleDown, faAngleUp } from '@fortawesome/free-solid-svg-icons';
 import { profileUrl } from 'src/app/app.constants';
 import { AuthService } from 'src/app/auth/auth.service';
 import { Gender, LivingDetails } from 'src/app/model/Profile';
 import Connection from 'src/app/model/ProfileRelation';
+import { GeniService } from 'src/app/services/geni.service';
 
 @Component({
   selector: 'app-connection',
   templateUrl: './connection.component.html',
   styleUrls: ['./connection.component.css'],
 })
-export class ConnectionComponent {
+export class ConnectionComponent implements OnInit {
   @Input() connection: Connection;
   @Input() step_count?: number = 0;
   @Input() relatedConnection?: Connection;
   @Input() direct?: boolean = false;
   @Input() isFinalIndirectConnection?: boolean = false;
-  @Input() drawArrowDown?: boolean = false;
+  @Input() drawArrowDown?: boolean = true;
   profileUrl = profileUrl;
 
   faAngleDown = faAngleDown;
@@ -24,45 +25,53 @@ export class ConnectionComponent {
 
   expanded: boolean = false;
 
-  constructor(private auth: AuthService) {}
+  constructor(private auth: AuthService, private geni: GeniService) {}
+
+  ngOnInit(): void {
+    if (this.direct) {
+      this.toggleExpandedHandler();
+    }
+  }
 
   toggleExpandedHandler(): void {
-    this.expanded = !this.expanded;
+    if (this.connection.profile) {
+      this.expanded = !this.expanded;
+    } else {
+      if (!this.expanded) {
+        this.geni
+          .fetchProfileByLink(this.connection.url, [
+            'gender',
+            'name',
+            'photo_urls',
+            'birth',
+            'death',
+          ])
+          .subscribe((profile) => {
+            this.connection.profile = profile;
+            this.expanded = !this.expanded;
+          });
+      }
+    }
   }
 
   get relationImgUlr(): string {
-    return (
-      this.connection.profile &&
-      this.connection.profile.photo_urls &&
-      this.connection.profile.photo_urls.medium
-    );
-  }
-
-  get gender(): Gender {
-    return this.connection.profile && this.connection.profile.gender
-      ? this.connection.profile.gender
-      : Gender.UNDEFINED;
+    return this.connection.profile?.photo_urls?.medium;
   }
 
   get relation(): string {
-    if (
-      this.relatedConnection &&
-      this.relatedConnection.url === this.auth.user.url
-    ) {
+    if (this.relatedConnection?.url === this.auth.user.url) {
       return `your ${this.connection.relation}`;
     } else {
       return (
-        (this.relatedConnection &&
-          this.relatedConnection.profile &&
-          this.relatedConnection.profile.gender &&
-          `${
-            this.relatedConnection.profile.gender === Gender.MALE
-              ? 'his'
-              : 'her'
-          } ${this.connection.relation}`) ||
-        Gender.UNDEFINED
+        `${this.gender === Gender.MALE ? 'his' : 'her'} ${
+          this.connection.relation
+        }` || Gender.UNDEFINED
       );
     }
+  }
+
+  get gender(): Gender {
+    return this.connection.profile?.gender || this.connection.gender;
   }
 
   get livingDates(): string {

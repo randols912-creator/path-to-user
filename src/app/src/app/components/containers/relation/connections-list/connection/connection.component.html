@@ -37,7 +37,7 @@
           [routerLink]="[profileUrl, connection.id]"
           [state]="{ id: connection.id }"
         >
-          {{ connection.profile && connection.profile.name }}
+          {{ connection.profile?.name || connection.name }}
         </a>
       </div>
       <div *ngIf="relatedConnection && direct" class="small-text">
@@ -53,7 +53,7 @@
           <fa-icon [icon]="faAngleUp" size="sm"></fa-icon>
         </button>
       </div>
-      <div *ngIf="expanded" class="brief-info">
+      <div *ngIf="!direct && expanded" class="brief-info">
         <div class="small-regular-text">{{ livingDates }}</div>
         <div>
           <span class="small-text">Connection Number: </span>

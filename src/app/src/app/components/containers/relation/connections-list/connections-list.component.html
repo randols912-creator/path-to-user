@@ -1,17 +1,15 @@
-<app-spinner *ngIf="loading"></app-spinner>
 <div class="connection-list" *ngIf="connections?.length && !loading">
-  <div *ngIf="directConnectionsOnly; else allConnections">
-    <app-connection
-      [connection]="userConnection"
-      [direct]="true"
-      [drawArrowDown]="true"
-    ></app-connection>
+  <app-connection
+    [connection]="userConnection"
+    [direct]="true"
+  ></app-connection>
 
+  <div *ngIf="directConnectionsOnly; else allConnections">
     <div class="connections-dots">
       <div class="flex-box">
         <app-gender-dot
-          *ngFor="let c of connections"
-          [gender]="c.profile?.gender"
+          *ngFor="let conn of connections.slice(1, connections.length - 1)"
+          [gender]="identifyConnectionGender(conn)"
           [inline]="false"
         ></app-gender-dot>
       </div>
@@ -29,22 +27,24 @@
       </button>
       <div class="arrow-down"></div>
     </div>
-
-    <app-connection
-      [connection]="finalConnection"
-      [direct]="true"
-    ></app-connection>
   </div>
+
+  <app-connection
+    [connection]="finalConnection"
+    [direct]="true"
+    [drawArrowDown]="false"
+  ></app-connection>
 </div>
 
 <ng-template #allConnections>
-  <app-connection
-    *ngFor="let c of connections; index as i"
-    [connection]="c"
-    [step_count]="i"
-    [relatedConnection]="connections[i - 1]"
-    [direct]="isDirectConnection(i)"
-    [isFinalIndirectConnection]="connections.length - i === 2"
-    [drawArrowDown]="c != finalConnection"
-  ></app-connection>
+  <div
+    *ngIf="connections && connections.slice(1, connections.length - 1) as conns"
+  >
+    <app-connection
+      *ngFor="let c of conns; index as i"
+      [connection]="c"
+      [step_count]="i"
+      [relatedConnection]="i === 0 ? userConnection : conns[i - 1]"
+    ></app-connection>
+  </div>
 </ng-template>
