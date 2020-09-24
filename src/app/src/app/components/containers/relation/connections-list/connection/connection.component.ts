@@ -16,7 +16,6 @@ export class ConnectionComponent implements OnInit {
   @Input() step_count?: number = 0;
   @Input() relatedConnection?: Connection;
   @Input() direct?: boolean = false;
-  @Input() isFinalIndirectConnection?: boolean = false;
   @Input() drawArrowDown?: boolean = true;
   profileUrl = profileUrl;
 

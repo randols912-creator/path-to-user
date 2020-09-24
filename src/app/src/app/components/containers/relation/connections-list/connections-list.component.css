@@ -38,3 +38,7 @@
   border-right: 3px solid transparent;
   border-top: 5px solid #9a9a9a;
 }
+
+app-connection:last-of-type::ng-deep .indirect .arrow-down {
+  margin: auto;
+}
