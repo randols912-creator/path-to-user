@@ -62,9 +62,9 @@ export class ConnectionComponent implements OnInit {
       return `your ${this.connection.relation}`;
     } else {
       return (
-        `${this.gender === Gender.MALE ? 'his' : 'her'} ${
+        `${this.relatedConnection?.gender === Gender.MALE ? 'his' : 'her'} ${
           this.connection.relation
-        }` || Gender.UNDEFINED
+        }`
       );
     }
   }
