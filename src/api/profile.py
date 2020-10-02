@@ -1,5 +1,5 @@
 import sys, os
-import logging
+from sanic.log import logger
 from api.geni import GeniClientAsync
 from api.models import CURRENT_TIMESTAMP, paths_table, profiles_table
 from sqlalchemy import and_
@@ -23,7 +23,7 @@ class ProfileManager:
     async def save(self, profile_dict, is_user):
         profile = {k:v for k,v in profile_dict.items() if k in ["id", "name", "url"]}
         profile["is_user"] = is_user
-        print("save: ", profile)
+        logger.debug("save: ", profile)
         profile_db = await self.get(profile['id'])
         # Insert or update
         if not profile_db:
@@ -85,7 +85,7 @@ async def cache_personalities():
     from dotenv import load_dotenv
     geni = GeniClientAsync()
     authorize_url = geni.build_auth_url()
-    print(f"""Caching BH personalities from Geni. Please goto: 
+    logger.info(f"""Caching BH personalities from Geni. Please goto: 
 
 {authorize_url}
 

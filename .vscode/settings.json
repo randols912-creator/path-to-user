@@ -1,0 +1,9 @@
+{
+    "python.pythonPath": ".venv/bin/python",
+    "python.analysis.extraPaths": [
+        "src/old"
+    ],
+    "files.autoSave": "onFocusChange",
+    "python.envFile": "${workspaceFolder}/.vscode/.env",
+    "python.formatting.provider": "autopep8"
+}

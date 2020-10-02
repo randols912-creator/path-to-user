@@ -30,7 +30,7 @@
         (click)="loginHandler()"
         type="button"
         class="btn btn-link accent-text general-link"
-        [disabled]="!agreeToTerms || !agreeToConnectRelatives"
+        [disabled]="!(agreeToTerms && agreeToConnectRelatives)"
       >
         Log in to your Geni account
       </button>
@@ -44,11 +44,7 @@
         relationship to other museum visitors!
       </p>
       <div class="welcome__agree-box">
-        <input
-          type="checkbox"
-          [checked]="agreeToTerms"
-          (change)="agreeToTerms = !agreeToTerms"
-        />
+        <input type="checkbox" [(ngModel)]="agreeToTerms" autocomplete="off" />
         <span
           >I Agree to
           <a [href]="termsOfUseUrl" target="_blank" rel="nofollow noopener"
@@ -59,8 +55,8 @@
       <div class="welcome__agree-box">
         <input
           type="checkbox"
-          [checked]="agreeToConnectRelatives"
-          (change)="agreeToConnectRelatives = !agreeToConnectRelatives"
+          [(ngModel)]="agreeToConnectRelatives"
+          autocomplete="off"
         />
         <span>
           I Agree to allow this app to

@@ -1,0 +1,55 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Attach to Chrome",
+      "port": 9222,
+      "request": "attach",
+      "type": "pwa-chrome",
+      "webRoot": "${workspaceFolder}/src/app",
+      "url": "http://localhost:4200*"
+    },
+    {
+      "name": "Python: api",
+      "type": "python",
+      "request": "launch",
+      "program": "api/main.py",
+      "console": "internalConsole",
+      "cwd": "${workspaceFolder}/src",
+      "justMyCode": false,
+      "env": {
+        "PROCESS_QUANTITY": "50"
+      }
+    },
+    {
+      "name": "Python: cache personalities",
+      "type": "python",
+      "request": "launch",
+      "program": "api/profile.py",
+      "console": "externalTerminal",
+      "cwd": "${workspaceFolder}/src",
+      "justMyCode": false
+    },
+    {
+      "name": "Locust: base",
+      "type": "python",
+      "program": ".venv/bin/locust",
+      "request": "launch",
+      "console": "internalConsole",
+      "cwd": "${workspaceFolder}",
+      "justMyCode": false,
+      "args": [
+        "-f",
+        "src/api/test/base.py",
+        "--host",
+        "http://localhost:5050"
+      ],
+      "env": {
+        "GEVENT_SUPPORT": "True"
+      }
+    }    
+  ]
+}

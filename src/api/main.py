@@ -1,11 +1,10 @@
 import sys, os
-import logging
-logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.DEBUG)
 import datetime
 
 from dotenv import load_dotenv
 
 from sanic import Sanic, response
+from sanic.log import logger
 from sanic_cors import CORS, cross_origin
 from sanic.response import text, json
 from sanic.request import Request
@@ -16,8 +15,10 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 from databases import Database
 from sqlalchemy import create_engine, and_
 
-from multiprocessing import Process, Queue, cpu_count
-from asyncio import Queue as AsyncQueue
+from multiprocessing import cpu_count
+from asyncio import PriorityQueue
+
+import random
 
 app = Sanic(name='api')
 CORS(app)
@@ -25,11 +26,13 @@ app.blueprint(swagger_blueprint)
 
 # Load parameters
 load_dotenv()
+# TODO remove me
+app.config['ACCESS_LOG'] = False
 
 from api.utils import Utils
 from api.models import metadata, paths_table, profiles_table
 from api.geni import GeniClientAsync
-from api.path import PathManager
+from api.path import PathManager, Task
 from api.profile import ProfileManager
 # Enabling async template execution which allows you to take advantage
 # of newer Python features requires Python 3.6 or later.
@@ -49,6 +52,7 @@ class Pagination:
     offset = doc.Integer()
     limit = doc.Integer()
 
+
 TOKEN_PARAM = 'authorization'
 
 class Token:
@@ -58,13 +62,13 @@ class Token:
 
     @staticmethod
     async def validate(request):
-        logging.info(f"Headers: {request.headers}")
+        logger.debug(f"Headers: {request.headers}")
         token = request.headers.get(TOKEN_PARAM)
         if token in Token.cache and (datetime.datetime.now() - Token.cache[token]) < datetime.timedelta(seconds=Token.cache_valid_seconds):
             return token
         if not token or not await geni.validate_token(token):
             # clear from cache
-            logging.info(f"Token: {token} is invalid")
+            logger.debug(f"Token: {token} is invalid")
             Token.cache.pop(token, None)
             abort(400, "Invalid access token")
         # put into the cache
@@ -142,14 +146,18 @@ class PathView(HTTPMethodView):
         async with Database(db_url) as database:
             pm = ProfileManager(database, geni, token)
             my_profile = await pm.cache()
+            [profiles_count] = await pm.count(is_user=False)
             # First, save/update current user's profile
             await pm.save(my_profile, is_user=True)
             # Enqueue tasks for finding paths to all personalities
             async for personality in pm.iterate_personalities():
-                await task_queue.put({"source_id": my_profile['id'],
-                                "target_id": personality.id,
-                                "token": token})
-        return json({"status": "Started paths search"})
+                [task_priority] = random.randint(1, profiles_count),
+                await task_queue.put(
+                    Task({"source_id": my_profile['id'],
+                          "target_id": personality.id,
+                          "token": token},
+                         task_priority))
+            return json({"status": "Started paths search"})
 
     @staticmethod
     @bp_paths.get("/personalities")
@@ -163,7 +171,7 @@ class PathView(HTTPMethodView):
         async with Database(db_url) as database:
             pm = ProfileManager(database, geni, token)
             my_profile = await pm.cache()
-            print(my_profile)
+            logger.debug(my_profile)
             paths = await PathManager(database, geni, token).get_personalities_paths(my_profile['id'], offset, limit)
         return json({"paths": [dict(p) for p in paths]}, escape_forward_slashes=False)
 
@@ -178,7 +186,7 @@ class PathView(HTTPMethodView):
         async with Database(db_url) as database:
             pm = ProfileManager(database, geni, token)
             my_profile = await pm.cache()
-            print(my_profile)
+            logger.debug(my_profile)
             count = await PathManager(database, geni, token).count_personalities_paths(my_profile['id'], connected_only)
         return json({"count": count}, escape_forward_slashes=False)
 
@@ -190,15 +198,16 @@ if __name__ == "__main__":
     from api.path import path_finder_async
     import asyncio
 
-    process_quantity = int(sys.argv[1]) if len(sys.argv) > 1 else 0
+    process_quantity = int(os.environ.get('PROCESS_QUANTITY',
+                                          sys.argv[1] if len(sys.argv) > 1 else 0))
     quantity = process_quantity if process_quantity else cpu_count()*2+1
 
     loop = asyncio.get_event_loop()
-    task_queue = AsyncQueue(loop=loop)  # Queue()
+    task_queue = PriorityQueue()
     workers = []
     # Create concurrent tasks (workers)
     for counter in range(quantity):
-        workers.append(loop.create_task(path_finder_async(counter, task_queue, db_url, geni)))
+        workers.append(app.add_task(path_finder_async(counter, task_queue, db_url, geni)))
     # Create Sanic server
     srv_coro = app.create_server(
         port=int(os.environ.get('PORT', 4200)),
@@ -214,7 +223,7 @@ if __name__ == "__main__":
         assert srv.is_serving() is False
         loop.run_until_complete(srv.start_serving())
         assert srv.is_serving() is True
-        loop.run_until_complete(asyncio.gather(srv.serve_forever(), *workers))
+        loop.run_until_complete(asyncio.gather(srv.serve_forever()))
     except KeyboardInterrupt:
         srv.close()
         loop.close()

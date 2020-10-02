@@ -41,8 +41,8 @@ export class RelationService {
       ([
         { paths: relations },
         { count: pathsCount },
-        { count: totalPathsCount },
         { count: profilesCount },
+        { count: totalPathsCount },
       ]) => {
         if (!pathsCount) {
           console.log('Source or target profiles are empty');
@@ -68,7 +68,7 @@ export class RelationService {
     profilesCount: number
   ): boolean {
     return (
-      this.relations.length < pathsCount || profilesCount < totalPathsCount
+      this.relations.length < pathsCount || totalPathsCount < profilesCount
     );
   }
 
@@ -92,8 +92,8 @@ export class RelationService {
       ([
         { paths: relations },
         { count: pathsCount },
-        { count: totalPathsCount },
         { count: profilesCount },
+        { count: totalPathsCount },
       ]) => {
         const filtered = this.filterStoreAndReturnFilteredRelations(relations);
         this.status.next(Status.PART_FETCHED);
