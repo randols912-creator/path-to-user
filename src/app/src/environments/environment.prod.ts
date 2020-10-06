@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  host: 'https://bh.jhn.ngo',
-  relationsServiceHost: 'https://bh.jhn.ngo',
+  host: 'https://geni.anumuseum.org.il',
+  relationsServiceHost: 'https://geni.anumuseum.org.il',
 };
