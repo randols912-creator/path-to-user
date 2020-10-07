@@ -28,6 +28,8 @@ interface PathsCountResponse {
   count: number;
 }
 
+const debugMessage = (msg: string): void => console.debug(`${(new Date().toISOString())}: ${msg}`);
+
 @Injectable({
   providedIn: 'root',
 })
@@ -45,12 +47,12 @@ export class RelationService {
         { count: totalPathsCount },
       ]) => {
         if (!pathsCount) {
-          console.log('Source or target profiles are empty');
+          debugMessage('Source or target profiles are empty');
           this.triggerBackendWorkers();
         }
 
         if (this.notReady(pathsCount, totalPathsCount, profilesCount)) {
-          console.log('Interval fetch enabled');
+          debugMessage('Interval fetch enabled');
           this.filterStoreAndReturnFilteredRelations(relations);
           this.fetchAll(this.relations.length);
         }
@@ -77,9 +79,15 @@ export class RelationService {
       (next: Path) => !this.uniqueIds.has(next.target_id)
     );
 
+    let relationsWasEmpty = this.relations.length === 0;
     filtered.forEach((next: Path) => {
       this.uniqueIds.add(next.target_id);
       this.relations.push(next);
+
+      if (relationsWasEmpty) {
+        debugMessage('First relation arrived');
+        relationsWasEmpty = false;
+      }
     });
 
     return filtered;
@@ -104,7 +112,7 @@ export class RelationService {
             filtered.length > 0 ? 0 : millisBetweenBackendCalls
           );
         } else {
-          console.log('Interval fetch disabled');
+          debugMessage('Interval fetch disabled');
           this.status.next(Status.READY);
         }
       },
@@ -137,7 +145,7 @@ export class RelationService {
 
   private triggerBackendWorkers(): void {
     this.http.post(fetchPathsUrl, {}).subscribe(() => {
-      console.log('Backend workers triggered!');
+      debugMessage('Backend workers triggered!');
     });
   }
 
