@@ -5,6 +5,22 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "App",
+      "request": "launch",
+      "type": "pwa-chrome",
+      "url": "http://localhost:4200",
+      "webRoot": "${workspaceFolder}/src/app",
+      "runtimeExecutable": "/usr/bin/chromium",
+      "userDataDir": "${workspaceFolder}/tmp/.chromium",
+      "sourceMapPathOverrides": {
+        "webpack:/*": "${webRoot}/*",
+        "/./*": "${webRoot}/*",
+        "/src/*": "${webRoot}/*",
+        "/*": "*",
+        "/./~/*": "${webRoot}/node_modules/*"
+      }
+    },
+    {
       "name": "Attach to Chrome",
       "port": 9222,
       "request": "attach",
@@ -21,7 +37,7 @@
       "cwd": "${workspaceFolder}/src",
       "justMyCode": false,
       "env": {
-        "PROCESS_QUANTITY": "50"
+        "PROCESS_QUANTITY": "125"
       }
     },
     {

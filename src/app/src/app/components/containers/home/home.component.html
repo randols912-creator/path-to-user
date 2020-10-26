@@ -14,5 +14,5 @@
 </div>
 <!-- TODO hidden for now -->
 <app-toolbar *ngIf="false"></app-toolbar>
-<app-spinner *ngIf="loading"></app-spinner>
+<app-spinner *ngIf="loading" [small]="relations.length"></app-spinner>
 <app-relations-list [relations]="relations"></app-relations-list>

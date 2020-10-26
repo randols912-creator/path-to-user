@@ -35,6 +35,9 @@ export const settingsUrl = `/${settingsPath}`;
 export const termsOfUseUrl = 'https://www.bh.org.il/terms-of-use';
 
 export const welcomePhotos = [
+  'assets/img/photos/einstein.jpg',
+  'assets/img/photos/gracia.jpg',
+  'assets/img/photos/herzl.jpg',
   'assets/img/photos/0.jpg',
   'assets/img/photos/1.jpg',
   'assets/img/photos/2.jpg',
@@ -43,7 +46,5 @@ export const welcomePhotos = [
   'assets/img/photos/5.jpg',
   'assets/img/photos/6.jpg',
   'assets/img/photos/7.jpg',
-  'assets/img/photos/8.jpg',
   'assets/img/photos/9.jpg',
-  'assets/img/photos/10.jpg',
 ];

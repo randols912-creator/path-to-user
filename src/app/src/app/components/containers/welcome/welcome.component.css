@@ -90,7 +90,13 @@ app-title-bar::ng-deep .title-bar {
 .welcome__photos-row {
   height: 10vh;
   display: flex;
-  overflow-x: scroll;
+  overflow-x: auto;
+  opacity: 0;
+  transition: opacity 1s;
+}
+
+.welcome__photos-row.visible {
+  opacity: 1
 }
 
 .welcome__photos-row img {

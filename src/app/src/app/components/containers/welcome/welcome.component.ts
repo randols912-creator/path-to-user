@@ -1,14 +1,15 @@
 import {
+  AfterViewInit,
   Component,
   ComponentFactoryResolver,
+  ElementRef,
   OnInit,
-  ViewChild,
+  ViewChild
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { homePath, welcomePhotos, termsOfUseUrl } from 'src/app/app.constants';
+import { homePath, termsOfUseUrl, welcomePhotos } from 'src/app/app.constants';
 import { AuthService } from 'src/app/auth/auth.service';
 import { RefDirective } from 'src/app/directives/ref.directive';
-import { SettingsService } from 'src/app/services/settings.service';
 import { ModalComponent } from '../../ui/modal/modal.component';
 
 @Component({
@@ -16,8 +17,9 @@ import { ModalComponent } from '../../ui/modal/modal.component';
   templateUrl: './welcome.component.html',
   styleUrls: ['./welcome.component.css'],
 })
-export class WelcomeComponent implements OnInit {
+export class WelcomeComponent implements OnInit, AfterViewInit {
   @ViewChild(RefDirective) refDir: RefDirective;
+  @ViewChild('photosBox') photosBox: ElementRef;
 
   photos = welcomePhotos;
   agreeToTerms: boolean = false;
@@ -33,6 +35,19 @@ export class WelcomeComponent implements OnInit {
     if (this.authService.isAuthenticated) {
       this.router.navigate([homePath]);
     }
+  }
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      const { nativeElement: el } = this.photosBox;
+      el.scrollLeft = 2000;
+      el.classList.toggle('visible');
+    }, 500)
+
+    setTimeout(() => {
+      const { nativeElement: el } = this.photosBox;
+      el.scroll({ left: 0, top: 0, behavior: 'smooth' });
+    }, 2000);
   }
 
   loginHandler(): void {
