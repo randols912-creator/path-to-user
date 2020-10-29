@@ -1,7 +1,6 @@
 import { Category } from './Category';
 import Profile from './Profile';
 import Connection from './ProfileRelation';
-import ProfileRelation from './ProfileRelation';
 
 export default interface Path {
   source_id: string;
@@ -10,6 +9,7 @@ export default interface Path {
   target_profile: Profile;
   relations: Connection[];
   bh_theme: Category;
+  bh_floor: string | number;
 }
 
 export interface PathDetailsResponse {

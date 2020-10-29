@@ -1,4 +1,4 @@
-.profile ::ng-deep * {
+.profile ::ng-deep *::not(fa-icon) {
   font-size: 14px;
   line-height: 16px;
 }
@@ -15,10 +15,19 @@
 
 .profile .profile-details {
   padding: 14px 10px;
+  position: relative;
 }
 
 .profile .profile-details * {
   margin-bottom: 13px;
+}
+
+.profile .profile-details .fullname-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-right: 13px;
+  padding-top: 5px;
 }
 
 .profile .profile-details h4 {

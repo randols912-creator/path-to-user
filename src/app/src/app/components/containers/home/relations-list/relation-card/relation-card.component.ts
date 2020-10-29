@@ -1,8 +1,8 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { relationPath } from 'src/app/app.constants';
 import { Category, getColor, getText } from 'src/app/model/Category';
-import { Gender, LivingDetails } from 'src/app/model/Profile';
 import Path from 'src/app/model/Path';
+import { Gender, LivingDetails } from 'src/app/model/Profile';
 import { GeniService } from 'src/app/services/geni.service';
 
 const randomCategory = (): Category => {
@@ -18,18 +18,12 @@ const randomCategory = (): Category => {
   templateUrl: './relation-card.component.html',
   styleUrls: ['./relation-card.component.css'],
 })
-export class RelationCardComponent implements OnInit {
+export class RelationCardComponent {
   @Input() relation: Path;
   collapsed: boolean = true;
-  // TODO - real categories?
-  categories: Array<Category> = [];
   relationPath: string = relationPath;
 
   constructor(private geni: GeniService) {}
-
-  ngOnInit(): void {
-    this.categories.push(this.relation.bh_theme);
-  }
 
   collapseFullnameHandler(): void {
     this.collapsed = !this.collapsed;

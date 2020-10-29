@@ -19,7 +19,7 @@
     </a>
   </div>
   <div class="info-section">
-    <div class="info-section-upper">
+    <div class="info-section-header">
       <div>
         <button class="btn chevron" (click)="collapseFullnameHandler()">
           {{ collapsed ? '&#8964;' : '&#8963;' }}
@@ -31,14 +31,16 @@
             >{{ relationFullname }}</a
           >
         </div>
-      </div>
-      <div class="categories">
-        <span
-          *ngFor="let category of categories"
-          class="small-regular-text category mr-1"
-          [ngStyle]="{ backgroundColor: categoryColor(category) }"
-          >{{ categoryText(category) }}</span
+        </div>
+      <div class="bh-data">
+        <div
+          class="bh-theme small-regular-text mr-1"
+          [ngStyle]="{ backgroundColor: categoryColor(relation?.bh_theme) }"
         >
+          {{ categoryText(relation?.bh_theme) }}
+        </div>
+        <!-- TODO remove default 1 -->
+        <app-map-pin [floor]="relation?.bh_floor || 1"></app-map-pin>
       </div>
     </div>
     <div class="brief-info">

@@ -18,15 +18,17 @@ a {
   vertical-align: top;
 }
 
-.info-section-upper {
+.info-section-header {
   min-height: 65px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 
-.categories {
-  vertical-align: bottom;
+.bh-data {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
 }
 
 .brief-info {
@@ -81,9 +83,9 @@ a {
   box-shadow: none;
 }
 
-.category {
-  display: inline-block;
+.bh-theme {
   border-radius: 9px;
   color: #535453;
   padding: 0 5px;
+  height: 15px;
 }

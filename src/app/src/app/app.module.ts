@@ -25,12 +25,13 @@ import { SettingsComponent } from './components/containers/settings/settings.com
 import { SortComponent } from './components/containers/settings/sort/sort.component';
 import { WelcomeComponent } from './components/containers/welcome/welcome.component';
 import { InfoBarComponent } from './components/ui/info-bar/info-bar.component';
+import { MapPinComponent } from './components/ui/map-pin/map-pin.component';
+import { ModalComponent } from './components/ui/modal/modal.component';
 import { SpinnerComponent } from './components/ui/spinner/spinner.component';
 import { TitleBarComponent } from './components/ui/title-bar/title-bar.component';
 import { ToolbarComponent } from './components/ui/toolbar/toolbar.component';
-import { RelationsSortByPipe } from './pipes/relations-sort-by.pipe';
-import { ModalComponent } from './components/ui/modal/modal.component';
 import { RefDirective } from './directives/ref.directive';
+import { RelationsSortByPipe } from './pipes/relations-sort-by.pipe';
 
 const INTERCEPTOR_PROVIDER: Provider = {
   provide: HTTP_INTERCEPTORS,
@@ -70,6 +71,7 @@ class JsonpInterceptorModule {}
     SortComponent,
     ModalComponent,
     RefDirective,
+    MapPinComponent,
   ],
   imports: [
     BrowserModule,

@@ -4,9 +4,13 @@
     <img [src]="profilePhotoUrl" [alt]="profile.name" />
   </div>
   <div class="profile-details">
-    <h4 class="subtitle-text">
-      {{ fullname }}
-    </h4>
+    <div class="fullname-box">
+      <h4 class="subtitle-text">
+        {{ fullname }}
+      </h4>
+      <!-- TODO remove default 1 -->
+      <app-map-pin [floor]="1" [large]="true"></app-map-pin>
+    </div>
     <div class="birthdate">
       <span class="light-grey-text">Birthdate:</span> {{ birthdate }}
     </div>
