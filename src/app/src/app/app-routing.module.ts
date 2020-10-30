@@ -2,15 +2,17 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import {
   homePath,
+  mapPath,
   menuPath,
   profilePath,
   relationPath,
   settingsPath,
   welcomePath,
-  welcomeUrl,
+  welcomeUrl
 } from './app.constants';
 import { AuthGuard } from './auth/auth.guard';
 import { HomeComponent } from './components/containers/home/home.component';
+import { MapComponent } from './components/containers/map/map.component';
 import { MenuComponent } from './components/containers/menu/menu.component';
 import { ProfileComponent } from './components/containers/profile/profile.component';
 import { RelationComponent } from './components/containers/relation/relation.component';
@@ -42,6 +44,11 @@ const routes: Routes = [
   {
     path: `${settingsPath}`,
     component: SettingsComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: `${mapPath}/:id`,
+    component: MapComponent,
     canActivate: [AuthGuard],
   },
   { path: welcomePath, component: WelcomeComponent },

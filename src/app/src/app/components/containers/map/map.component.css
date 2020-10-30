@@ -1,0 +1,34 @@
+a.btn.btn-lnk {
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+.location-info {
+  padding: 16px 12px;
+}
+
+.location-info fa-icon {
+  color: #ffc470;
+  float: left;
+  padding: 5px 10px;
+}
+
+.map-box {
+  position: relative;
+  height: 70vh;
+  display: flex;
+  align-items: center;
+  overflow: scroll;
+}
+
+.map-box img {
+  width: 100%;
+  height: auto;
+}
+
+.zoom-in {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 300% !important;
+}

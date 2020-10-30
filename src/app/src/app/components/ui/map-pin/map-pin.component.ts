@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
+import { mapPath } from 'src/app/app.constants';
 
 @Component({
   selector: 'app-map-pin',
@@ -9,9 +10,17 @@ import { faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
 export class MapPinComponent implements OnInit {
   @Input() floor: string | number;
   @Input() large: boolean;
-  icon = faMapMarkerAlt;
+  @Input() targetId: string;
 
   constructor() {}
 
   ngOnInit(): void {}
+
+  get mapPath() {
+    return mapPath;
+  }
+
+  get icon() {
+    return faMapMarkerAlt;
+  }
 }

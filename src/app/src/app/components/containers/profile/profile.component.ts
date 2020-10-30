@@ -18,6 +18,7 @@ export class ProfileComponent implements OnInit {
   ngOnInit(): void {
     this.geni
       .fetchProfile(this.route.snapshot.params.id, [
+        'id',
         'name',
         'first_name',
         'last_name',

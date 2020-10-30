@@ -1,7 +1,7 @@
 import {
   HttpClientJsonpModule,
   HttpClientModule,
-  HTTP_INTERCEPTORS,
+  HTTP_INTERCEPTORS
 } from '@angular/common/http';
 import { NgModule, Provider } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -14,6 +14,7 @@ import { AuthInterceptor } from './auth/auth.interceptor';
 import { HomeComponent } from './components/containers/home/home.component';
 import { RelationCardComponent } from './components/containers/home/relations-list/relation-card/relation-card.component';
 import { RelationsListComponent } from './components/containers/home/relations-list/relations-list.component';
+import { MapComponent } from './components/containers/map/map.component';
 import { MenuComponent } from './components/containers/menu/menu.component';
 import { ProfileComponent } from './components/containers/profile/profile.component';
 import { ReadMoreFooterComponent } from './components/containers/profile/read-more-footer/read-more-footer.component';
@@ -72,6 +73,7 @@ class JsonpInterceptorModule {}
     ModalComponent,
     RefDirective,
     MapPinComponent,
+    MapComponent,
   ],
   imports: [
     BrowserModule,

@@ -5,7 +5,17 @@
   padding: 0 3vw;
 }
 
+.external-content {
+  justify-content: center;
+  text-align: center;
+  padding: 10px 0;
+}
+
 img {
   margin-right: 4px;
   height: 11px;
+}
+
+ng-content {
+  text-align: center;
 }

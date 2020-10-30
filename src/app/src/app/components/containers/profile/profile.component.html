@@ -9,7 +9,11 @@
         {{ fullname }}
       </h4>
       <!-- TODO remove default 1 -->
-      <app-map-pin [floor]="1" [large]="true"></app-map-pin>
+      <app-map-pin
+        [floor]="3"
+        [targetId]="profile.id"
+        [large]="true"
+      ></app-map-pin>
     </div>
     <div class="birthdate">
       <span class="light-grey-text">Birthdate:</span> {{ birthdate }}

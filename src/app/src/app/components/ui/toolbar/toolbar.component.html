@@ -1,5 +1,9 @@
-<div class="toolbar">
-  <a [routerLink]="[settingsUrl, { action: 'sort' }]">
+<div class="toolbar" [ngClass]="{'external-content': externalContent}">
+  <ng-content *ngIf="externalContent"></ng-content>
+</div>
+
+<ng-template #tools>
+   <a [routerLink]="[settingsUrl, { action: 'sort' }]">
     <img src="assets/img/sort.svg" alt="" />
     <span class="small-text">Sort by</span>
   </a>
@@ -7,4 +11,4 @@
     <img src="assets/img/search.svg" alt="" />
     <span class="small-text">Search</span>
   </a>
-</div>
+</ng-template>

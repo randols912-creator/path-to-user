@@ -25,12 +25,14 @@ export const menuPath = 'menu';
 export const relationPath = 'relation';
 export const profilePath = 'profile';
 export const settingsPath = 'settings';
+export const mapPath = 'map';
 
 export const homeUrl = `/${homePath}`;
 export const welcomeUrl = `/${welcomePath}`;
 export const menuUrl = `/${menuPath}`;
 export const profileUrl = `/${profilePath}`;
 export const settingsUrl = `/${settingsPath}`;
+export const mapUrl = `/${mapPath}`;
 
 export const termsOfUseUrl = 'https://www.bh.org.il/terms-of-use';
 

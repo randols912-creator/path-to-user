@@ -1,0 +1,23 @@
+<app-title-bar [showGoToAllResultsText]="true"> </app-title-bar>
+<app-toolbar [externalContent]="true">
+  <a
+    *ngIf="relation; else loading"
+    class="btn btn-lnk"
+    [routerLink]="[profileUrl, relation?.target_id]"
+  >
+    {{ relation?.target_profile?.name }}
+  </a>
+  <ng-template #loading>Loading...</ng-template>
+</app-toolbar>
+<div *ngIf="relation; else spinner">
+  <div class="location-info">
+    <fa-icon [icon]="icon" size="2x"></fa-icon>
+    <span>is located in the interactive place on the ground floor</span>
+  </div>
+  <div class="map-box" (click)="toggleMapZoom()">
+    <img [src]="mapSrc" alt="map" #map />
+  </div>
+</div>
+<ng-template #spinner>
+  <app-spinner></app-spinner>
+</ng-template>

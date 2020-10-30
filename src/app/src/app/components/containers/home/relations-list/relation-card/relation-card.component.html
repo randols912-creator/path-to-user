@@ -31,7 +31,7 @@
             >{{ relationFullname }}</a
           >
         </div>
-        </div>
+      </div>
       <div class="bh-data">
         <div
           class="bh-theme small-regular-text mr-1"
@@ -40,7 +40,10 @@
           {{ categoryText(relation?.bh_theme) }}
         </div>
         <!-- TODO remove default 1 -->
-        <app-map-pin [floor]="relation?.bh_floor || 1"></app-map-pin>
+        <app-map-pin
+          [floor]="relation?.bh_floor || 3"
+          [targetId]="relation?.target_id"
+        ></app-map-pin>
       </div>
     </div>
     <div class="brief-info">

@@ -9,9 +9,13 @@ import { settingsUrl } from 'src/app/app.constants';
 })
 export class ToolbarComponent implements OnInit {
   @Input() spaceBetween: boolean = true;
-  settingsUrl = settingsUrl;
+  @Input() externalContent: boolean;
 
   constructor(public location: Location) {}
 
   ngOnInit(): void {}
+
+  get settingsUrl() {
+    return settingsUrl;
+  }
 }
