@@ -34,8 +34,15 @@
       <span class="small-text">Search</span>
     </a>
   </div>
-  <div *ngIf="showTitle" class="title">
-    <h4 class="accent-text">MJP & ME</h4>
+  <div *ngIf="showTitle">
+    <h4 class="accent-text">
+      MJP
+      <img
+        src="assets/img/circle-ampersand.png"
+        alt=""
+        id="title-text-ampersand"
+      />ME
+    </h4>
   </div>
   <div class="icon-container-right">
     <button *ngIf="showMenu" class="btn" (click)="gotoMenuHandler()">

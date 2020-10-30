@@ -60,3 +60,9 @@ button:focus {
 .active-settings-action {
   border-bottom: 3px solid #ff9e1e;
 }
+
+
+.title-bar h4.accent-text img {
+  width: 23px;
+  height: 23px;
+}
