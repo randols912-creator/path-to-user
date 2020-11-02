@@ -1,4 +1,5 @@
 import {
+  HttpClient,
   HttpClientJsonpModule,
   HttpClientModule,
   HTTP_INTERCEPTORS
@@ -8,6 +9,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AuthInterceptor } from './auth/auth.interceptor';
@@ -39,6 +42,11 @@ const INTERCEPTOR_PROVIDER: Provider = {
   useClass: AuthInterceptor,
   multi: true,
 };
+
+// AoT requires an exported function for factories
+export function HttpLoaderFactory(http: HttpClient) {
+  return new TranslateHttpLoader(http);
+}
 
 /**
  * Hack to alow JSONP requests to use existing interceptors
@@ -85,6 +93,13 @@ class JsonpInterceptorModule {}
     FontAwesomeModule,
     FormsModule,
     ReactiveFormsModule,
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: HttpLoaderFactory,
+        deps: [HttpClient],
+      },
+    }),
   ],
   providers: [INTERCEPTOR_PROVIDER],
   bootstrap: [AppComponent],

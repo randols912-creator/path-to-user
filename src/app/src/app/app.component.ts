@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { routeChangeAnimation } from './app-route-change-animation';
 
 @Component({

@@ -28,7 +28,11 @@ export class AuthInterceptor implements HttpInterceptor {
       }
     }
 
-    if (request.url.startsWith(env.relationsServiceHost)) {
+    // All the assets are freely allowed
+    if (
+      !request.url.startsWith('/assets') &&
+      request.url.startsWith(env.relationsServiceHost)
+    ) {
       return next.handle(
         request.clone({
           headers: request.headers.set(geniTokenHeaderKey, this.auth.token),

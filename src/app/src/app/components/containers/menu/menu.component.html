@@ -6,12 +6,22 @@
     <img src="assets/img/lineOfCircles.svg" class="circles-separator" />
     <button type="button" class="btn btn-link bigger-text">About</button>
   </div>
+  <button
+    (click)="switchLocaleHandler()"
+    type="button"
+    class="btn btn-link bigger-text"
+    translate
+  >
+    menu.locale
+  </button>
+  <img src="assets/img/lineOfCircles.svg" class="circles-separator" />
   <a
     href="https://www.geni.com/discussions/209064"
     class="btn btn-link bigger-text"
     target="_blank"
     rel="noopener noreferrer"
-    >Help</a
+    translate
+    >menu.help</a
   >
   <img src="assets/img/lineOfCircles.svg" class="circles-separator" />
   <button
@@ -19,7 +29,8 @@
     (click)="logoutHandler()"
     type="button"
     class="btn btn-link bigger-text"
+    translate
   >
-    log out
+    menu.logOut
   </button>
 </div>
