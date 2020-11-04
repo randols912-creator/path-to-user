@@ -3,5 +3,8 @@
     "locale": "עברית",
     "help": "Help",
     "logOut": "log out"
+  },
+  "map": {
+    "locatedOn": "is located on floor {{value}}"
   }
 }

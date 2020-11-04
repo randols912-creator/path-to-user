@@ -18,6 +18,7 @@ export const profilesCountUrl = `${env.relationsServiceHost}/api/v1/profiles/cou
 export const pathDetailsUrl = `${env.relationsServiceHost}/api/v1/paths`;
 export const geniTokenHeaderKey = 'authorization';
 export const millisBetweenBackendCalls = 1000;
+export const QUADRANT_COUNT = 50;
 
 export const homePath = '';
 export const welcomePath = 'welcome';

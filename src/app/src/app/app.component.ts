@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
 import { routeChangeAnimation } from './app-route-change-animation';
+import { SettingsService } from './services/settings.service';
 
 @Component({
   selector: 'app-root',
@@ -10,6 +10,8 @@ import { routeChangeAnimation } from './app-route-change-animation';
   animations: [routeChangeAnimation],
 })
 export class AppComponent {
+  constructor(private settings: SettingsService) {};
+
   getRouteAnimationState(outlet: RouterOutlet) {
     return (
       outlet &&

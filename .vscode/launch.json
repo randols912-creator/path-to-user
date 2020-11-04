@@ -21,14 +21,6 @@
       }
     },
     {
-      "name": "Attach to Chrome",
-      "port": 9222,
-      "request": "attach",
-      "type": "pwa-chrome",
-      "webRoot": "${workspaceFolder}/src/app",
-      "url": "http://localhost:4200*"
-    },
-    {
       "name": "Python: api",
       "type": "python",
       "request": "launch",
@@ -39,6 +31,14 @@
       "env": {
         "PROCESS_QUANTITY": "125"
       }
+    },
+    {
+      "name": "Attach to Chrome",
+      "port": 9222,
+      "request": "attach",
+      "type": "pwa-chrome",
+      "webRoot": "${workspaceFolder}/src/app",
+      "url": "http://localhost:4200*"
     },
     {
       "name": "Python: cache personalities",
@@ -57,15 +57,10 @@
       "console": "internalConsole",
       "cwd": "${workspaceFolder}",
       "justMyCode": false,
-      "args": [
-        "-f",
-        "src/api/test/base.py",
-        "--host",
-        "http://localhost:5050"
-      ],
+      "args": ["-f", "src/api/test/base.py", "--host", "http://localhost:5050"],
       "env": {
         "GEVENT_SUPPORT": "True"
       }
-    }    
+    }
   ]
 }

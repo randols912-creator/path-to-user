@@ -1,6 +1,12 @@
 .relation-card {
   padding: 2vh 3vw;
   border-bottom: 1px solid #9a9a9a;
+  opacity: 0;
+  transition: opacity 1s;
+}
+
+.relation-card.visible {
+  opacity: 1;
 }
 
 a {

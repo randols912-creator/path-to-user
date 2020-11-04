@@ -1,4 +1,10 @@
-import { Component, Input } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Input,
+  ViewChild,
+} from '@angular/core';
 import { relationPath } from 'src/app/app.constants';
 import { Category, getColor, getText } from 'src/app/model/Category';
 import Path from 'src/app/model/Path';
@@ -9,12 +15,18 @@ import { Gender, LivingDetails } from 'src/app/model/Profile';
   templateUrl: './relation-card.component.html',
   styleUrls: ['./relation-card.component.css'],
 })
-export class RelationCardComponent {
+export class RelationCardComponent implements AfterViewInit {
   @Input() relation: Path;
   collapsed: boolean = true;
   relationPath: string = relationPath;
+  @ViewChild('relationCard') relationCardRef: ElementRef;
 
-  constructor() {}
+  ngAfterViewInit() {
+    setTimeout(
+      () => this.relationCardRef.nativeElement.classList.add('visible'),
+      500
+    );
+  }
 
   collapseFullnameHandler(): void {
     this.collapsed = !this.collapsed;

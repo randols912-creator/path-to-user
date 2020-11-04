@@ -1,23 +1,34 @@
 <app-title-bar [showGoToAllResultsText]="true"> </app-title-bar>
 <app-toolbar [externalContent]="true">
   <a
-    *ngIf="relation; else loading"
+    *ngIf="relation.value; else loading"
     class="btn btn-lnk"
-    [routerLink]="[profileUrl, relation?.target_id]"
+    [routerLink]="[profileUrl, relation.value?.target_id]"
   >
-    {{ relation?.target_profile?.name }}
+    {{ relation.value?.target_profile?.name }}
   </a>
   <ng-template #loading>Loading...</ng-template>
 </app-toolbar>
-<div *ngIf="relation; else spinner">
+<div *ngIf="floor">
   <div class="location-info">
     <fa-icon [icon]="icon" size="2x"></fa-icon>
-    <span>is located in the interactive place on the ground floor</span>
+    <span translate [translateParams]="{ value: floor }">map.locatedOn</span>
   </div>
-  <div class="map-box" (click)="toggleMapZoom()">
-    <img [src]="mapSrc" alt="map" #map />
+  <div class="map-box" (click)="toggleMapZoom()" #mapBox>
+    <div
+      class="profile-pin"
+      [ngStyle]="profilePhoto && location"
+      [ngClass]="{ visible: profilePhoto && location }"
+      #profilePin
+    >
+      <fa-icon [icon]="icon" size="3x"></fa-icon>
+      <div
+        [style.backgroundImage]="profilePhoto && 'url(' + profilePhoto + ')'"
+        class="profile-pin-photo"
+      ></div>
+    </div>
+    <img [src]="'/assets/img/maps/floor' + floor + '.jpg'" alt="map" #map />
+    <div class="map-grid" #mapGrid></div>
   </div>
 </div>
-<ng-template #spinner>
-  <app-spinner></app-spinner>
-</ng-template>
+<app-spinner *ngIf="!relation.value" small="true"></app-spinner>

@@ -3,5 +3,8 @@
     "locale": "English",
     "help": "עזרה",
     "logOut": "התנתקות מהחשבון"
+  },
+  "map": {
+    "locatedOn": "נמצא בקומה {{value}}"
   }
 }

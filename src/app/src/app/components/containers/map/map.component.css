@@ -15,10 +15,18 @@ a.btn.btn-lnk {
 
 .map-box {
   position: relative;
+  width: 100vw;
   height: 70vh;
   display: flex;
   align-items: center;
   overflow: scroll;
+}
+
+.map-box.show-grid .map-grid {
+  width: 100%;
+  position: absolute;
+  background-image: repeating-linear-gradient(#ccc 0 1px, transparent 1px 100%),
+    repeating-linear-gradient(90deg, #ccc 0 1px, transparent 1px 100%);
 }
 
 .map-box img {
@@ -26,9 +34,41 @@ a.btn.btn-lnk {
   height: auto;
 }
 
+.map-box .profile-pin {
+  color: #ffc470;
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 2s;
+}
+
+.map-box .profile-pin.visible {
+  opacity: 1;
+}
+
+.profile-pin-photo {
+  width: 1.75em;
+  height: 1.75em;
+  border-radius: 50%;
+  border: 1px solid #eee;
+  position: absolute;
+  top: 10%;
+  background-position: center;
+  background-size: 110%;
+  background-repeat: no-repeat;
+}
+
 .zoom-in {
   position: absolute;
   top: 0;
   left: 0;
   width: 300% !important;
+}
+
+app-spinner {
+  position: fixed;
+  top: 94vh;
 }
