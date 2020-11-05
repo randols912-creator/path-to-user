@@ -1,6 +1,6 @@
 import { Location } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
-import { settingsUrl } from 'src/app/app.constants';
+import { SETTINGS_PATH } from 'src/app/app.constants';
 
 @Component({
   selector: 'app-toolbar',
@@ -16,6 +16,6 @@ export class ToolbarComponent implements OnInit {
   ngOnInit(): void {}
 
   get settingsUrl() {
-    return settingsUrl;
+    return `/${SETTINGS_PATH}`;
   }
 }

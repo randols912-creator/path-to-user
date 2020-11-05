@@ -1,22 +1,13 @@
-import {
-  BehaviorSubject,
-  Observable,
-  Subject,
-  Subscription,
-  forkJoin,
-} from 'rxjs';
-import { concatMap, map } from 'rxjs/operators';
-import {
-  fetchPathsUrl,
-  millisBetweenBackendCalls,
-  pathDetailsUrl,
-  pathsCountUrl,
-  profilesCountUrl,
-} from '../app.constants';
-
-import { AuthService } from '../auth/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { BehaviorSubject, forkJoin, Observable } from 'rxjs';
+import {
+  FETCH_PATHS_URL,
+  MILLIS_BETWEEN_API_CALLS,
+  PATHS_COUNT_URL,
+  PATH_DETAILS_URL,
+  PROFILES_COUNT_URL,
+} from '../app.constants';
 import Path, { PathDetailsResponse } from '../model/Path';
 
 // TODO - strict type for source?
@@ -28,7 +19,8 @@ interface PathsCountResponse {
   count: number;
 }
 
-const debugMessage = (msg: string): void => console.debug(`${(new Date().toISOString())}: ${msg}`);
+const debugMessage = (msg: string): void =>
+  console.debug(`${new Date().toISOString()}: ${msg}`);
 
 @Injectable({
   providedIn: 'root',
@@ -109,7 +101,7 @@ export class RelationService {
         if (this.notReady(pathsCount, totalPathsCount, profilesCount)) {
           setTimeout(
             () => this.fetchAll(this.relations.length),
-            filtered.length > 0 ? 0 : millisBetweenBackendCalls
+            filtered.length > 0 ? 0 : MILLIS_BETWEEN_API_CALLS
           );
         } else {
           debugMessage('Interval fetch disabled');
@@ -132,19 +124,19 @@ export class RelationService {
     Observable<PathsCountResponse>
   ] {
     return [
-      this.http.get<PathServiceResponse>(fetchPathsUrl, {
+      this.http.get<PathServiceResponse>(FETCH_PATHS_URL, {
         params: { offset: `${offset}` },
       }),
-      this.http.get<PathsCountResponse>(pathsCountUrl),
-      this.http.get<PathsCountResponse>(profilesCountUrl),
-      this.http.get<PathsCountResponse>(pathsCountUrl, {
+      this.http.get<PathsCountResponse>(PATHS_COUNT_URL),
+      this.http.get<PathsCountResponse>(PROFILES_COUNT_URL),
+      this.http.get<PathsCountResponse>(PATHS_COUNT_URL, {
         params: { connected_only: 'false' },
       }),
     ];
   }
 
   private triggerBackendWorkers(): void {
-    this.http.post(fetchPathsUrl, {}).subscribe(() => {
+    this.http.post(FETCH_PATHS_URL, {}).subscribe(() => {
       debugMessage('Backend workers triggered!');
     });
   }
@@ -161,7 +153,7 @@ export class RelationService {
     source_id,
     target_id,
   }: Path): Observable<PathDetailsResponse> {
-    return this.http.get<PathDetailsResponse>(`${pathDetailsUrl}`, {
+    return this.http.get<PathDetailsResponse>(`${PATH_DETAILS_URL}`, {
       params: { source_id, target_id },
     });
   }

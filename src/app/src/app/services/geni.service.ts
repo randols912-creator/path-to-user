@@ -1,8 +1,7 @@
-import { Location } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { geniApiUrl, geniOauthUrl } from '../app.constants';
+import { GENI_API_URL, GENI_OAUTH_URL } from '../app.constants';
 import Profile from '../model/Profile';
 
 @Injectable({
@@ -12,12 +11,14 @@ export class GeniService {
   constructor(private http: HttpClient) {}
 
   login(): void {
-    window.location.href = geniOauthUrl;
+    window.location.href = GENI_OAUTH_URL;
   }
 
   fetchProfile(profile: string, fields?: Array<string>): Observable<Profile> {
     return this.http.jsonp<Profile>(
-      `${geniApiUrl}/${profile}${fields ? '?fields=' + fields.join(',') : ''}`,
+      `${GENI_API_URL}/${profile}${
+        fields ? '?fields=' + fields.join(',') : ''
+      }`,
       'callback'
     );
   }

@@ -1,7 +1,13 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
+import {
+  ActivatedRouteSnapshot,
+  CanActivate,
+  Router,
+  RouterStateSnapshot,
+  UrlTree,
+} from '@angular/router';
 import { Observable } from 'rxjs';
-import { homeUrl, welcomeUrl } from '../app.constants';
+import { HOME_PATH, WELCOME_PATH } from '../app.constants';
 import { AuthService } from './auth.service';
 
 @Injectable({
@@ -26,14 +32,13 @@ export class AuthGuard implements CanActivate {
     ) {
       const { access_token, expires_in } = next.queryParams;
       this.authService.storeTokenAndFetchUserDetails(access_token, expires_in);
-      return this.router.navigate([homeUrl]);
+      return this.router.navigate([`/${HOME_PATH}`]);
     }
 
     if (this.authService.isAuthenticated()) {
       return true;
     }
 
-    return this.router.navigate([welcomeUrl]);
+    return this.router.navigate([`/${WELCOME_PATH}`]);
   }
 }
-

@@ -1,7 +1,7 @@
 import { Location } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
-import { homeUrl, menuUrl, settingsUrl } from 'src/app/app.constants';
+import { HOME_PATH, MENU_PATH, SETTINGS_PATH } from 'src/app/app.constants';
 import { SettingsAction } from '../../containers/settings/settings.component';
 
 @Component({
@@ -18,7 +18,6 @@ export class TitleBarComponent implements OnInit {
   @Input() showSettings: boolean = false;
 
   @Input() settingsAction: SettingsAction;
-  settingsUrl = settingsUrl;
 
   @Output() onToggleMenu: EventEmitter<void> = new EventEmitter<void>();
 
@@ -26,11 +25,15 @@ export class TitleBarComponent implements OnInit {
 
   ngOnInit(): void {}
 
+  get settingsUrl() {
+    return `/${SETTINGS_PATH}`;
+  }
+
   gotoMenuHandler(): void {
-    this.router.navigate([menuUrl]);
+    this.router.navigate([`/${MENU_PATH}`]);
   }
 
   goToAllResults(): void {
-    this.router.navigate([homeUrl]);
+    this.router.navigate([`/${HOME_PATH}`]);
   }
 }

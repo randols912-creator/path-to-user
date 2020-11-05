@@ -7,7 +7,7 @@ import {
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment as env } from 'src/environments/environment';
-import { geniHost, geniTokenHeaderKey } from '../app.constants';
+import { GENI_HOST, GENI_TOKEN_HEADER_KEY } from '../app.constants';
 import { AuthService } from './auth.service';
 
 @Injectable()
@@ -19,7 +19,7 @@ export class AuthInterceptor implements HttpInterceptor {
     next: HttpHandler
   ): Observable<HttpEvent<unknown>> {
     if (request.method === 'JSONP') {
-      if (request.url.startsWith(geniHost)) {
+      if (request.url.startsWith(GENI_HOST)) {
         return next.handle(
           request.clone({
             params: request.params.set('access_token', this.auth.token),
@@ -35,7 +35,7 @@ export class AuthInterceptor implements HttpInterceptor {
     ) {
       return next.handle(
         request.clone({
-          headers: request.headers.set(geniTokenHeaderKey, this.auth.token),
+          headers: request.headers.set(GENI_TOKEN_HEADER_KEY, this.auth.token),
         })
       );
     }

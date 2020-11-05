@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { faAngleDown, faAngleUp } from '@fortawesome/free-solid-svg-icons';
-import { profileUrl } from 'src/app/app.constants';
+import { PROFILE_PATH } from 'src/app/app.constants';
 import { AuthService } from 'src/app/auth/auth.service';
 import { Gender, LivingDetails } from 'src/app/model/Profile';
 import Connection from 'src/app/model/ProfileRelation';
@@ -17,7 +17,6 @@ export class ConnectionComponent implements OnInit {
   @Input() relatedConnection?: Connection;
   @Input() direct?: boolean = false;
   @Input() drawArrowDown?: boolean = true;
-  profileUrl = profileUrl;
 
   faAngleDown = faAngleDown;
   faAngleUp = faAngleUp;
@@ -53,6 +52,10 @@ export class ConnectionComponent implements OnInit {
     }
   }
 
+  get profileUrl() {
+    return `/${PROFILE_PATH}`;
+  }
+
   get relationImgUlr(): string {
     return this.connection.profile?.photo_urls?.medium;
   }
@@ -61,11 +64,9 @@ export class ConnectionComponent implements OnInit {
     if (this.relatedConnection?.url === this.auth.user.url) {
       return `your ${this.connection.relation}`;
     } else {
-      return (
-        `${this.relatedConnection?.gender === Gender.MALE ? 'his' : 'her'} ${
-          this.connection.relation
-        }`
-      );
+      return `${
+        this.relatedConnection?.gender === Gender.MALE ? 'his' : 'her'
+      } ${this.connection.relation}`;
     }
   }
 

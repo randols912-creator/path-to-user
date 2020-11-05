@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { homeUrl } from 'src/app/app.constants';
+import { HOME_PATH } from 'src/app/app.constants';
 
 @Component({
   selector: 'app-settings',
@@ -20,7 +20,7 @@ export class SettingsComponent implements OnInit {
   }
 
   goToAllResults(): void {
-    this.router.navigate([homeUrl]);
+    this.router.navigate([`/${HOME_PATH}`]);
   }
 }
 

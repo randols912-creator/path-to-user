@@ -1,14 +1,13 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import {
-  homePath,
-  mapPath,
-  menuPath,
-  profilePath,
-  relationPath,
-  settingsPath,
-  welcomePath,
-  welcomeUrl
+  HOME_PATH,
+  MAP_PATH,
+  MENU_PATH,
+  PROFILE_PATH,
+  RELATION_PATH,
+  SETTINGS_PATH,
+  WELCOME_PATH,
 } from './app.constants';
 import { AuthGuard } from './auth/auth.guard';
 import { HomeComponent } from './components/containers/home/home.component';
@@ -21,38 +20,38 @@ import { WelcomeComponent } from './components/containers/welcome/welcome.compon
 
 const routes: Routes = [
   {
-    path: homePath,
+    path: HOME_PATH,
     component: HomeComponent,
     canActivate: [AuthGuard],
     data: { animation: 'home' },
   },
   {
-    path: menuPath,
+    path: MENU_PATH,
     component: MenuComponent,
     data: { animation: 'menu' },
   },
   {
-    path: `${relationPath}/:id`,
+    path: `${RELATION_PATH}/:id`,
     component: RelationComponent,
     canActivate: [AuthGuard],
   },
   {
-    path: `${profilePath}/:id`,
+    path: `${PROFILE_PATH}/:id`,
     component: ProfileComponent,
     canActivate: [AuthGuard],
   },
   {
-    path: `${settingsPath}`,
+    path: `${SETTINGS_PATH}`,
     component: SettingsComponent,
     canActivate: [AuthGuard],
   },
   {
-    path: `${mapPath}/:id`,
+    path: `${MAP_PATH}/:id`,
     component: MapComponent,
     canActivate: [AuthGuard],
   },
-  { path: welcomePath, component: WelcomeComponent },
-  { path: '**', redirectTo: welcomeUrl },
+  { path: WELCOME_PATH, component: WelcomeComponent },
+  { path: '**', redirectTo: `/${WELCOME_PATH}` },
 ];
 
 @NgModule({

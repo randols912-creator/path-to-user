@@ -1,39 +1,32 @@
 import { environment as env } from 'src/environments/environment';
 
-export const geniClientId = 'eYis8xWUg8AoILdkT1GsmuwO9PTFFQrECLaNSONt';
+export const GENI_CLIENT_ID = 'eYis8xWUg8AoILdkT1GsmuwO9PTFFQrECLaNSONt';
 
-export const geniHost = 'https://www.geni.com';
-export const geniOauthUrl = `${geniHost}/platform/oauth/authorize?client_id=${geniClientId}&redirect_uri=${env.host}&response_type=token&display=mobile`;
-export const geniApiUrl = `${geniHost}/api`;
-export const currentUserProfilePath = 'profile';
+export const GENI_HOST = 'https://www.geni.com';
+export const GENI_OAUTH_URL = `${GENI_HOST}/platform/oauth/authorize?client_id=${GENI_CLIENT_ID}&redirect_uri=${env.host}&response_type=token&display=mobile`;
+export const GENI_API_URL = `${GENI_HOST}/api`;
+export const CURRENT_USER_PROFILE_PATH = 'profile';
 
-export const geniTokenStorageKey = 'gn-token';
-export const geniTokenExpiresStorageKey = 'gn-token-exp';
-export const currentUserProfileStorageKey = 'gn-user';
-export const appSettingsStorageKey = 'app-settings';
+export const GENI_TOKEN_STORAGE_KEY = 'gn-token';
+export const GENI_TOKEN_EXPIRES_STORAGE_KEY = 'gn-token-exp';
+export const CURRENT_USER_PROFILE_STORAGE_KEY = 'gn-user';
+export const APP_SETTINGE_STORAGE_KEY = 'app-settings';
 
-export const fetchPathsUrl = `${env.relationsServiceHost}/api/v1/paths/personalities`;
-export const pathsCountUrl = `${env.relationsServiceHost}/api/v1/paths/personalities/count`;
-export const profilesCountUrl = `${env.relationsServiceHost}/api/v1/profiles/count`;
-export const pathDetailsUrl = `${env.relationsServiceHost}/api/v1/paths`;
-export const geniTokenHeaderKey = 'authorization';
-export const millisBetweenBackendCalls = 1000;
+export const FETCH_PATHS_URL = `${env.relationsServiceHost}/api/v1/paths/personalities`;
+export const PATHS_COUNT_URL = `${env.relationsServiceHost}/api/v1/paths/personalities/count`;
+export const PROFILES_COUNT_URL = `${env.relationsServiceHost}/api/v1/profiles/count`;
+export const PATH_DETAILS_URL = `${env.relationsServiceHost}/api/v1/paths`;
+export const GENI_TOKEN_HEADER_KEY = 'authorization';
+export const MILLIS_BETWEEN_API_CALLS = 1000;
 export const QUADRANT_COUNT = 50;
 
-export const homePath = '';
-export const welcomePath = 'welcome';
-export const menuPath = 'menu';
-export const relationPath = 'relation';
-export const profilePath = 'profile';
-export const settingsPath = 'settings';
-export const mapPath = 'map';
-
-export const homeUrl = `/${homePath}`;
-export const welcomeUrl = `/${welcomePath}`;
-export const menuUrl = `/${menuPath}`;
-export const profileUrl = `/${profilePath}`;
-export const settingsUrl = `/${settingsPath}`;
-export const mapUrl = `/${mapPath}`;
+export const HOME_PATH = '';
+export const WELCOME_PATH = 'welcome';
+export const MENU_PATH = 'menu';
+export const RELATION_PATH = 'relation';
+export const PROFILE_PATH = 'profile';
+export const SETTINGS_PATH = 'settings';
+export const MAP_PATH = 'map';
 
 export const termsOfUseUrl = 'https://www.bh.org.il/terms-of-use';
 

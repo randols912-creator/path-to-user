@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { appSettingsStorageKey } from '../app.constants';
+import { APP_SETTINGE_STORAGE_KEY } from '../app.constants';
 import { RelationSortOrder } from '../pipes/relations-sort-by.pipe';
 
 @Injectable({
@@ -10,7 +10,7 @@ export class SettingsService {
   private settings: Settings;
 
   constructor(private translate: TranslateService) {
-    if (!localStorage.getItem(appSettingsStorageKey)) {
+    if (!localStorage.getItem(APP_SETTINGE_STORAGE_KEY)) {
       this.initSettings();
     } else {
       this.settings = this.restoreSettings();
@@ -25,12 +25,12 @@ export class SettingsService {
   }
 
   private restoreSettings() {
-    return JSON.parse(localStorage.getItem(appSettingsStorageKey));
+    return JSON.parse(localStorage.getItem(APP_SETTINGE_STORAGE_KEY));
   }
 
   private saveSettings() {
     return localStorage.setItem(
-      appSettingsStorageKey,
+      APP_SETTINGE_STORAGE_KEY,
       JSON.stringify(this.settings)
     );
   }

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { welcomeUrl } from 'src/app/app.constants';
+import { WELCOME_PATH } from 'src/app/app.constants';
 import { AuthService } from 'src/app/auth/auth.service';
 import { SettingsService } from 'src/app/services/settings.service';
 
@@ -20,7 +20,7 @@ export class MenuComponent implements OnInit {
 
   logoutHandler(): void {
     this.auth.logout();
-    this.router.navigate([welcomeUrl]);
+    this.router.navigate([`/${WELCOME_PATH}`]);
   }
 
   switchLocaleHandler(): void {

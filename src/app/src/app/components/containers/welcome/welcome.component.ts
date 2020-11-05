@@ -7,7 +7,7 @@ import {
   ViewChild
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { homePath, termsOfUseUrl, welcomePhotos } from 'src/app/app.constants';
+import { HOME_PATH, termsOfUseUrl, welcomePhotos } from 'src/app/app.constants';
 import { AuthService } from 'src/app/auth/auth.service';
 import { RefDirective } from 'src/app/directives/ref.directive';
 import { ModalComponent } from '../../ui/modal/modal.component';
@@ -33,7 +33,7 @@ export class WelcomeComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     if (this.authService.isAuthenticated) {
-      this.router.navigate([homePath]);
+      this.router.navigate([HOME_PATH]);
     }
   }
 

@@ -2,7 +2,7 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
 import { BehaviorSubject, Subscription } from 'rxjs';
-import { profileUrl, QUADRANT_COUNT } from 'src/app/app.constants';
+import { PROFILE_PATH, QUADRANT_COUNT } from 'src/app/app.constants';
 import Path from 'src/app/model/Path';
 import { RelationService, Status } from 'src/app/services/relation.service';
 
@@ -152,7 +152,7 @@ export class MapComponent implements OnInit {
   }
 
   get profileUrl() {
-    return profileUrl;
+    return `/${PROFILE_PATH}`;
   }
 
   get profilePhoto() {

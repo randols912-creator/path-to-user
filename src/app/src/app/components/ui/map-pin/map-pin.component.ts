@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
-import { mapPath } from 'src/app/app.constants';
+import { MAP_PATH } from 'src/app/app.constants';
 
 @Component({
   selector: 'app-map-pin',
@@ -17,7 +17,7 @@ export class MapPinComponent implements OnInit {
   ngOnInit(): void {}
 
   get mapPath() {
-    return mapPath;
+    return MAP_PATH;
   }
 
   get icon() {

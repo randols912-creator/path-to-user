@@ -5,7 +5,7 @@ import {
   Input,
   ViewChild,
 } from '@angular/core';
-import { relationPath } from 'src/app/app.constants';
+import { RELATION_PATH } from 'src/app/app.constants';
 import { Category, getColor, getText } from 'src/app/model/Category';
 import Path from 'src/app/model/Path';
 import { Gender, LivingDetails } from 'src/app/model/Profile';
@@ -18,7 +18,7 @@ import { Gender, LivingDetails } from 'src/app/model/Profile';
 export class RelationCardComponent implements AfterViewInit {
   @Input() relation: Path;
   collapsed: boolean = true;
-  relationPath: string = relationPath;
+  relationPath: string = RELATION_PATH;
   @ViewChild('relationCard') relationCardRef: ElementRef;
 
   ngAfterViewInit() {
