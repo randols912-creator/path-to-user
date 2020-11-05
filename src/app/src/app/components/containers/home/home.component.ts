@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
+import { AuthService } from 'src/app/auth/auth.service';
+import Path from 'src/app/model/Path';
+import Profile from 'src/app/model/Profile';
 import {
   RelationService,
-  Status as ServiceStatus,
+  Status as ServiceStatus
 } from 'src/app/services/relation.service';
 
-import { AuthService } from 'src/app/auth/auth.service';
-import Profile from 'src/app/model/Profile';
-import Path from 'src/app/model/Path';
 
 @Component({
   selector: 'app-home',
@@ -50,7 +50,7 @@ export class HomeComponent implements OnInit {
 }
 
 enum Status {
-  READY = 'All the data successfuly fetched',
-  SEARCHING = "We're searching for people connected to you...",
-  ERROR = 'Error! See the console',
+  READY,
+  SEARCHING,
+  ERROR,
 }

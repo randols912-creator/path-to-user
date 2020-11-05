@@ -1,4 +1,19 @@
 {
+  "home": {
+    "status": {
+      "0": "All the data successfully fetched",
+      "1": "We're searching for people connected to you...",
+      "2": "Error! See the console"
+    },
+    "greet": {
+      "prefix": "Hi",
+      "suffix": "nice to see you here."
+    },
+    "found": {
+      "prefix": "We found",
+      "suffix": "people connected to you"
+    }
+  },
   "menu": {
     "locale": "עברית",
     "help": "Help",
