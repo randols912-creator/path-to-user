@@ -11,18 +11,10 @@
       />
       ME
     </h1>
-    <h2 class="subtitle-text">
-      <span>M</span>useum of the <span>J</span>ewish <span>P</span>eople
-    </h2>
-    <h4 class="subtitle-text">
-      Wouldn’t it be great to know if you have a family connection to famous
-      Jewish people like Albert Einstein, Dona Gracia or Theodor Herzl?
-    </h4>
+    <h2 class="subtitle-text" translate>welcome.top.headline</h2>
+    <h4 class="subtitle-text" translate>welcome.top.question</h4>
     <img src="assets/img/lineOfCircles.svg" class="circles-separator" />
-    <p class="regular-text">
-      Here's what you need to do in order to discover that and where they are
-      located in the museum:
-    </p>
+    <p class="regular-text" translate>welcome.top.whatToDo</p>
   </section>
   <section class="welcome__middle">
     <div class="box">
@@ -31,24 +23,24 @@
         type="button"
         class="btn btn-link accent-text general-link"
         [disabled]="!(agreeToTerms && agreeToConnectRelatives)"
+        translate
       >
-        Log in to your Geni account
+        welcome.middle.login
       </button>
       <div class="welcome__photos-row" #photosBox>
         <img *ngFor="let src of photos" src="{{ src }}" alt="" />
       </div>
-      <p class="regular-text">
-        Once you're in, you'll see a list of famous people you're connected to
-        and the relationship path for each one. A click on each person will
-        reveal the exact location in the museum. You may even find your
-        relationship to other museum visitors!
-      </p>
+      <p class="regular-text" translate>welcome.middle.instructions</p>
       <div class="welcome__agree-box">
         <input type="checkbox" [(ngModel)]="agreeToTerms" autocomplete="off" />
-        <span
-          >I Agree to
-          <a [href]="termsOfUseUrl" target="_blank" rel="nofollow noopener"
-            >Terms of Use</a
+        <span translate
+          >welcome.middle.agreeToTerms.prefix
+          <a
+            [href]="termsOfUseUrl"
+            target="_blank"
+            rel="nofollow noopener"
+            translate
+            >welcome.middle.agreeToTerms.suffix</a
           ></span
         >
       </div>
@@ -58,37 +50,30 @@
           [(ngModel)]="agreeToConnectRelatives"
           autocomplete="off"
         />
-        <span>
-          I Agree to allow this app to
-          <a (click)="showModalConnectWithRelatives()"
-            >connect me with relatives</a
+        <span translate>
+          welcome.middle.agreeToConnectRelatives.prefix
+          <a (click)="showModalConnectWithRelatives()" translate
+            >welcome.middle.agreeToConnectRelatives.link</a
           >
-          who may now be in the museum itself
+          welcome.middle.agreeToConnectRelatives.suffix
         </span>
       </div>
     </div>
   </section>
   <section class="box welcome__bottom">
     <div class="other-platform">
-      <h5 class="accent-text">Have a family tree on another platform?</h5>
-      <p class="regular-text">
-        Upload your Gedcom file to Geni and connect to the World Family Tree
-        (Available only on desktop).
-      </p>
+      <h5 class="accent-text" translate>welcome.bottom.anotherPlatform</h5>
+      <p class="regular-text" translate>welcome.bottom.uploadGedcom</p>
     </div>
     <div class="none-platform">
-      <h5 class="accent-text">Don't have a family tree?</h5>
-      <p class="regular-text">
-        You are invited to our Database Desk in order to register and build your
-        own family tree. The more family members included the greater chance
-        you'll find more connections at the museum.
-      </p>
+      <h5 class="accent-text" translate>welcome.bottom.uploadGedcom</h5>
+      <p class="regular-text" translate>welcome.bottom.invitedToDesk</p>
     </div>
     <img src="assets/img/lineOfCircles.svg" class="circles-separator" />
     <img
       class="bottom-logo"
       src="assets/img/logoBHeng.svg"
-      alt="Museum of the jewish people at Beit Hatfutsot"
+      [alt]="'welcome.bottom.logoAlt' | translate"
     />
   </section>
 </div>

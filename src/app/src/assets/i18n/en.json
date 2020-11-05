@@ -6,5 +6,32 @@
   },
   "map": {
     "locatedOn": "is located on floor {{value}}"
+  },
+  "welcome": {
+    "top": {
+      "headline": "Museum of the Jewish People",
+      "question": "Wouldn’t it be great to know if you have a family connection to famous Jewish people like Albert Einstein, Dona Gracia or Theodor Herzl?",
+      "whatToDo": "Here's what you need to do in order to discover that and where they are located in the museum:"
+    },
+    "middle": {
+      "login": "Log in to your Geni account",
+      "instructions": "Once you're in, you'll see a list of famous people you're connected to and the relationship path for each one. A click on each person will reveal the exact location in the museum. You may even find your relationship to other museum visitors!",
+      "agreeToTerms": {
+        "prefix": "I Agree to",
+        "suffix": "Terms of Use"
+      },
+      "agreeToConnectRelatives": {
+        "prefix": "I Agree to allow this app to",
+        "link": "connect me with relatives",
+        "suffix": "who may now be in the museum itself"
+      }
+    },
+    "bottom": {
+      "anotherPlatform": "Have a family tree on another platform?",
+      "uploadGedcom": "Upload your Gedcom file to Geni and connect to the World Family Tree (Available only on desktop).",
+      "noFamilyTree": "Don't have a family tree?",
+      "invitedToDesk": "You are invited to our Database Desk in order to register and build your own family tree. The more family members included the greater chance you'll find more connections at the museum.",
+      "logoAlt": "Museum of the jewish people at Beit Hatfutsot"
+    }
   }
 }
