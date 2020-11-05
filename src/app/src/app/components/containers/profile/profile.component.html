@@ -1,9 +1,20 @@
 <app-title-bar [showGoToAllResultsText]="true"></app-title-bar>
-<div class="profile" *ngIf="profile">
-  <div *ngIf="profilePhotoUrl" class="profile-photo">
+<div class="profile" *ngIf="profile | async as profile">
+  <div
+    *ngIf="
+      profile?.photo_urls?.large ||
+      profile?.photo_urls?.medium as profilePhotoUrl
+    "
+    class="profile-photo"
+  >
     <img [src]="profilePhotoUrl" [alt]="profile.name" />
   </div>
-  <div class="profile-details">
+  <div
+    *ngIf="
+      profile?.first_name + ' ' + profile?.last_name || profile.name as fullname
+    "
+    class="profile-details"
+  >
     <div class="fullname-box">
       <h4 class="subtitle-text">
         {{ fullname }}
@@ -16,15 +27,17 @@
       ></app-map-pin>
     </div>
     <div class="birthdate">
-      <span class="light-grey-text">Birthdate:</span> {{ birthdate }}
+      <span class="light-grey-text">Birthdate:</span>
+      {{ profile?.birth?.date?.formatted_date }}
     </div>
     <div class="birthplace">
-      <span class="light-grey-text">Birthplace:</span> {{ birthplace }}
+      <span class="light-grey-text">Birthplace:</span>
+      {{ profile?.birth?.location?.formatted_location }}
     </div>
-    <div *ngIf="about" class="about">
-      <span class="light-grey-text">About {{ fullname }}:</span>
-      <div [innerHTML]="about"></div>
+    <div *ngIf="convertMdToHtml(profile?.about_me) as about_me" class="about">
+      <span class="light-grey-teuxt">About {{ fullname }}:</span>
+      <div [innerHTML]="about_me"></div>
     </div>
   </div>
-  <app-read-more-footer [fullname]="fullname"></app-read-more-footer>
+  <app-read-more-footer [profile]="profile"></app-read-more-footer>
 </div>

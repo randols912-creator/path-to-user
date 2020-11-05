@@ -13,10 +13,11 @@ export default interface Profile {
   bh_theme?: Category;
   bh_floor?: number;
   bh_location?: string;
+  bh_url?: string;
   url?: string;
   about_me?: string;
+  profile_url?: string;
 
-  // profile_url?: string;
   // public?: boolean;
   // guid?: string;
   // middle_name?: string;

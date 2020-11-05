@@ -1,10 +1,11 @@
 <div class="read-more-footer">
   <img class="logo" src="assets/img/Logo2 BH.svg" alt="" />
   <a
-    >Read more about {{ fullname }} in the museum databases<img
-      class="link"
-      src="assets/img/link.svg"
-      alt=""
-    />
+    [href]="relation?.bh_url || profile?.profile_url"
+    target="_blank"
+    rel="nofollow noopener"
+    >Read more about
+    {{ profile?.first_name + ' ' + profile?.last_name || profile.name }} in the
+    museum databases<img class="link" src="assets/img/link.svg" alt="" />
   </a>
 </div>

@@ -141,6 +141,10 @@ export class RelationService {
     });
   }
 
+  fetchSingle(id: string): Observable<Path> {
+    return this.http.get<Path>(`${FETCH_PATHS_URL}/${id}`);
+  }
+
   getRelation(id: string): Path {
     return this.relations.filter((next) => next.target_id === id).shift();
   }

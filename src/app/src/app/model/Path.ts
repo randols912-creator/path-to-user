@@ -10,6 +10,7 @@ export default interface Path {
   relations: Connection[];
   bh_theme: Category;
   bh_floor: string | number;
+  bh_url: string;
 }
 
 export interface PathDetailsResponse {

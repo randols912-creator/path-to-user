@@ -1,3 +1,7 @@
+.profile {
+  overflow: hidden;
+}
+
 .profile ::ng-deep *::not(fa-icon) {
   font-size: 14px;
   line-height: 16px;
@@ -37,5 +41,9 @@
 .profile .about ::ng-deep p {
   margin-bottom: 5px;
   text-align: justify;
-  word-wrap: break-word;
+  word-break: break-word;
+}
+
+.profile .about ::ng-deep a {
+  word-break: break-word;
 }
