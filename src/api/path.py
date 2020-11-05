@@ -44,17 +44,20 @@ class PathManager:
         path = await self.database.fetch_one(query=query)
         return path
 
-    async def get_personalities_paths(self, source_id: str, offset: int, limit: int, connected_only=True, ready_only=False):
-        j = join(profiles_table, paths_table, profiles_table.c.id == paths_table.c.target_id)
-        step_count_cond = (paths_table.c.step_count > 0) if connected_only else True
+    async def get_personalities_paths(self, source_id: str, offset: int, limit: int, connected_only=True, ready_only=False, target_id=None):
+        j = join(profiles_table, paths_table,
+                 profiles_table.c.id == paths_table.c.target_id)
+        step_count_cond = (paths_table.c.step_count >
+                           0) if connected_only else True
         ready_only_cond = paths_table.c.finished_on != None if ready_only else True
+        target_id_cond = paths_table.c.target_id == target_id if target_id else True
         query = select([paths_table.c.source_id,
                         paths_table.c.target_id,
                         paths_table.c.step_count,
                         profiles_table.c.bh_theme,
                         profiles_table.c.details.label("target_profile")]).select_from(j) \
             .where(
-            and_(paths_table.c.source_id == source_id, step_count_cond, ready_only_cond))\
+            and_(paths_table.c.source_id == source_id, step_count_cond, ready_only_cond, target_id_cond))\
             .order_by(paths_table.c.finished_on).offset(offset)
 
         if limit:
