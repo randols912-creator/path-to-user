@@ -8,6 +8,13 @@
     "greet": "Hi, {{value}}, nice to see you here.",
     "found": "We found {{value}} people connected to you"
   },
+  "modal": {
+    "relatives": {
+      "agree": "I Agree to allow this app to connect me with relatives who may now be in the museum itself",
+      "what": "what does it mean?",
+      "means": "This means that during your stay in the museum, if the app identifies a relative who is related to you through your Geni family family tree you built, the app will show both of you that you are currently in the museum and give you both an option to meet or correspond with this relative."
+    }
+  },
   "menu": {
     "locale": "עברית",
     "help": "Help",
