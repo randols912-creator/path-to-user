@@ -1,17 +1,19 @@
 <app-title-bar></app-title-bar>
 <div class="greet">
   <app-info-bar *ngIf="user">
-    <div class="small-regular-text">
-      {{ 'home.greet.prefix' | translate }}, {{ user.name }},
-      {{ 'home.greet.suffix' | translate }}
+    <div
+      class="small-regular-text"
+      translate
+      [translateParams]="{ value: user.name }"
+    >
+      home.greet
     </div>
     <div *ngIf="!relations.length" class="regular-text">
       <b>{{ 'home.status.' + status | translate }}</b>
     </div>
     <div *ngIf="relations.length" class="regular-text">
-      <b
-        >{{ 'home.found.prefix' | translate }} {{ relations.length }}
-        {{ 'home.found.suffix' | translate }}</b
+      <b translate [translateParams]="{ value: relations.length }"
+        >home.found</b
       >
     </div>
   </app-info-bar>

@@ -96,7 +96,7 @@ app-title-bar::ng-deep .title-bar {
 }
 
 .welcome__photos-row.visible {
-  opacity: 1
+  opacity: 1;
 }
 
 .welcome__photos-row img {
@@ -118,7 +118,7 @@ app-title-bar::ng-deep .title-bar {
   margin: 2px 10px 0 0;
 }
 
-.welcome__middle .welcome__agree-box a {
+.welcome__middle .welcome__agree-box::ng-deep a {
   text-decoration: underline;
   color: #666666;
 }

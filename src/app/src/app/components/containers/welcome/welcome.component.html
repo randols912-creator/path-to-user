@@ -33,16 +33,11 @@
       <p class="regular-text" translate>welcome.middle.instructions</p>
       <div class="welcome__agree-box">
         <input type="checkbox" [(ngModel)]="agreeToTerms" autocomplete="off" />
-        <span translate
-          >welcome.middle.agreeToTerms.prefix
-          <a
-            [href]="termsOfUseUrl"
-            target="_blank"
-            rel="nofollow noopener"
-            translate
-            >welcome.middle.agreeToTerms.suffix</a
-          ></span
-        >
+        <span
+          [innerHTML]="
+            'welcome.middle.terms' | translate: { value: termsOfUseUrl }
+          "
+        ></span>
       </div>
       <div class="welcome__agree-box">
         <input
@@ -50,13 +45,10 @@
           [(ngModel)]="agreeToConnectRelatives"
           autocomplete="off"
         />
-        <span translate>
-          welcome.middle.agreeToConnectRelatives.prefix
-          <a (click)="showModalConnectWithRelatives()" translate
-            >welcome.middle.agreeToConnectRelatives.link</a
-          >
-          welcome.middle.agreeToConnectRelatives.suffix
-        </span>
+        <span
+          (click)="showModalConnectWithRelatives()"
+          [innerHTML]="'welcome.middle.relatives' | translate"
+        ></span>
       </div>
     </div>
   </section>

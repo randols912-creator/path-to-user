@@ -5,14 +5,8 @@
       "1": "We're searching for people connected to you...",
       "2": "Error! See the console"
     },
-    "greet": {
-      "prefix": "Hi",
-      "suffix": "nice to see you here."
-    },
-    "found": {
-      "prefix": "We found",
-      "suffix": "people connected to you"
-    }
+    "greet": "Hi, {{value}}, nice to see you here.",
+    "found": "We found {{value}} people connected to you"
   },
   "menu": {
     "locale": "עברית",
@@ -31,15 +25,8 @@
     "middle": {
       "login": "Log in to your Geni account",
       "instructions": "Once you're in, you'll see a list of famous people you're connected to and the relationship path for each one. A click on each person will reveal the exact location in the museum. You may even find your relationship to other museum visitors!",
-      "agreeToTerms": {
-        "prefix": "I Agree to",
-        "suffix": "Terms of Use"
-      },
-      "agreeToConnectRelatives": {
-        "prefix": "I Agree to allow this app to",
-        "link": "connect me with relatives",
-        "suffix": "who may now be in the museum itself"
-      }
+      "terms": "I Agree to <a href='{{value}}' target='_blank' rel='nofollow noopener'>Terms of Use</a>",
+      "relatives": "I Agree to allow this app to <a>connect me with relatives</a> who may now be in the museum itself"
     },
     "bottom": {
       "anotherPlatform": "Have a family tree on another platform?",
