@@ -6,7 +6,28 @@
       "2": "שְׁגִיאָה! ראה את המסוף"
     },
     "greet": "היי, {{value}}, נחמד לראות אותך כאן.",
-    "found": "מצאנו {{value}} אנשים שקשורים אליך"
+    "found": "מצאנו {{value}} אנשים שקשורים אליך",
+    "relationCard": {
+      "num": "מספר חיבור:"
+    }
+  },
+  "relation": {
+    "whos": {
+      "your": "שלך",
+      "male": "שלו",
+      "female": "שלה"
+    },
+    "rel": {
+      "father": "אבא {{value}}",
+      "son": "בן {{value}}",
+      "brother": "אח {{value}}",
+      "husband": "בעל {{value}}",
+      "mother": "אמא {{value}}",
+      "daughter": "בת {{value}}",
+      "sister": "אחות {{value}}",
+      "wife": "אישה {{value}}",
+      "ex-wife": "גרושה {{value}}"
+    }
   },
   "modal": {
     "relatives": {
@@ -42,5 +63,26 @@
       "invitedToDesk": "אתה מוזמן לדלפק מסדי הנתונים שלנו על מנת להירשם ולבנות אילן יוחסין משלך. ככל שבני המשפחה יותר כוללים את הסיכוי הגדול יותר שתמצאו קשרים נוספים במוזיאון.",
       "logoAlt": "מוזיאון היהודים בבית התפוצות"
     }
+  },
+  "theme": {
+    "humanities": "מדעי הרוח והדת",
+    "science": "מַדָע",
+    "diplomacy": "דִיפּלוֹמָטִיָה",
+    "law": "חוֹק",
+    "economics": "כלכלה",
+    "holocaust": "השואה",
+    "press": "עיתונות",
+    "military": "צבאי",
+    "literature": "ספרות ושירה",
+    "plastic_art": "אמנות פלסטית",
+    "visual_art": "אמנות ויזואלית",
+    "classical_music": "מוזיקה קלאסית",
+    "popular_music": "מוזיקה פופולרית",
+    "architecture": "ארכיטקטורה",
+    "theatre": "תיאטרון",
+    "cinema": "קולנוע וטלוויזיה",
+    "humor": "הוּמוֹר",
+    "sports": "ספורט",
+    "other": "אַחֵר"
   }
 }

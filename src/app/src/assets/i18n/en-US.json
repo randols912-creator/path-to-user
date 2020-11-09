@@ -6,7 +6,28 @@
       "2": "Error! See the console"
     },
     "greet": "Hi, {{value}}, nice to see you here.",
-    "found": "We found {{value}} people connected to you"
+    "found": "We found {{value}} people connected to you",
+    "relationCard": {
+      "num": "Connection Number:"
+    }
+  },
+  "relation": {
+    "whos": {
+      "your": "your",
+      "male": "his",
+      "female": "her"
+    },
+    "rel": {
+      "father": "{{value}} father",
+      "son": "{{value}} son",
+      "brother": "{{value}} brother",
+      "husband": "{{value}} husband",
+      "mother": "{{value}} mother",
+      "daughter": "{{value}} daughter",
+      "sister": "{{value}} sister",
+      "wife": "{{value}} wife",
+      "ex-wife": "{{value}} ex-wife"
+    }
   },
   "modal": {
     "relatives": {
@@ -42,5 +63,26 @@
       "invitedToDesk": "You are invited to our Database Desk in order to register and build your own family tree. The more family members included the greater chance you'll find more connections at the museum.",
       "logoAlt": "Museum of the jewish people at Beit Hatfutsot"
     }
+  },
+  "theme": {
+    "humanities": "Humanities & Religion",
+    "science": "Science",
+    "diplomacy": "Diplomacy",
+    "law": "Law",
+    "economics": "Economics",
+    "holocaust": "The Holocaust",
+    "press": "Press & Media",
+    "military": "Military",
+    "literature": "Literature & Poetry",
+    "plastic_art": "Plastic Art",
+    "visual_art": "Visual Art",
+    "classical_music": "Classical Music",
+    "popular_music": "Popular Music",
+    "architecture": "Architecture",
+    "theatre": "Theatre",
+    "cinema": "Cinema & Television",
+    "humor": "Humor",
+    "sports": "Sports",
+    "other": "Other"
   }
 }

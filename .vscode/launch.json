@@ -38,7 +38,7 @@
       "request": "attach",
       "type": "pwa-chrome",
       "webRoot": "${workspaceFolder}/src/app",
-      "url": "http://localhost:4200*"
+      "urlFilter": "http://localhost:4200*"
     },
     {
       "name": "Python: cache personalities",

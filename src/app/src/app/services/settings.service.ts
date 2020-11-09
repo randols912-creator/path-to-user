@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { APP_SETTINGE_STORAGE_KEY } from '../app.constants';
+import { Locale } from '../model/Locale';
 import { RelationSortOrder } from '../pipes/relations-sort-by.pipe';
 
 @Injectable({
@@ -72,9 +73,4 @@ export class SettingsService {
 export interface Settings {
   sort: number;
   locale: Locale;
-}
-
-export enum Locale {
-  EN = 'en',
-  HE = 'he',
 }

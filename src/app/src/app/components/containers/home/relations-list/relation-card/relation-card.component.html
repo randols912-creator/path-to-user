@@ -28,7 +28,7 @@
           <a
             [routerLink]="[relationPath, relation.target_id]"
             [state]="{ id: relation.target_id }"
-            >{{ relationFullname }}</a
+            >{{ localizedFullname }}</a
           >
         </div>
       </div>
@@ -37,7 +37,7 @@
           class="bh-theme small-regular-text mr-1"
           [ngStyle]="{ backgroundColor: categoryColor(relation?.bh_theme) }"
         >
-          {{ categoryText(relation?.bh_theme) }}
+          {{ 'theme.' + relation?.bh_theme | translate }}
         </div>
         <!-- TODO remove default 1 -->
         <app-map-pin
@@ -49,7 +49,7 @@
     <div class="brief-info">
       <div class="small-regular-text">{{ livingDates }}</div>
       <div>
-        <span class="small-text">Connection Number: </span>
+        <span class="small-text" translate>home.relationCard.num</span>
         <span class="small-regular-text">{{ this.relation.step_count }}</span>
       </div>
     </div>

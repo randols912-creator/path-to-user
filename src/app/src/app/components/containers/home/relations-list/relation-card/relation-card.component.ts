@@ -6,9 +6,11 @@ import {
   ViewChild,
 } from '@angular/core';
 import { RELATION_PATH } from 'src/app/app.constants';
-import { Category, getColor, getText } from 'src/app/model/Category';
 import Path from 'src/app/model/Path';
 import { Gender, LivingDetails } from 'src/app/model/Profile';
+import { getColor, Theme } from 'src/app/model/Theme';
+import { I18nService } from 'src/app/services/i18n.service';
+import { SettingsService } from 'src/app/services/settings.service';
 
 @Component({
   selector: 'app-relation-card',
@@ -20,6 +22,8 @@ export class RelationCardComponent implements AfterViewInit {
   collapsed: boolean = true;
   relationPath: string = RELATION_PATH;
   @ViewChild('relationCard') relationCardRef: ElementRef;
+
+  constructor(private settings: SettingsService, private i18n: I18nService) {}
 
   ngAfterViewInit() {
     setTimeout(
@@ -40,13 +44,16 @@ export class RelationCardComponent implements AfterViewInit {
     return this.relation.target_profile?.photo_urls?.medium;
   }
 
-  get relationFullname(): string {
-    return this.relation.target_profile?.name;
+  get localizedFullname(): string {
+    return this.i18n.extractProfileFullname(
+      this.relation.target_profile,
+      this.settings.getLocale()
+    );
   }
 
   get livingDates(): string {
-    let birthYear = '',
-      deathYear = '';
+    let birthYear = '';
+    let deathYear = '';
 
     if (this.relation.target_profile.birth?.date) {
       const birth: LivingDetails = this.relation.target_profile.birth;
@@ -61,11 +68,7 @@ export class RelationCardComponent implements AfterViewInit {
     return `${birthYear}${deathYear}`;
   }
 
-  categoryColor(category: Category): string {
+  categoryColor(category: Theme): string {
     return getColor(category);
-  }
-
-  categoryText(category: Category): string {
-    return getText(category);
   }
 }

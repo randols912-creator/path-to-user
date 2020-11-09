@@ -40,6 +40,7 @@ class GeniClientAsync:
         fields = [
             'id',
             'name',
+            'names',
             'url',
             'first_name',
             'last_name',

@@ -5,6 +5,8 @@ import { AuthService } from 'src/app/auth/auth.service';
 import { Gender, LivingDetails } from 'src/app/model/Profile';
 import Connection from 'src/app/model/ProfileRelation';
 import { GeniService } from 'src/app/services/geni.service';
+import { I18nService } from 'src/app/services/i18n.service';
+import { SettingsService } from 'src/app/services/settings.service';
 
 @Component({
   selector: 'app-connection',
@@ -23,7 +25,12 @@ export class ConnectionComponent implements OnInit {
 
   expanded: boolean = false;
 
-  constructor(private auth: AuthService, private geni: GeniService) {}
+  constructor(
+    private auth: AuthService,
+    private geni: GeniService,
+    private settings: SettingsService,
+    private i18n: I18nService
+  ) {}
 
   ngOnInit(): void {
     if (this.direct) {
@@ -40,6 +47,7 @@ export class ConnectionComponent implements OnInit {
           .fetchProfileByLink(this.connection.url, [
             'gender',
             'name',
+            'names',
             'photo_urls',
             'birth',
             'death',
@@ -52,6 +60,22 @@ export class ConnectionComponent implements OnInit {
     }
   }
 
+  get localizedFullname(): string {
+    return (
+      this.i18n.extractProfileFullname(
+        this.connection.profile,
+        this.settings.getLocale()
+      ) || this.connection.name
+    );
+  }
+
+  get relation(): string {
+    return this.i18n.translateRelation(
+      this.isUser ? 'your' : this.relatedConnection?.gender,
+      this.connection.relation
+    );
+  }
+
   get profileUrl() {
     return `/${PROFILE_PATH}`;
   }
@@ -60,14 +84,8 @@ export class ConnectionComponent implements OnInit {
     return this.connection.profile?.photo_urls?.medium;
   }
 
-  get relation(): string {
-    if (this.relatedConnection?.url === this.auth.user.url) {
-      return `your ${this.connection.relation}`;
-    } else {
-      return `${
-        this.relatedConnection?.gender === Gender.MALE ? 'his' : 'her'
-      } ${this.connection.relation}`;
-    }
+  get isUser(): boolean {
+    return this.relatedConnection?.url === this.auth.user.url;
   }
 
   get gender(): Gender {
@@ -75,8 +93,8 @@ export class ConnectionComponent implements OnInit {
   }
 
   get livingDates(): string {
-    let birthYear = '',
-      deathYear = '';
+    let birthYear = '';
+    let deathYear = '';
 
     if (this.connection.profile) {
       if (this.connection.profile.birth) {

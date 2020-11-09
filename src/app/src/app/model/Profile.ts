@@ -1,4 +1,5 @@
-import { Category } from './Category';
+import { Theme } from './Theme';
+import { Locale } from './Locale';
 
 export default interface Profile {
   birth?: LivingDetails;
@@ -9,38 +10,23 @@ export default interface Profile {
   last_name?: string;
   maiden_name?: string;
   name?: string;
+  names?: { [key in Locale]: NameDetails };
   photo_urls?: PhotoUrls;
-  bh_theme?: Category;
+  bh_theme?: Theme;
   bh_floor?: number;
   bh_location?: string;
   bh_url?: string;
   url?: string;
   about_me?: string;
   profile_url?: string;
+}
 
-  // public?: boolean;
-  // guid?: string;
-  // middle_name?: string;
-  // suffix?: string;
-  // display_name?: string;
-  // is_alive?: boolean;
-  // created_by?: string;
-  // big_tree?: boolean;
-  // claimed?: boolean;
-  // language?: string;
-  // mugshot_urls?: object;
-  // unions?: Array<string>;
-  // relationship?: string;
-  // marriage_orders?: object;
-  // birth_order?: number;
-  // living?: boolean;
-  // creator?: string;
-  // account_type?: string;
-  // nicknames?: Array<string>;
-  // location?: object;
-  // created_at?: string;
-  // updated_at?: string;
-  // deleted?: boolean;
+export interface NameDetails {
+  display_name: string;
+  first_name: string;
+  last_name: string;
+  maiden_name: string;
+  middle_name: string;
 }
 
 interface PhotoUrls {

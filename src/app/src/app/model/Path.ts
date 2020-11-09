@@ -1,4 +1,4 @@
-import { Category } from './Category';
+import { Theme } from './Theme';
 import Profile from './Profile';
 import Connection from './ProfileRelation';
 
@@ -8,7 +8,7 @@ export default interface Path {
   step_count: number;
   target_profile: Profile;
   relations: Connection[];
-  bh_theme: Category;
+  bh_theme: Theme;
   bh_floor: string | number;
   bh_url: string;
 }

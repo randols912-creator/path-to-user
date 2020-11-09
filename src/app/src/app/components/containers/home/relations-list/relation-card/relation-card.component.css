@@ -50,6 +50,7 @@ a {
 
 .brief-info .small-text {
   color: #878787;
+  margin: 0 3px;
 }
 
 .info-section .fullname {

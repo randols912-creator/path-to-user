@@ -37,7 +37,7 @@
           [routerLink]="[profileUrl, connection.id]"
           [state]="{ id: connection.id }"
         >
-          {{ connection.profile?.name || connection.name }}
+          {{ localizedFullname }}
         </a>
       </div>
       <div *ngIf="relatedConnection && direct" class="small-text">
@@ -56,7 +56,7 @@
       <div *ngIf="!direct && expanded" class="brief-info">
         <div class="small-regular-text">{{ livingDates }}</div>
         <div>
-          <span class="small-text">Connection Number: </span>
+          <span class="small-text" translate>home.relationCard.num</span>
           <span class="small-regular-text">{{ step_count }}</span>
         </div>
       </div>
