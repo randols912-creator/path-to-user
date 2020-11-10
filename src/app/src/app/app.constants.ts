@@ -18,7 +18,7 @@ export const PROFILES_COUNT_URL = `${env.relationsServiceHost}/api/v1/profiles/c
 export const PATH_DETAILS_URL = `${env.relationsServiceHost}/api/v1/paths`;
 export const GENI_TOKEN_HEADER_KEY = 'authorization';
 export const MILLIS_BETWEEN_API_CALLS = 1000;
-export const QUADRANT_COUNT = 50;
+export const QUADRANT_COUNT = 40;
 
 export const HOME_PATH = '';
 export const WELCOME_PATH = 'welcome';

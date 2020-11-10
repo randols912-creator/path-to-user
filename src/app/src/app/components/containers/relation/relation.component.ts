@@ -35,9 +35,9 @@ export class RelationComponent implements OnInit, OnDestroy {
     if (relation) {
       this.fetchRelationDetailsAndSetCurrentRelation(relation);
     } else {
-      const relationServiceSub = this.relationService.status
+      this.relationServiceSub = this.relationService.status
         .pipe(filter((status) => status in [Status.READY, Status.PART_FETCHED]))
-        .subscribe((status) => {
+        .subscribe(() => {
           relation = this.relationService.getRelation(
             this.route.snapshot.params.id
           );
@@ -54,9 +54,9 @@ export class RelationComponent implements OnInit, OnDestroy {
       .fetchRelationDetails(relation)
       .subscribe(
         ({ path: { relationship, relations } }: PathDetailsResponse) => {
-          relations.forEach((relation) => {
-            const urlParts = relation.url.split('/');
-            relation.id = urlParts[urlParts.length - 1];
+          relations.forEach((nextRelation) => {
+            const urlParts = nextRelation.url.split('/');
+            nextRelation.id = urlParts[urlParts.length - 1];
           });
 
           this.relation = relation;
@@ -67,7 +67,7 @@ export class RelationComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.relationServiceSub?.unsubscribe;
+    this.relationServiceSub?.unsubscribe();
   }
 
   get user(): Profile {

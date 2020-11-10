@@ -19,8 +19,8 @@ export class ReadMoreFooterComponent implements OnInit {
     if (relation) {
       this.relation = relation;
     } else {
-      this.relations.fetchSingle(this.profile.id).subscribe((relation) => {
-        this.relation = relation;
+      this.relations.fetchSingle(this.profile.id).subscribe((r) => {
+        this.relation = r;
       });
     }
   }

@@ -26,6 +26,9 @@
         [style.backgroundImage]="profilePhoto && 'url(' + profilePhoto + ')'"
         class="profile-pin-photo"
       ></div>
+      <div class="profile-pin-label">
+        {{ labelText }}
+      </div>
     </div>
     <img [src]="'/assets/img/maps/floor' + floor + '.jpg'" alt="map" #map />
     <div class="map-grid" #mapGrid></div>

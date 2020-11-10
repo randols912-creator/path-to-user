@@ -1,4 +1,7 @@
-<div class="connection-list" *ngIf="connections?.length && !loading">
+<div
+  class="connection-list"
+  *ngIf="!loading; else spinner"
+>
   <app-connection
     [connection]="userConnection"
     [direct]="true"
@@ -44,8 +47,12 @@
     <app-connection
       *ngFor="let c of conns; index as i"
       [connection]="c"
-      [step_count]="i"
+      [stepCount]="i"
       [relatedConnection]="i === 0 ? userConnection : conns[i - 1]"
     ></app-connection>
   </div>
+</ng-template>
+
+<ng-template #spinner>
+  <app-spinner></app-spinner>
 </ng-template>

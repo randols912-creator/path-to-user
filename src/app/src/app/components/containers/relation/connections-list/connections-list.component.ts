@@ -1,6 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { faAngleDown } from '@fortawesome/free-solid-svg-icons';
-import { forkJoin, Observable } from 'rxjs';
 import { AuthService } from 'src/app/auth/auth.service';
 import { Gender } from 'src/app/model/Profile';
 import Connection from 'src/app/model/ProfileRelation';
@@ -14,16 +13,46 @@ const FEMALE_RELATIONS = ['mother', 'daughter', 'sister', 'wife'];
   templateUrl: './connections-list.component.html',
   styleUrls: ['./connections-list.component.css'],
 })
-export class ConnectionsListComponent {
+export class ConnectionsListComponent implements OnInit {
   @Input() connections: Connection[];
-  loading: boolean;
-  directConnectionsOnly: boolean = true;
+  directConnectionsOnly = true;
   faAngleDown = faAngleDown;
+  profilesFetched = false;
+  loading = true;
 
-  constructor(private auth: AuthService) {}
+  constructor(private auth: AuthService, private geni: GeniService) {}
 
-  dummyClickHandler(info: string): void {
-    console.log(info);
+  ngOnInit(): void {
+    this.fetchProfiles();
+  }
+
+  private fetchProfiles() {
+    const unfetchProfiles = this.connections
+      .filter((c) => !c.profile)
+      .slice(0, 50)
+      .map((c) => c.id);
+
+    if (unfetchProfiles.length) {
+      this.geni
+        .fetchProfiles(unfetchProfiles, [
+          'id',
+          'gender',
+          'name',
+          'names',
+          'photo_urls',
+          'birth',
+          'death',
+        ])
+        .subscribe(({ results: profiles }) => {
+          profiles.forEach(
+            (p) => (this.connections.find((c) => c.id === p.id).profile = p)
+          );
+
+          setTimeout(() => this.fetchProfiles());
+        });
+    } else {
+      this.loading = false;
+    }
   }
 
   toggleDirectConnectionsOnly(): void {

@@ -4,7 +4,6 @@ import { PROFILE_PATH } from 'src/app/app.constants';
 import { AuthService } from 'src/app/auth/auth.service';
 import { Gender, LivingDetails } from 'src/app/model/Profile';
 import Connection from 'src/app/model/ProfileRelation';
-import { GeniService } from 'src/app/services/geni.service';
 import { I18nService } from 'src/app/services/i18n.service';
 import { SettingsService } from 'src/app/services/settings.service';
 
@@ -15,19 +14,18 @@ import { SettingsService } from 'src/app/services/settings.service';
 })
 export class ConnectionComponent implements OnInit {
   @Input() connection: Connection;
-  @Input() step_count?: number = 0;
+  @Input() stepCount = 0;
   @Input() relatedConnection?: Connection;
-  @Input() direct?: boolean = false;
-  @Input() drawArrowDown?: boolean = true;
+  @Input() direct = false;
+  @Input() drawArrowDown = true;
 
   faAngleDown = faAngleDown;
   faAngleUp = faAngleUp;
 
-  expanded: boolean = false;
+  expanded = false;
 
   constructor(
     private auth: AuthService,
-    private geni: GeniService,
     private settings: SettingsService,
     private i18n: I18nService
   ) {}
@@ -39,25 +37,7 @@ export class ConnectionComponent implements OnInit {
   }
 
   toggleExpandedHandler(): void {
-    if (this.connection.profile) {
-      this.expanded = !this.expanded;
-    } else {
-      if (!this.expanded) {
-        this.geni
-          .fetchProfileByLink(this.connection.url, [
-            'gender',
-            'name',
-            'names',
-            'photo_urls',
-            'birth',
-            'death',
-          ])
-          .subscribe((profile) => {
-            this.connection.profile = profile;
-            this.expanded = !this.expanded;
-          });
-      }
-    }
+    this.expanded = !this.expanded;
   }
 
   get localizedFullname(): string {

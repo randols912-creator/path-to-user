@@ -49,25 +49,17 @@ export class MapComponent implements OnInit {
     const { snapshot: route } = this.route;
     const { target } = route.queryParams;
 
-    this.relation.subscribe((relation) => {
-      if (relation) {
+    this.relation.subscribe((r) => {
+      if (r) {
         this.refreshLocation();
       }
     });
 
     const relation = this.relations.getRelation(target);
     if (!relation) {
-      this.relationSericeStatusSub = this.relations.status.subscribe(
-        (status) => {
-          if ([Status.PART_FETCHED, Status.READY].includes(status)) {
-            const relation = this.relations.getRelation(target);
-            if (relation) {
-              this.relationSericeStatusSub?.unsubscribe();
-              this.relation.next(relation);
-            }
-          }
-        }
-      );
+      this.relations.fetchSingle(target).subscribe((r) => {
+        this.relation.next(r);
+      });
     } else {
       // It takes some time to render the map
       setTimeout(() => this.relation.next(relation), 1000);
@@ -110,7 +102,7 @@ export class MapComponent implements OnInit {
 
   calcMapScroll() {
     // TODO fix me
-    const [x, y] = [35, 18];
+    const [x, y] = [23, 25];
 
     const [mapBoxWidth, mapBoxHeight] = calcElementDimensions(
       this.mapBoxRef?.nativeElement
@@ -161,6 +153,11 @@ export class MapComponent implements OnInit {
 
   get icon() {
     return faMapMarkerAlt;
+  }
+
+  // TODO remove default
+  get labelText() {
+    return 'Jukebox';
   }
 }
 
