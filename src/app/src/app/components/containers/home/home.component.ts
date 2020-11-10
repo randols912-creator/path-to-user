@@ -6,6 +6,7 @@ import {
   RelationService,
   Status as ServiceStatus
 } from 'src/app/services/relation.service';
+import { SettingsService } from 'src/app/services/settings.service';
 
 
 @Component({

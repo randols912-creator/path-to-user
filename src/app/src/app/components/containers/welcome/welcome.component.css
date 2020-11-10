@@ -114,8 +114,8 @@ app-title-bar::ng-deep .title-bar {
   padding: 1vh 3.1vw;
 }
 
-.welcome__middle .welcome__agree-box input {
-  margin: 2px 10px 0 0;
+.welcome__middle .welcome__agree-box span {
+  margin: -2px 10px 0 10px;
 }
 
 .welcome__middle .welcome__agree-box::ng-deep a {

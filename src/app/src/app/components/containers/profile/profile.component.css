@@ -34,6 +34,11 @@
   padding-top: 5px;
 }
 
+.profile .profile-details .birthdate span,
+.profile .profile-details .birthplace span {
+  margin: 0 5px;
+}
+
 .profile .profile-details h4 {
   font-weight: bold;
 }

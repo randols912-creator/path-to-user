@@ -29,6 +29,12 @@
       "ex-wife": "{{value}} ex-wife"
     }
   },
+  "profile": {
+    "birthdate": "Birthdate:",
+    "birthplace": "Birthplace:",
+    "about": "About {{value}}",
+    "footer": "Read more about {{value}} in the museum databases or on Geni"
+  },
   "modal": {
     "relatives": {
       "agree": "I Agree to allow this app to connect me with relatives who may now be in the museum itself",
@@ -84,5 +90,8 @@
     "humor": "Humor",
     "sports": "Sports",
     "other": "Other"
+  },
+  "titleBar": {
+    "toAllResults": "to all results"
   }
 }

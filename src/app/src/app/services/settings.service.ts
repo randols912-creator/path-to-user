@@ -68,6 +68,10 @@ export class SettingsService {
   switchToNextLocale(): void {
     this.setLocale(this.getNextLocale());
   }
+
+  get isHebrewLocale() {
+    return this.getLocale() === Locale.HE;
+  }
 }
 
 export interface Settings {

@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { HOME_PATH, termsOfUseUrl, welcomePhotos } from 'src/app/app.constants';
 import { AuthService } from 'src/app/auth/auth.service';
 import { RefDirective } from 'src/app/directives/ref.directive';
+import { SettingsService } from 'src/app/services/settings.service';
 import { ModalComponent } from '../../ui/modal/modal.component';
 
 @Component({
@@ -28,7 +29,8 @@ export class WelcomeComponent implements OnInit, AfterViewInit {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private resolver: ComponentFactoryResolver
+    private resolver: ComponentFactoryResolver,
+    private settings: SettingsService
   ) {}
 
   ngOnInit(): void {
@@ -42,7 +44,7 @@ export class WelcomeComponent implements OnInit, AfterViewInit {
       const { nativeElement: el } = this.photosBox;
       el.scrollLeft = 2000;
       el.classList.toggle('visible');
-    }, 500)
+    }, 500);
 
     setTimeout(() => {
       const { nativeElement: el } = this.photosBox;
@@ -64,5 +66,9 @@ export class WelcomeComponent implements OnInit, AfterViewInit {
     component.instance.close.subscribe(() => {
       this.refDir.containerRef.clear();
     });
+  }
+
+  get isHebrewLocale() {
+    return this.settings.isHebrewLocale;
   }
 }

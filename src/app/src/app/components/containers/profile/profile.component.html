@@ -1,5 +1,5 @@
 <app-title-bar [showGoToAllResultsText]="true"></app-title-bar>
-<div class="profile" *ngIf="profile | async as profile">
+<div class="profile" *ngIf="profile">
   <div
     *ngIf="
       profile?.photo_urls?.large ||
@@ -9,15 +9,13 @@
   >
     <img [src]="profilePhotoUrl" [alt]="profile.name" />
   </div>
-  <div
-    *ngIf="
-      profile?.first_name + ' ' + profile?.last_name || profile.name as fullname
-    "
-    class="profile-details"
-  >
-    <div class="fullname-box">
+  <div class="profile-details">
+    <div
+      class="fullname-box"
+      [ngClass]="{ 'hebrew-alignment': isHebrewLocale }"
+    >
       <h4 class="subtitle-text">
-        {{ fullname }}
+        {{ localizedFullname }}
       </h4>
       <!-- TODO remove default 1 -->
       <app-map-pin
@@ -26,18 +24,24 @@
         [large]="true"
       ></app-map-pin>
     </div>
-    <div class="birthdate">
-      <span class="light-grey-text">Birthdate:</span>
+    <div class="birthdate" [ngClass]="{ 'hebrew-alignment': isHebrewLocale }">
+      <span class="light-grey-text" translate>profile.birthdate</span>
       {{ profile?.birth?.date?.formatted_date }}
     </div>
-    <div class="birthplace">
-      <span class="light-grey-text">Birthplace:</span>
+    <div class="birthplace" [ngClass]="{ 'hebrew-alignment': isHebrewLocale }">
+      <span class="light-grey-text" translate>profile.birthplace</span>
       {{ profile?.birth?.location?.formatted_location }}
     </div>
     <div *ngIf="convertMdToHtml(profile?.about_me) as about_me" class="about">
-      <span class="light-grey-teuxt">About {{ fullname }}:</span>
+      <span
+        class="light-grey-text"
+        [ngClass]="{ 'hebrew-alignment': isHebrewLocale }"
+        translate
+        [translateParams]="{ value: localizedFullname }"
+        >profile.about</span
+      >
       <div [innerHTML]="about_me"></div>
     </div>
   </div>
-  <app-read-more-footer [profile]="profile"></app-read-more-footer>
+  <app-read-more-footer [profile]="profile" ></app-read-more-footer>
 </div>

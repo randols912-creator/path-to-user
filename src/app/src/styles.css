@@ -111,3 +111,13 @@ html * {
 .light-grey-text {
   color: #878787;
 }
+
+.hebrew-alignment {
+  display: flex !important;
+  flex-direction: row-reverse !important;
+}
+
+.hebrew-direction {
+  direction: rtl !important;
+  text-align: end;
+}
