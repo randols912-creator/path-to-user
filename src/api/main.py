@@ -97,7 +97,7 @@ class ProfileView(HTTPMethodView):
             abort(403, "Profile id is missing")
         async with Database(db_url) as database:
             profile = await ProfileManager(database, geni, token).get(profile_id)
-        output = {"profile":  profile if profile else dict()}
+        output = {"profile":  dict(profile) if profile else dict()}
         return json(output)
 
     @staticmethod

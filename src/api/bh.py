@@ -2,8 +2,10 @@ import logging
 import csv
 import re
 import os
+import json
 from collections import OrderedDict
 DEFAULT_PERSONALITIES_CSV = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "data", "personalities.csv")
+DEFAULT_LOCATIONS_CSV = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "data", "locations.csv")
 
 class BHData:
     THEME_MAP = {
@@ -30,6 +32,7 @@ class BHData:
 
     def __init__(self, personalities_csv=DEFAULT_PERSONALITIES_CSV):
         self.data = dict()
+
         with open(personalities_csv, "r") as f:
             csv_f = csv.reader(f)
             headers = next(csv_f)
@@ -38,12 +41,27 @@ class BHData:
                 row_dict = OrderedDict(zip(self.headers, row))
                 row_dict['bh_theme'] = row_dict['bh_theme'].strip() # self.THEME_MAP.get(row_dict['bh_theme'].strip(), "other")
                 self.data[row_dict['geni_id']] = row_dict
-
+                try:
+                    row_dict['bh_location'] = json.loads(row_dict['bh_location'])
+                except:
+                    pass
     def get_bh_profile(self, geni_id):
         return self.data.get(geni_id, dict())
 
-    async def guid_to_profiles(self, geni_token, personalities_csv_out):
+    async def guid_to_profiles(self, geni_token, locations_csv, personalities_csv_out):
         from api.geni import GeniClientAsync
+
+        locations = dict()
+        with open(locations_csv, "r") as lf:
+            csv_f = csv.reader(lf)
+            headers = next(csv_f)
+            for row in csv_f:
+                row_dict = OrderedDict(zip(headers, row))
+                row_dict['name'] = dict()
+                for locale in ['en-US', 'he']:
+                    row_dict['name'][locale] = row_dict[f'name.{locale}']
+                    del row_dict[f'name.{locale}']
+                locations[row_dict['key']] = row_dict
 
         geni = GeniClientAsync()
         with open(personalities_csv_out, "w") as csv_out:
@@ -59,6 +77,9 @@ class BHData:
                     else:
                         print(f"Can't convert guid {profile_id}")
                         continue
+                # Convert location to JSON-based
+                if row_dict['bh_location']:
+                    row_dict['bh_location'] = json.dumps(locations[row_dict['bh_location']])
                 csv_f.writerow(row_dict.values())
 
 if __name__ == "__main__":
@@ -68,4 +89,4 @@ if __name__ == "__main__":
     bh = BHData(sys.argv[1])
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(bh.guid_to_profiles(sys.argv[2], sys.argv[1] + ".profiled"))
+    loop.run_until_complete(bh.guid_to_profiles(sys.argv[3], sys.argv[2], sys.argv[1] + ".profiled"))

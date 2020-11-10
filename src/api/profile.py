@@ -85,7 +85,7 @@ async def cache_personalities():
     from dotenv import load_dotenv
     geni = GeniClientAsync()
     authorize_url = geni.build_auth_url()
-    logger.info(f"""Caching BH personalities from Geni. Please goto: 
+    print(f"""Caching BH personalities from Geni. Please goto: 
 
 {authorize_url}
 

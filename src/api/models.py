@@ -25,7 +25,7 @@ profiles_table = sqlalchemy.Table(
     # BH data fields
     sqlalchemy.Column("bh_theme", sqlalchemy.String(255)),
     sqlalchemy.Column("bh_floor", sqlalchemy.Integer),
-    sqlalchemy.Column("bh_location", sqlalchemy.String(255)),
+    sqlalchemy.Column("bh_location", sqlalchemy.JSON),
 
 )
 
