@@ -62,7 +62,7 @@ export class MapComponent implements OnInit {
       });
     } else {
       // It takes some time to render the map
-      setTimeout(() => this.relation.next(relation), 1000);
+      setTimeout(() => this.relation.next(relation), 500);
     }
   }
 
