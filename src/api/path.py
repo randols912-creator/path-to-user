@@ -55,6 +55,7 @@ class PathManager:
                         paths_table.c.target_id,
                         paths_table.c.step_count,
                         profiles_table.c.bh_theme,
+                        profiles_table.c.bh_location,
                         profiles_table.c.details.label("target_profile")]).select_from(j) \
             .where(
             and_(paths_table.c.source_id == source_id, step_count_cond, ready_only_cond, target_id_cond))\

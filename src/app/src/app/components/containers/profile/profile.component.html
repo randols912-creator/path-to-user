@@ -17,9 +17,9 @@
       <h4 class="subtitle-text">
         {{ localizedFullname }}
       </h4>
-      <!-- TODO remove default 1 -->
       <app-map-pin
-        [floor]="3"
+        *ngIf="relation?.bh_location"
+        [floor]="relation?.bh_location?.floor"
         [targetId]="profile.id"
         [large]="true"
       ></app-map-pin>
@@ -43,5 +43,8 @@
       <div [innerHTML]="about_me"></div>
     </div>
   </div>
-  <app-read-more-footer [profile]="profile" ></app-read-more-footer>
+  <app-read-more-footer
+    [relation]="relation"
+    [profile]="profile"
+  ></app-read-more-footer>
 </div>

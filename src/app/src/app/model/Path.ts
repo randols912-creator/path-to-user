@@ -1,6 +1,7 @@
 import { Theme } from './Theme';
 import Profile from './Profile';
 import Connection from './ProfileRelation';
+import { Locale } from './Locale';
 
 export default interface Path {
   source_id: string;
@@ -9,7 +10,7 @@ export default interface Path {
   target_profile: Profile;
   relations: Connection[];
   bh_theme: Theme;
-  bh_floor: string | number;
+  bh_location: BHLocation;
   bh_url: string;
 }
 
@@ -18,4 +19,10 @@ export interface PathDetailsResponse {
     relationship: string;
     relations: Connection[];
   };
+}
+
+export interface BHLocation {
+  coordinates: string;
+  floor: string;
+  name: { [key in Locale]: string };
 }

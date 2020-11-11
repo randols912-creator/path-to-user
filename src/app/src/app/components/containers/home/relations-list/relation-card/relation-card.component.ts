@@ -19,7 +19,7 @@ import { SettingsService } from 'src/app/services/settings.service';
 })
 export class RelationCardComponent implements AfterViewInit {
   @Input() relation: Path;
-  collapsed: boolean = true;
+  collapsed = true;
   relationPath: string = RELATION_PATH;
   @ViewChild('relationCard') relationCardRef: ElementRef;
 
@@ -28,7 +28,7 @@ export class RelationCardComponent implements AfterViewInit {
   ngAfterViewInit() {
     setTimeout(
       () => this.relationCardRef.nativeElement.classList.add('visible'),
-      500
+      250
     );
   }
 

@@ -5,6 +5,7 @@ import { BehaviorSubject, Subscription } from 'rxjs';
 import { PROFILE_PATH, QUADRANT_COUNT } from 'src/app/app.constants';
 import Path from 'src/app/model/Path';
 import { RelationService, Status } from 'src/app/services/relation.service';
+import { SettingsService } from 'src/app/services/settings.service';
 
 const getComputedStyleValue = (nativeElement: Element, key: string) => {
   return window.getComputedStyle(nativeElement)[key];
@@ -38,7 +39,8 @@ export class MapComponent implements OnInit {
 
   constructor(
     private relations: RelationService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private settings: SettingsService
   ) {}
 
   relationSericeStatusSub: Subscription;
@@ -101,8 +103,9 @@ export class MapComponent implements OnInit {
   }
 
   calcMapScroll() {
-    // TODO fix me
-    const [x, y] = [23, 25];
+    const [x, y] = this.relation.value.bh_location.coordinates
+      .split(',')
+      .map((n) => +n);
 
     const [mapBoxWidth, mapBoxHeight] = calcElementDimensions(
       this.mapBoxRef?.nativeElement
@@ -155,9 +158,8 @@ export class MapComponent implements OnInit {
     return faMapMarkerAlt;
   }
 
-  // TODO remove default
   get labelText() {
-    return 'Jukebox';
+    return this.relation.value?.bh_location.name[this.settings.getLocale()];
   }
 }
 

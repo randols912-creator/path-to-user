@@ -71,6 +71,7 @@ a.btn.btn-lnk {
   padding: 1px 3px;
   font: normal normal normal 10px/14px 'Open Sans Hebrew';
   text-align: right;
+  white-space: nowrap;
 }
 
 .zoom-in {

@@ -3,9 +3,11 @@ import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { subscribeOn, tap } from 'rxjs/operators';
 import { Locale } from 'src/app/model/Locale';
+import Path from 'src/app/model/Path';
 import Profile from 'src/app/model/Profile';
 import { GeniService } from 'src/app/services/geni.service';
 import { I18nService } from 'src/app/services/i18n.service';
+import { RelationService } from 'src/app/services/relation.service';
 import { SettingsService } from 'src/app/services/settings.service';
 
 declare var Wiky: any;
@@ -17,9 +19,11 @@ declare var Wiky: any;
 })
 export class ProfileComponent implements OnInit {
   profile: Profile;
+  relation: Path;
 
   constructor(
     private geni: GeniService,
+    private relations: RelationService,
     private route: ActivatedRoute,
     private settings: SettingsService,
     private i18n: I18nService
@@ -38,7 +42,17 @@ export class ProfileComponent implements OnInit {
         'about_me',
         'profile_url',
       ])
-      .subscribe((profile) => (this.profile = profile));
+      .subscribe((profile) => {
+        this.profile = profile;
+        const relation = this.relations.getRelation(this.profile.id);
+        if (relation) {
+          this.relation = relation;
+        } else {
+          this.relations.fetchSingle(this.profile.id).subscribe((r) => {
+            this.relation = r;
+          });
+        }
+      });
   }
 
   convertMdToHtml(markdown: string): string {

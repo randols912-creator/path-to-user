@@ -39,9 +39,9 @@
         >
           {{ 'theme.' + relation?.bh_theme | translate }}
         </div>
-        <!-- TODO remove default -->
         <app-map-pin
-          [floor]="relation?.bh_floor || 3"
+          *ngIf="relation?.bh_location"
+          [floor]="relation?.bh_location?.floor"
           [targetId]="relation?.target_id"
         ></app-map-pin>
       </div>
