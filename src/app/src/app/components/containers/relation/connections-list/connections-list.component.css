@@ -17,7 +17,7 @@
   text-align: center;
 }
 
-.connections-count-badge {
+::ng-deep .connections-count-badge {
   background-color: #47c3d3;
   border-radius: 50%;
   display: inline-block;

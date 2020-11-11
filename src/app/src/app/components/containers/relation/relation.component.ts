@@ -7,7 +7,7 @@ import Connection from 'src/app/model/ProfileRelation';
 import Profile from 'src/app/model/Profile';
 import Path, { PathDetailsResponse } from 'src/app/model/Path';
 import { filter } from 'rxjs/operators';
-import { Subscription } from 'rxjs';
+import { BehaviorSubject, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-relation',
@@ -22,48 +22,42 @@ export class RelationComponent implements OnInit, OnDestroy {
   relationServiceSub: Subscription;
 
   constructor(
-    private relationService: RelationService,
+    private relations: RelationService,
     private route: ActivatedRoute,
     private auth: AuthService
   ) {}
 
   ngOnInit(): void {
-    let relation = this.relationService.getRelation(
-      this.route.snapshot.params.id
-    );
+    const relationSubject = new BehaviorSubject(null);
+    relationSubject.subscribe((relation) => {
+      if (relation) {
+        this.relations
+          .fetchRelationDetails(relation)
+          .subscribe(
+            ({ path: { relationship, relations } }: PathDetailsResponse) => {
+              relations.forEach((nextRelation) => {
+                const urlParts = nextRelation.url.split('/');
+                nextRelation.id = urlParts[urlParts.length - 1];
+              });
 
-    if (relation) {
-      this.fetchRelationDetailsAndSetCurrentRelation(relation);
-    } else {
-      this.relationServiceSub = this.relationService.status
-        .pipe(filter((status) => status in [Status.READY, Status.PART_FETCHED]))
-        .subscribe(() => {
-          relation = this.relationService.getRelation(
-            this.route.snapshot.params.id
+              this.relation = relation;
+              this.connections = relations;
+              this.relationship = relationship;
+            }
           );
+      }
+    });
 
-          if (relation && !this.relation && !this.connections?.length) {
-            this.fetchRelationDetailsAndSetCurrentRelation(relation);
-          }
+    const relation = this.relations.getRelation(this.route.snapshot.params.id);
+    if (relation) {
+      relationSubject.next(relation);
+    } else {
+      this.relations
+        .fetchSingle(this.route.snapshot.params.id)
+        .subscribe((relation) => {
+          relationSubject.next(relation);
         });
     }
-  }
-
-  private fetchRelationDetailsAndSetCurrentRelation(relation: Path) {
-    this.relationService
-      .fetchRelationDetails(relation)
-      .subscribe(
-        ({ path: { relationship, relations } }: PathDetailsResponse) => {
-          relations.forEach((nextRelation) => {
-            const urlParts = nextRelation.url.split('/');
-            nextRelation.id = urlParts[urlParts.length - 1];
-          });
-
-          this.relation = relation;
-          this.connections = relations;
-          this.relationship = relationship;
-        }
-      );
   }
 
   ngOnDestroy(): void {

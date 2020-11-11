@@ -1,5 +1,4 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { faAngleDown } from '@fortawesome/free-solid-svg-icons';
 import { AuthService } from 'src/app/auth/auth.service';
 import { Gender } from 'src/app/model/Profile';
 import Connection from 'src/app/model/ProfileRelation';
@@ -16,43 +15,58 @@ const FEMALE_RELATIONS = ['mother', 'daughter', 'sister', 'wife'];
 export class ConnectionsListComponent implements OnInit {
   @Input() connections: Connection[];
   directConnectionsOnly = true;
-  faAngleDown = faAngleDown;
   profilesFetched = false;
   loading = true;
 
   constructor(private auth: AuthService, private geni: GeniService) {}
 
   ngOnInit(): void {
-    this.fetchProfiles();
+    this.updateDirectProfiles();
+    this.updateAllProfiles();
   }
 
-  private fetchProfiles() {
+  private updateDirectProfiles() {
+    const directProfiles = [
+      this.connections[0],
+      this.connections[this.connections.length - 1],
+    ].map((c) => c.id);
+
+    this.fetchProfiles(directProfiles, () => (this.loading = false));
+  }
+
+  private updateAllProfiles() {
     const unfetchProfiles = this.connections
       .filter((c) => !c.profile)
       .slice(0, 50)
       .map((c) => c.id);
 
     if (unfetchProfiles.length) {
-      this.geni
-        .fetchProfiles(unfetchProfiles, [
-          'id',
-          'gender',
-          'name',
-          'names',
-          'photo_urls',
-          'birth',
-          'death',
-        ])
-        .subscribe(({ results: profiles }) => {
-          profiles.forEach(
-            (p) => (this.connections.find((c) => c.id === p.id).profile = p)
-          );
-
-          setTimeout(() => this.fetchProfiles());
-        });
-    } else {
-      this.loading = false;
+      this.fetchProfiles(unfetchProfiles, () =>
+        setTimeout(() => this.updateAllProfiles())
+      );
     }
+  }
+
+  private fetchProfiles(ids: string[], callback?: () => {}) {
+    this.geni
+      .fetchProfiles(ids, [
+        'id',
+        'gender',
+        'name',
+        'names',
+        'photo_urls',
+        'birth',
+        'death',
+      ])
+      .subscribe(({ results: profiles }) => {
+        profiles.forEach(
+          (p) => (this.connections.find((c) => c.id === p.id).profile = p)
+        );
+
+        if (callback) {
+          callback();
+        }
+      });
   }
 
   toggleDirectConnectionsOnly(): void {

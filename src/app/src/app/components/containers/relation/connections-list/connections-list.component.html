@@ -1,7 +1,4 @@
-<div
-  class="connection-list"
-  *ngIf="!loading; else spinner"
->
+<div class="connection-list" *ngIf="!loading; else spinner">
   <app-connection
     [connection]="userConnection"
     [direct]="true"
@@ -22,12 +19,10 @@
       <button
         (click)="toggleDirectConnectionsOnly()"
         class="btn btn-link general-link subtitle-text"
-      >
-        show all
-        <span class="connections-count-badge">{{ connections.length }}</span>
-        connections
-        <fa-icon [icon]="faAngleDown"></fa-icon>
-      </button>
+        [innerHTML]="
+          'relation.showAll' | translate: { value: connections.length }
+        "
+      ></button>
       <div class="arrow-down"></div>
     </div>
   </div>

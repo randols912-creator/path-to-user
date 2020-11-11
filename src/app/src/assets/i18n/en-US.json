@@ -27,7 +27,8 @@
       "sister": "{{value}} sister",
       "wife": "{{value}} wife",
       "ex-wife": "{{value}} ex-wife"
-    }
+    },
+    "showAll": "show all <span class='connections-count-badge'>{{value}}</span> connections"
   },
   "profile": {
     "birthdate": "Birthdate:",
