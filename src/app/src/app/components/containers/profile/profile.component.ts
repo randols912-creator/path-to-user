@@ -39,7 +39,7 @@ export class ProfileComponent implements OnInit {
         'last_name',
         'photo_urls',
         'birth',
-        'about_me',
+        'detail_strings',
         'profile_url',
       ])
       .subscribe((profile) => {
@@ -53,6 +53,10 @@ export class ProfileComponent implements OnInit {
           });
         }
       });
+  }
+
+  get about() {
+    return this.profile?.detail_strings[this.settings.getLocale()]?.about_me;
   }
 
   convertMdToHtml(markdown: string): string {

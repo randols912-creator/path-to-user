@@ -6,8 +6,9 @@
       profile?.photo_urls?.medium as profilePhotoUrl
     "
     class="profile-photo"
+    [ngStyle]="{ 'background-image': 'url(' + profilePhotoUrl + ')' }"
   >
-    <img [src]="profilePhotoUrl" [alt]="profile.name" />
+    <!-- <img [src]="profilePhotoUrl" [alt]="profile.name" /> -->
   </div>
   <div class="profile-details">
     <div
@@ -32,7 +33,7 @@
       <span class="light-grey-text" translate>profile.birthplace</span>
       {{ profile?.birth?.location?.formatted_location }}
     </div>
-    <div *ngIf="convertMdToHtml(profile?.about_me) as about_me" class="about">
+    <div *ngIf="convertMdToHtml(about) as aboutProfile" class="about">
       <span
         class="light-grey-text"
         [ngClass]="{ 'hebrew-alignment': isHebrewLocale }"
@@ -40,7 +41,10 @@
         [translateParams]="{ value: localizedFullname }"
         >profile.about</span
       >
-      <div [innerHTML]="about_me"></div>
+      <div
+        [ngClass]="{ 'hebrew-direction-deep': isHebrewLocale }"
+        [innerHTML]="aboutProfile"
+      ></div>
     </div>
   </div>
   <app-read-more-footer
