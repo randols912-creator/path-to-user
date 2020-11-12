@@ -4,8 +4,8 @@ import { Gender } from 'src/app/model/Profile';
 import Connection from 'src/app/model/ProfileRelation';
 import { GeniService } from 'src/app/services/geni.service';
 
-const MALE_RELATIONS = ['father', 'son', 'brother', 'husband'];
-const FEMALE_RELATIONS = ['mother', 'daughter', 'sister', 'wife'];
+const MALE_RELATIONS = ['father', 'son', 'brother', 'husband', 'ex-husband'];
+const FEMALE_RELATIONS = ['mother', 'daughter', 'sister', 'wife', 'ex-wife'];
 
 @Component({
   selector: 'app-connections-list',

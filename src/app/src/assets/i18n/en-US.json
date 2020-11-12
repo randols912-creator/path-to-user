@@ -26,7 +26,8 @@
       "daughter": "{{value}} daughter",
       "sister": "{{value}} sister",
       "wife": "{{value}} wife",
-      "ex-wife": "{{value}} ex-wife"
+      "ex-wife": "{{value}} ex-wife",
+      "ex-husband": "{{value}} ex-husband"
     },
     "showAll": "show all <span class='connections-count-badge'>{{value}}</span> connections"
   },

@@ -1,4 +1,4 @@
-<div class="read-more-footer">
+<div class="read-more-footer" [ngClass]="{'hebrew-direction': isHebrewLocale}">
   <img class="logo" src="assets/img/Logo2 BH.svg" alt="" />
   <a
     [href]="relation?.bh_url || profile?.profile_url"

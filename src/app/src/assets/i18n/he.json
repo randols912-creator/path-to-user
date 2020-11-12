@@ -26,7 +26,8 @@
       "daughter": "בת {{value}}",
       "sister": "אחות {{value}}",
       "wife": "אישה {{value}}",
-      "ex-wife": "גרושה {{value}}"
+      "ex-wife": "גרושה {{value}}",
+      "ex-husband": "גרוש {{value}}"
     },
     "showAll": "הצג את כל <span class='connections-count-badge'>{{value}}</span> חיבורים"
   },

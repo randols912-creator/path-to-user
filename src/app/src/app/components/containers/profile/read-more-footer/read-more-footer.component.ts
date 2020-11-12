@@ -21,4 +21,8 @@ export class ReadMoreFooterComponent {
       this.settings.getLocale()
     );
   }
+
+  get isHebrewLocale() {
+    return this.settings.isHebrewLocale;
+  }
 }
