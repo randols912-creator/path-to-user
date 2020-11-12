@@ -4,7 +4,8 @@ import { faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { PROFILE_PATH, QUADRANT_COUNT } from 'src/app/app.constants';
 import Path from 'src/app/model/Path';
-import { RelationService, Status } from 'src/app/services/relation.service';
+import { I18nService } from 'src/app/services/i18n.service';
+import { RelationService } from 'src/app/services/relation.service';
 import { SettingsService } from 'src/app/services/settings.service';
 
 const getComputedStyleValue = (nativeElement: Element, key: string) => {
@@ -40,7 +41,8 @@ export class MapComponent implements OnInit {
   constructor(
     private relations: RelationService,
     private route: ActivatedRoute,
-    private settings: SettingsService
+    private settings: SettingsService,
+    private i18n: I18nService
   ) {}
 
   relationSericeStatusSub: Subscription;
@@ -144,6 +146,13 @@ export class MapComponent implements OnInit {
       scrollXOffset: mapBoxWidth / 2,
       scrollYOffset: mapBoxHeight / 2,
     };
+  }
+
+  get localizedFullname(): string {
+    return this.i18n.extractProfileFullname(
+      this.relation.value?.target_profile,
+      this.settings.getLocale()
+    );
   }
 
   get profileUrl() {

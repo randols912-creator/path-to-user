@@ -5,7 +5,7 @@
     class="btn btn-lnk"
     [routerLink]="[profileUrl, relation.value?.target_id]"
   >
-    {{ relation.value?.target_profile?.name }}
+    {{ localizedFullname }}
   </a>
   <ng-template #loading>Loading...</ng-template>
 </app-toolbar>
