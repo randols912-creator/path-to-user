@@ -50,7 +50,7 @@
     "logOut": "log out"
   },
   "map": {
-    "locatedOn": "is located on floor {{value}}"
+    "locatedOn": "is located on the floor {{value}}"
   },
   "welcome": {
     "top": {
