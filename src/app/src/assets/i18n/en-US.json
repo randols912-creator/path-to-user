@@ -35,13 +35,13 @@
     "birthdate": "Birthdate:",
     "birthplace": "Birthplace:",
     "about": "About {{value}}",
-    "footer": "Read more about {{value}} in the museum databases or on Geni"
+    "footer": "Try to search for {{value}} in the museum databases"
   },
   "modal": {
     "relatives": {
-      "agree": "I Agree to allow this app to connect me with relatives who may now be in the museum itself",
-      "what": "what does it mean?",
-      "means": "This means that during your stay in the museum, if the app identifies a relative who is related to you through your Geni family family tree you built, the app will show both of you that you are currently in the museum and give you both an option to meet or correspond with this relative."
+      "agree": "I agree to allow this app to connect me with relatives who may now be in the museum itself",
+      "what": "What does it mean?",
+      "means": "This means that during your stay in the museum, if the app identifies a relative who is related to you through your Geni family tree, the app will show that both of you are currently in the museum and give you both an option to meet or correspond with each other."
     }
   },
   "menu": {
