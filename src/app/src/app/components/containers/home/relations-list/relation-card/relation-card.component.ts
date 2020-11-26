@@ -3,7 +3,7 @@ import {
   Component,
   ElementRef,
   Input,
-  ViewChild,
+  ViewChild
 } from '@angular/core';
 import { RELATION_PATH } from 'src/app/app.constants';
 import Path from 'src/app/model/Path';
@@ -21,15 +21,12 @@ export class RelationCardComponent implements AfterViewInit {
   @Input() relation: Path;
   collapsed = true;
   relationPath: string = RELATION_PATH;
-  @ViewChild('relationCard') relationCardRef: ElementRef;
+  @ViewChild('relationCard') ref: ElementRef;
 
   constructor(private settings: SettingsService, private i18n: I18nService) {}
 
   ngAfterViewInit() {
-    setTimeout(
-      () => this.relationCardRef.nativeElement.classList.add('visible'),
-      250
-    );
+    setTimeout(() => this.ref.nativeElement.classList.add('visible'), 250);
   }
 
   collapseFullnameHandler(): void {

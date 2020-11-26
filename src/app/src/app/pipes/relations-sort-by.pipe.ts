@@ -35,7 +35,8 @@ export class RelationsSortByPipe implements PipeTransform {
 
   transform(
     relations: Path[],
-    order: RelationSortOrder = RelationSortOrder.DEFAULT
+    order: RelationSortOrder = RelationSortOrder.DEFAULT,
+    limit: number = 0
   ): Path[] {
     if (!relations.length) {
       return relations;
@@ -58,7 +59,7 @@ export class RelationsSortByPipe implements PipeTransform {
           ...relations
             .filter((r) => r.step_count === 0)
             .sort((a: Path, b: Path) => compareByProfileName(a, b)),
-        ];
+        ].slice(0, limit);
     }
   }
 }

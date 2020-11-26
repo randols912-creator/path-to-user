@@ -28,6 +28,10 @@ export const PROFILE_PATH = 'profile';
 export const SETTINGS_PATH = 'settings';
 export const MAP_PATH = 'map';
 
+export const INITIAL_RELATIONS_LIMIT = 25;
+export const RELATION_SCROLL_THRESHOLD_PCT = 50;
+export const RELATION_LIMIT_STEP = 25;
+
 export const termsOfUseUrl = 'https://www.bh.org.il/terms-of-use';
 
 export const welcomePhotos = [

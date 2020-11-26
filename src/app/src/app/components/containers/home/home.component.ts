@@ -4,10 +4,8 @@ import Path from 'src/app/model/Path';
 import Profile from 'src/app/model/Profile';
 import {
   RelationService,
-  Status as ServiceStatus
+  Status as ServiceStatus,
 } from 'src/app/services/relation.service';
-import { SettingsService } from 'src/app/services/settings.service';
-
 
 @Component({
   selector: 'app-home',
