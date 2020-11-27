@@ -20,6 +20,7 @@ fa-icon {
   height: 14px;
   font: normal normal bold 11px/11px 'Open Sans Hebrew';
   letter-spacing: 0px;
+  z-index: 2;
 }
 
 .large {
@@ -29,5 +30,4 @@ fa-icon {
   height: 20px;
   font: normal normal bold 15px/15px 'Open Sans Hebrew';
   letter-spacing: 0px;
-  z-index: 2;
 }
