@@ -45,6 +45,10 @@ class BHData:
                     row_dict['bh_location'] = json.loads(row_dict['bh_location'])
                 except:
                     pass
+
+    def __iter__(self):
+        return iter(self.data)
+
     def get_bh_profile(self, geni_id):
         return self.data.get(geni_id, dict())
 

@@ -80,6 +80,40 @@ class ProfileManager:
             # Get next page
             if not next_page_url: break
             profiles, next_page_url = await self.geni.get_personalities_profiles(self.token, next_page_url)
+    # Cache personalities based on BH data
+    async def cache_personalities_bh(self):
+        batch_size = 25
+        bh_profile_batch = list()
+        for geni_id in self.bh_data:
+            bh_profile_batch.append(geni_id)
+            if len(bh_profile_batch) >= batch_size:
+                await self._cache_personalities(bh_profile_batch)
+                bh_profile_batch.clear()
+        # Remainder
+        if len(bh_profile_batch) > 0:
+            await self._cache_personalities(bh_profile_batch)
+
+    async def _cache_personalities(self, geni_ids):
+        geni_profiles, _ = await self.geni.get_profile_details(self.token, ",".join(geni_ids))
+        for geni_profile in geni_profiles["results"]:
+            print(geni_profile)
+            values = {'id': geni_profile['id'],
+                      'name': geni_profile['name'],
+                      'url': geni_profile.get('url'),
+                      'details': geni_profile,
+                      'is_user': False}
+
+            bh_profile = self.bh_data.get_bh_profile(geni_profile['id'])
+            if bh_profile:
+                values.update({key: bh_profile[key] for key in ['bh_theme', 'bh_floor', 'bh_location'] if bh_profile[key]})
+            profile_db = await self.get(geni_profile['id'])
+            # Insert or update
+            if not profile_db:
+                query = profiles_table.insert().values(values)
+            else:
+                query = profiles_table.update().where(profiles_table.c.id == geni_profile['id']).values(values)
+
+            await self.database.execute(query)
 
 async def cache_personalities():
     from dotenv import load_dotenv
@@ -97,7 +131,7 @@ and paste here the token you will see in the redirected URL """)
     # Initialize database
     db_url = os.getenv("SQLALCHEMY_DATABASE_URI")
     async with Database(db_url) as database:
-        await ProfileManager(database, geni, token).cache_personalities()
+        await ProfileManager(database, geni, token).cache_personalities_bh()
 
 
 if __name__ == "__main__":
