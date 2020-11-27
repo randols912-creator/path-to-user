@@ -22,9 +22,8 @@ export class WelcomeComponent implements OnInit, AfterViewInit {
   @ViewChild(RefDirective) refDir: RefDirective;
   @ViewChild('photosBox') photosBox: ElementRef;
 
-  photos = welcomePhotos;
-  agreeToTerms: boolean = false;
-  agreeToConnectRelatives: boolean = true;
+  agreeToTerms = false;
+  agreeToConnectRelatives = true;
 
   constructor(
     private authService: AuthService,
@@ -66,6 +65,10 @@ export class WelcomeComponent implements OnInit, AfterViewInit {
     component.instance.close.subscribe(() => {
       this.refDir.containerRef.clear();
     });
+  }
+
+  get photos() {
+    return welcomePhotos;
   }
 
   get isHebrewLocale() {
