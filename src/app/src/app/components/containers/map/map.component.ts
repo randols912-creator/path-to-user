@@ -50,14 +50,16 @@ export class MapComponent implements OnInit {
     const { id: floorId } = this.route.snapshot.params;
     this.floor = floorId;
 
-    const { snapshot: route } = this.route;
-    const { target } = route.queryParams;
-
     this.relation.subscribe((r) => {
       if (r) {
         this.refreshLocation();
       }
     });
+  }
+
+  mapLoadedHandler(): void {
+    const { snapshot: route } = this.route;
+    const { target } = route.queryParams;
 
     const relation = this.relations.getRelation(target);
     if (!relation) {
@@ -65,8 +67,7 @@ export class MapComponent implements OnInit {
         this.relation.next(r);
       });
     } else {
-      // It takes some time to render the map
-      setTimeout(() => this.relation.next(relation), 500);
+      this.relation.next(relation);
     }
   }
 
@@ -123,14 +124,6 @@ export class MapComponent implements OnInit {
       mapWidth,
       mapHeight
     );
-
-    this.placeGrid({
-      mapBoxHeight,
-      mapWidth,
-      mapHeight,
-      quadrantWidht,
-      quadrantHeight,
-    });
 
     return {
       x:
