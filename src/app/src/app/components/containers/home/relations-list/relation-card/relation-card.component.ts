@@ -19,7 +19,6 @@ import { SettingsService } from 'src/app/services/settings.service';
 })
 export class RelationCardComponent implements AfterViewInit {
   @Input() relation: Path;
-  collapsed = true;
   relationPath: string = RELATION_PATH;
   @ViewChild('relationCard') ref: ElementRef;
 
@@ -27,10 +26,6 @@ export class RelationCardComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     setTimeout(() => this.ref.nativeElement.classList.add('visible'), 250);
-  }
-
-  collapseFullnameHandler(): void {
-    this.collapsed = !this.collapsed;
   }
 
   get gender(): Gender {

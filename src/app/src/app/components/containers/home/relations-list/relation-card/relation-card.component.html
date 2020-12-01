@@ -21,10 +21,7 @@
   <div class="info-section">
     <div class="info-section-header">
       <div>
-        <button class="btn chevron" (click)="collapseFullnameHandler()">
-          {{ collapsed ? '&#8964;' : '&#8963;' }}
-        </button>
-        <div #fullname class="fullname" [ngClass]="{ collapsed: collapsed }">
+        <div #fullname class="fullname">
           <a
             [routerLink]="[relationPath, relation.target_id]"
             [state]="{ id: relation.target_id }"

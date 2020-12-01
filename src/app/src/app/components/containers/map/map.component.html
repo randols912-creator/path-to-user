@@ -30,7 +30,7 @@
         {{ labelText }}
       </div>
     </div>
-    <img [src]="'/assets/img/maps/floor' + floor + '.jpg'" alt="map" #map />
+    <img [src]="'/assets/img/maps/floor' + floor + '.jpg'" alt="map" (load)="mapLoadedHandler()" #map />
     <div class="map-grid" #mapGrid></div>
   </div>
 </div>

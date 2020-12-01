@@ -71,8 +71,7 @@ html * {
 
 .circles-separator {
   display: block;
-  width: 46vw;
-  height: 1vh;
+  width: 46%;
   margin-left: auto;
   margin-right: auto;
 }

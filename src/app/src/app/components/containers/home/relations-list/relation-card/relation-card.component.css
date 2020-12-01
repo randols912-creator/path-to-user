@@ -34,7 +34,8 @@ a {
 .bh-data {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: flex-end;
+  padding-bottom: 3px;
 }
 
 .brief-info {
@@ -57,12 +58,6 @@ a {
   font: normal 15px/20px Open Sans Hebrew;
   letter-spacing: 0;
   color: #000000;
-}
-
-.collapsed {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .photo-section img {

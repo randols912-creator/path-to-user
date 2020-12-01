@@ -3,6 +3,10 @@
   width: 30px;
 }
 
+.welcome {
+  position: relative;
+}
+
 a {
   cursor: pointer;
 }
@@ -141,5 +145,5 @@ app-title-bar::ng-deep .title-bar {
 .bottom-logo {
   display: block;
   margin: 20px auto 0;
-  width: 30.5vw;
+  width: 30%;
 }

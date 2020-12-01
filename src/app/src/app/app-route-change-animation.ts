@@ -5,14 +5,14 @@ import {
   query,
   style,
   transition,
-  trigger,
+  trigger
 } from '@angular/animations';
 
 export const routeChangeAnimation = trigger('routeChangeAnimation', [
   transition('* => menu', [
     query(':enter, :leave', [
       style({
-        position: 'absolute',
+        position: 'fixed',
         top: '0%',
         left: '0%',
         width: '100%',
@@ -32,7 +32,7 @@ export const routeChangeAnimation = trigger('routeChangeAnimation', [
   transition('menu => *', [
     query(':enter, :leave', [
       style({
-        position: 'absolute',
+        position: 'fixed',
         top: '0%',
         left: '0%',
         width: '100%',
