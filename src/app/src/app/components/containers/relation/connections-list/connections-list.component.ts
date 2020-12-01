@@ -69,21 +69,23 @@ export class ConnectionsListComponent implements OnInit {
         'death',
       ])
       .subscribe(
-        ({ results: profiles }) => {
-          profiles.forEach(
-            (p) => (this.connections.find((c) => c.id === p.id).profile = p)
-          );
+        ({ results: profiles, error }) => {
+          if (!error) {
+            profiles.forEach(
+              (p) => (this.connections.find((c) => c.id === p.id).profile = p)
+            );
 
-          if (sucessCallback) {
-            sucessCallback();
+            if (sucessCallback) {
+              sucessCallback();
+            }
+          } else {
+            if (retryCallback) {
+              setTimeout(() => retryCallback(), 500);
+            }
           }
         },
         (err) => {
-          console.debug(err);
-
-          if (retryCallback) {
-            setTimeout(() => retryCallback(), 500);
-          }
+          console.log(err);
         }
       );
   }

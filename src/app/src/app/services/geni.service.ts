@@ -8,6 +8,10 @@ export interface FetchProfilesResponse {
   results: Profile[];
   page?: number;
   next_page?: string;
+  error?: {
+    message: string;
+    type: string;
+  };
 }
 
 @Injectable({
