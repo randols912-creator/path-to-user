@@ -34,7 +34,7 @@ export class ConnectionsListComponent implements OnInit {
     this.fetchProfiles(
       directProfiles,
       () => (this.loading = false),
-      this.updateDirectProfiles
+      () => this.updateDirectProfiles()
     );
   }
 
@@ -48,7 +48,7 @@ export class ConnectionsListComponent implements OnInit {
       this.fetchProfiles(
         unfetchedProfiles,
         () => setTimeout(() => this.updateAllProfiles()),
-        this.updateAllProfiles
+        () => this.updateAllProfiles()
       );
     }
   }
@@ -80,7 +80,7 @@ export class ConnectionsListComponent implements OnInit {
             }
           } else {
             if (retryCallback) {
-              setTimeout(() => retryCallback(), 500);
+              setTimeout(retryCallback, 500);
             }
           }
         },
