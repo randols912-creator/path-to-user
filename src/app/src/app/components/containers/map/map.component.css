@@ -49,18 +49,6 @@ a.btn.btn-lnk {
   opacity: 1;
 }
 
-.profile-pin-photo {
-  width: 1.75em;
-  height: 1.75em;
-  border-radius: 50%;
-  border: 1px solid #eee;
-  position: absolute;
-  top: 10%;
-  background-position: center;
-  background-size: 110%;
-  background-repeat: no-repeat;
-}
-
 .profile-pin-label {
   background: #050505 0% 0% no-repeat padding-box;
   opacity: 0.66;
