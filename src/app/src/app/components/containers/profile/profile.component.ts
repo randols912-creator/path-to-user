@@ -1,8 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
-import { subscribeOn, tap } from 'rxjs/operators';
-import { Locale } from 'src/app/model/Locale';
 import Path from 'src/app/model/Path';
 import Profile from 'src/app/model/Profile';
 import { GeniService } from 'src/app/services/geni.service';
@@ -39,6 +36,7 @@ export class ProfileComponent implements OnInit {
         'last_name',
         'photo_urls',
         'birth',
+        'about_me',
         'detail_strings',
         'profile_url',
       ])
@@ -56,7 +54,11 @@ export class ProfileComponent implements OnInit {
   }
 
   get about() {
-    return this.profile?.detail_strings[this.settings.getLocale()]?.about_me;
+    return (
+      (this.profile?.detail_strings &&
+        this.profile?.detail_strings[this.settings.getLocale()]?.about_me) ||
+      this.profile?.about_me
+    );
   }
 
   convertMdToHtml(markdown: string): string {

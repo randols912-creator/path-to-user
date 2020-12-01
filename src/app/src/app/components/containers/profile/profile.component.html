@@ -47,8 +47,18 @@
       ></div>
     </div>
   </div>
-  <app-read-more-footer
-    [relation]="relation"
-    [profile]="profile"
-  ></app-read-more-footer>
+  <div
+    class="read-more-footer"
+    [ngClass]="{ 'hebrew-direction': isHebrewLocale }"
+  >
+    <img class="logo" src="assets/img/Logo2 BH.svg" alt="" />
+    <a
+      [href]="relation?.bh_url || profile?.profile_url"
+      target="_blank"
+      rel="nofollow noopener"
+      translate
+      [translateParams]="{ value: localizedFullname }"
+      >profile.footer<img class="link" src="assets/img/link.svg" alt="" />
+    </a>
+  </div>
 </div>
