@@ -45,10 +45,16 @@ export class WelcomeComponent implements OnInit, AfterViewInit {
       el.classList.toggle('visible');
     }, 500);
 
-    setTimeout(() => {
-      const { nativeElement: el } = this.photosBox;
-      el.scroll({ left: 0, top: 0, behavior: 'smooth' });
-    }, 2000);
+    setTimeout(() => this.scrollPhotos(), 2500);
+  }
+
+  scrollPhotos() {
+    const { nativeElement: el } = this.photosBox;
+    el.scrollBy(-1, 0);
+
+    if (el.scrollLeft > 0) {
+      setTimeout(() => this.scrollPhotos(), 0);
+    }
   }
 
   loginHandler(): void {
