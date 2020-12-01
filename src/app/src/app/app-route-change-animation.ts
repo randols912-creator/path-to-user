@@ -14,7 +14,7 @@ export const routeChangeAnimation = trigger('routeChangeAnimation', [
       style({
         position: 'fixed',
         top: '0%',
-        left: '0%',
+        maxWidth: '768px',
         width: '100%',
         height: '100%',
       }),
@@ -34,7 +34,7 @@ export const routeChangeAnimation = trigger('routeChangeAnimation', [
       style({
         position: 'fixed',
         top: '0%',
-        left: '0%',
+        maxWidth: '768px',
         width: '100%',
         height: '100%',
       }),
