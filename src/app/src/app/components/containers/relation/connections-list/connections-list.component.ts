@@ -31,23 +31,33 @@ export class ConnectionsListComponent implements OnInit {
       this.connections[this.connections.length - 1],
     ].map((c) => c.id);
 
-    this.fetchProfiles(directProfiles, () => (this.loading = false));
+    this.fetchProfiles(
+      directProfiles,
+      () => (this.loading = false),
+      this.updateDirectProfiles
+    );
   }
 
   private updateAllProfiles() {
-    const unfetchProfiles = this.connections
+    const unfetchedProfiles = this.connections
       .filter((c) => !c.profile)
       .slice(0, 50)
       .map((c) => c.id);
 
-    if (unfetchProfiles.length) {
-      this.fetchProfiles(unfetchProfiles, () =>
-        setTimeout(() => this.updateAllProfiles())
+    if (unfetchedProfiles.length) {
+      this.fetchProfiles(
+        unfetchedProfiles,
+        () => setTimeout(() => this.updateAllProfiles()),
+        this.updateAllProfiles
       );
     }
   }
 
-  private fetchProfiles(ids: string[], callback?: () => {}) {
+  private fetchProfiles(
+    ids: string[],
+    sucessCallback?: () => {},
+    retryCallback?: () => void
+  ) {
     this.geni
       .fetchProfiles(ids, [
         'id',
@@ -58,15 +68,24 @@ export class ConnectionsListComponent implements OnInit {
         'birth',
         'death',
       ])
-      .subscribe(({ results: profiles }) => {
-        profiles.forEach(
-          (p) => (this.connections.find((c) => c.id === p.id).profile = p)
-        );
+      .subscribe(
+        ({ results: profiles }) => {
+          profiles.forEach(
+            (p) => (this.connections.find((c) => c.id === p.id).profile = p)
+          );
 
-        if (callback) {
-          callback();
+          if (sucessCallback) {
+            sucessCallback();
+          }
+        },
+        (err) => {
+          console.debug(err);
+
+          if (retryCallback) {
+            setTimeout(() => retryCallback(), 500);
+          }
         }
-      });
+      );
   }
 
   toggleDirectConnectionsOnly(): void {
