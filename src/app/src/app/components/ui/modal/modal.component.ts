@@ -1,4 +1,5 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
+import { SettingsService } from 'src/app/services/settings.service';
 
 @Component({
   selector: 'app-modal',
@@ -7,4 +8,10 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 })
 export class ModalComponent {
   @Output() close: EventEmitter<void> = new EventEmitter();
+
+  constructor(private settings: SettingsService) {}
+
+  get isHebrewLocale() {
+    return this.settings.isHebrewLocale;
+  }
 }

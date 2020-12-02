@@ -1,5 +1,5 @@
 <div class="app-modal">
-  <div class="app-modal__content">
+  <div class="app-modal__content" [ngClass]="{ hebrew: isHebrewLocale }">
     <button class="btn app-modal__close-btn" (click)="close.emit()">
       <img src="assets/img/x.svg" alt="" />
     </button>

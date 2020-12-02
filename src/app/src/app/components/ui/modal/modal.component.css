@@ -57,11 +57,15 @@
 .app-modal__content div p {
   font-size: 14px;
   line-height: 18px;
-  margin: 0;
-  margin-left: 7px;
+  margin: 0 7px;
 }
 
 .app-modal__content p:last-child {
   font-size: 12px;
   line-height: 18px;
+}
+
+.hebrew {
+  direction: rtl;
+  text-align: right;
 }
