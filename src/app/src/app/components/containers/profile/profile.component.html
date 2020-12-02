@@ -1,5 +1,5 @@
 <app-title-bar [showGoToAllResultsText]="true"></app-title-bar>
-<div class="profile" *ngIf="profile">
+<div class="profile" *ngIf="profile; else spinner">
   <div
     *ngIf="
       profile?.photo_urls?.large ||
@@ -62,3 +62,7 @@
     </a>
   </div>
 </div>
+
+<ng-template #spinner>
+  <app-spinner></app-spinner>
+</ng-template>
