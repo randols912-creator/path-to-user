@@ -6,6 +6,7 @@ import {
   OnInit,
   ViewChild
 } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HOME_PATH, termsOfUseUrl, welcomePhotos } from 'src/app/app.constants';
 import { AuthService } from 'src/app/auth/auth.service';
@@ -22,10 +23,12 @@ export class WelcomeComponent implements OnInit, AfterViewInit {
   @ViewChild(RefDirective) refDir: RefDirective;
   @ViewChild('photosBox') photosBox: ElementRef;
 
-  agreeToTerms = false;
-  agreeToConnectRelatives = true;
+  loginForm: FormGroup;
+  @ViewChild('agreeToTerms') termsRef: ElementRef;
+  @ViewChild('agreeToConnectRelatives') relativesRef: ElementRef;
 
   constructor(
+    private formBuilder: FormBuilder,
     private authService: AuthService,
     private router: Router,
     private resolver: ComponentFactoryResolver,
@@ -33,6 +36,11 @@ export class WelcomeComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
+    this.loginForm = this.formBuilder.group({
+      agreeToTerms: [false, Validators.requiredTrue],
+      agreeToConnectRelatives: [true, Validators.requiredTrue],
+    });
+
     if (this.authService.isAuthenticated) {
       this.router.navigate([HOME_PATH]);
     }
@@ -58,7 +66,12 @@ export class WelcomeComponent implements OnInit, AfterViewInit {
   }
 
   loginHandler(): void {
-    this.authService.login();
+    if (this.loginForm.valid) {
+      this.authService.login();
+    } else {
+      this.termsRef.nativeElement.classList.add('required');
+      this.relativesRef.nativeElement.classList.add('required');
+    }
   }
 
   get termsOfUseUrl() {

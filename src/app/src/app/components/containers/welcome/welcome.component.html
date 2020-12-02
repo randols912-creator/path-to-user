@@ -23,12 +23,10 @@
     <p class="regular-text" translate>welcome.top.whatToDo</p>
   </section>
   <section class="welcome__middle">
-    <div class="box">
+    <form class="box" (ngSubmit)="loginHandler()" [formGroup]="loginForm">
       <button
-        (click)="loginHandler()"
-        type="button"
+        type="submit"
         class="btn btn-link accent-text general-link"
-        [disabled]="!(agreeToTerms && agreeToConnectRelatives)"
         translate
       >
         welcome.middle.login
@@ -47,7 +45,12 @@
         class="welcome__agree-box"
         [ngClass]="{ 'hebrew-alignment': isHebrewLocale }"
       >
-        <input type="checkbox" [(ngModel)]="agreeToTerms" autocomplete="off" />
+        <input
+          type="checkbox"
+          autocomplete="off"
+          formControlName="agreeToTerms"
+          #agreeToTerms
+        />
         <span
           [innerHTML]="
             'welcome.middle.terms' | translate: { value: termsOfUseUrl }
@@ -60,8 +63,9 @@
       >
         <input
           type="checkbox"
-          [(ngModel)]="agreeToConnectRelatives"
           autocomplete="off"
+          formControlName="agreeToConnectRelatives"
+          #agreeToConnectRelatives
         />
         <span
           (click)="showModalConnectWithRelatives()"
@@ -69,7 +73,7 @@
           [innerHTML]="'welcome.middle.relatives' | translate"
         ></span>
       </div>
-    </div>
+    </form>
   </section>
   <section class="box welcome__bottom">
     <div class="other-platform">

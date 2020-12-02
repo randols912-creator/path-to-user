@@ -127,6 +127,10 @@ app-title-bar::ng-deep .title-bar {
   color: #666666;
 }
 
+.welcome__middle .welcome__agree-box input.ng-invalid.required {
+  outline: 2px auto red;
+}
+
 /* Bootom */
 .welcome__bottom {
   height: auto;
