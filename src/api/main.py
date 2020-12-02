@@ -169,8 +169,8 @@ class PathView(HTTPMethodView):
             pm = ProfileManager(database, geni, token)
             my_profile = await pm.cache()
             logger.debug(my_profile)
-            [path] = await PathManager(database, geni, token).get_personalities_paths(my_profile['id'], 0, 1, target_id=target_id)
-        return json(dict(path), escape_forward_slashes=False)
+            path = await PathManager(database, geni, token).get_personalities_paths(my_profile['id'], 0, 1, target_id=target_id)
+        return json(dict(path[0]) if len(path) > 0 else None, escape_forward_slashes=False)
 
     @staticmethod
     @bp_paths.get("/personalities")
