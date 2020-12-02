@@ -1,10 +1,12 @@
 h4 {
   margin: 0;
+  font-size: 18px;
+  display: flex;
+  color: #535453;
 }
 
 img {
   height: 11px;
-  margin-right: 4px;
 }
 
 .title-bar {
@@ -60,7 +62,6 @@ button:focus {
 .active-settings-action {
   border-bottom: 3px solid #ff9e1e;
 }
-
 
 .title-bar h4.accent-text img {
   width: 23px;
