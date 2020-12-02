@@ -20,6 +20,10 @@ export default interface Profile {
   about_me?: string;
   profile_url?: string;
   detail_strings?: { [key in Locale]: { about_me: string } };
+  error?: {
+    message: string;
+    type: string;
+  };
 }
 
 export interface NameDetails {

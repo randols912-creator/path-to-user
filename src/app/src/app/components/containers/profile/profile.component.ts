@@ -27,6 +27,10 @@ export class ProfileComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.fetchProfile();
+  }
+
+  fetchProfile() {
     this.geni
       .fetchProfile(this.route.snapshot.params.id, [
         'id',
@@ -41,14 +45,18 @@ export class ProfileComponent implements OnInit {
         'profile_url',
       ])
       .subscribe((profile) => {
-        this.profile = profile;
-        const relation = this.relations.getRelation(this.profile.id);
-        if (relation) {
-          this.relation = relation;
+        if (!profile.error) {
+          this.profile = profile;
+          const relation = this.relations.getRelation(this.profile.id);
+          if (relation) {
+            this.relation = relation;
+          } else {
+            this.relations.fetchSingle(this.profile.id).subscribe((r) => {
+              this.relation = r;
+            });
+          }
         } else {
-          this.relations.fetchSingle(this.profile.id).subscribe((r) => {
-            this.relation = r;
-          });
+          setTimeout(() => this.fetchProfile(), 500);
         }
       });
   }
