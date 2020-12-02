@@ -83,4 +83,10 @@ export class ProfileComponent implements OnInit {
   get isHebrewLocale() {
     return this.settings.isHebrewLocale;
   }
+
+  get searchLink() {
+    return `https://dbs.anumuseum.org.il/skn/${
+      this.isHebrewLocale ? 'he' : 'en'
+    }/c6/BH/Search#query=${this.localizedFullname}`;
+  }
 }
