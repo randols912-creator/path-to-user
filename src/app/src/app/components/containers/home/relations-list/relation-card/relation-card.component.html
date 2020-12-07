@@ -37,8 +37,8 @@
           {{ 'theme.' + relation?.bh_theme | translate }}
         </div>
         <app-map-pin
-          *ngIf="relation?.bh_location"
-          [floor]="relation?.bh_location?.floor"
+          *ngIf="relation?.bh_location?.floor || relation?.bh_floor"
+          [floor]="relation?.bh_location?.floor || relation?.bh_floor"
           [targetId]="relation?.target_id"
         ></app-map-pin>
       </div>

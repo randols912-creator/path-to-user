@@ -10,6 +10,7 @@ export default interface Path {
   target_profile: Profile;
   relations: Connection[];
   bh_theme: Theme;
+  bh_floor: number;
   bh_location: BHLocation;
   bh_url: string;
 }

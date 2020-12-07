@@ -73,6 +73,11 @@
   text-decoration: underline;
 }
 
+.read-more-footer.hebrew-direction a {
+  text-align: right;
+  padding-right: 15px;
+}
+
 .read-more-footer .link {
   margin-left: 5px;
   height: 8px;

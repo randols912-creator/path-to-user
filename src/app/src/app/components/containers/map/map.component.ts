@@ -51,7 +51,7 @@ export class MapComponent implements OnInit {
     this.floor = floorId;
 
     this.relation.subscribe((r) => {
-      if (r) {
+      if (r?.bh_location) {
         this.refreshLocation();
       }
     });
@@ -153,7 +153,7 @@ export class MapComponent implements OnInit {
   }
 
   get profilePhoto() {
-    return this.relation.value?.target_profile?.photo_urls?.small;
+    return this.relation?.value?.target_profile?.photo_urls?.small;
   }
 
   get icon() {
@@ -161,7 +161,7 @@ export class MapComponent implements OnInit {
   }
 
   get labelText() {
-    return this.relation.value?.bh_location.name[this.settings.getLocale()];
+    return this.relation?.value?.bh_location?.name[this.settings.getLocale()];
   }
 }
 

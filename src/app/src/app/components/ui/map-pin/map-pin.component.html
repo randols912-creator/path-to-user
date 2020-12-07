@@ -1,5 +1,7 @@
-<a [routerLink]="['/', mapPath, floor]" [queryParams]="{ target: targetId }">
-  <div class="floor" [ngClass]="{ large: large }">{{ floor }}</div>
+<a [routerLink]="floor && ['/', mapPath, floor]" [queryParams]="{ target: targetId }">
+  <div *ngIf="floor" class="floor" [ngClass]="{ large: large }">
+    {{ floor }}
+  </div>
   <div>
     <fa-icon [icon]="icon" [size]="large ? '2x' : '1x'"></fa-icon>
   </div>

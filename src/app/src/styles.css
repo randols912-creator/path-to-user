@@ -122,4 +122,5 @@ html * {
 
 .hebrew-direction-deep * {
   direction: rtl !important;
+  text-align: right !important;
 }
