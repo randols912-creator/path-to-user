@@ -38,7 +38,7 @@ export class RelationService {
         { count: profilesCount },
         { count: totalPathsCount },
       ]) => {
-        if (!pathsCount) {
+        if (totalPathsCount < profilesCount) {
           debugMessage('Source or target profiles are empty');
           this.triggerBackendWorkers();
         }
@@ -47,6 +47,8 @@ export class RelationService {
           debugMessage('Interval fetch enabled');
           this.filterStoreAndReturnFilteredRelations(relations);
           this.fetchAll(this.relations.length);
+        } else {
+          this.status.next(Status.READY);
         }
       },
       (reason) => {

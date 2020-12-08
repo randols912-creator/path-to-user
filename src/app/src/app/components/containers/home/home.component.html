@@ -8,13 +8,15 @@
     >
       home.greet
     </div>
-    <div *ngIf="!relations.length" class="regular-text">
-      <b>{{ 'home.status.' + status | translate }}</b>
-    </div>
-    <div *ngIf="relations.length" class="regular-text">
-      <b translate [translateParams]="{ value: relations.length }"
-        >home.found</b
-      >
+    <div class="regular-text">
+      <b *ngIf="loading && !relations.length; else foundInfo">{{
+        'home.status.' + status | translate
+      }}</b>
+      <ng-template #foundInfo>
+        <b translate [translateParams]="{ value: relations.length }">
+          home.found
+        </b>
+      </ng-template>
     </div>
   </app-info-bar>
 </div>
