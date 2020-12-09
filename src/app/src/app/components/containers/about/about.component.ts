@@ -9,22 +9,16 @@ import { SettingsService } from 'src/app/services/settings.service';
 export class AboutComponent {
   constructor(private settings: SettingsService) {}
 
-  async share() {
+  share() {
     try {
-      await window.navigator['share']({
+      window.navigator['share']({
         title: 'Geni App | Museum of the Jewish People',
         text:
-          'Wouldn�t it be great to know if you have a family connection to famous Jewish people like Albert Einstein, Theodor Herzl or Barbra Streisand?',
+          'The Museum of the Jewish People at Beit Hatfutsot is more than a Museum. This unique global institution tells the ongoing and extraordinary story of the Jewish people.',
         url: window.location.href,
       });
     } catch (err) {
       console.log(err);
-      alert('Native sharing not supported.');
-    }
-
-    if (window.navigator) {
-    } else {
-      alert('Sharing not supported');
     }
   }
 
