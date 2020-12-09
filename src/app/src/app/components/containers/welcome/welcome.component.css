@@ -41,7 +41,7 @@ app-title-bar::ng-deep .title-bar {
   color: #535453;
 }
 
-.welcome__top h2 span {
+.welcome__top h2::ng-deep span {
   font-weight: bold;
 }
 

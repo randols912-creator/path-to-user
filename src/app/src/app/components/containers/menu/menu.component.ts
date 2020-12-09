@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { WELCOME_PATH } from 'src/app/app.constants';
+import { ABOUT_PATH, WELCOME_PATH } from 'src/app/app.constants';
 import { AuthService } from 'src/app/auth/auth.service';
 import { SettingsService } from 'src/app/services/settings.service';
 
@@ -29,5 +29,9 @@ export class MenuComponent implements OnInit {
 
   get isAuthenticated() {
     return this.auth.isAuthenticated();
+  }
+
+  get aboutUrl() {
+    return `/${ABOUT_PATH}`;
   }
 }

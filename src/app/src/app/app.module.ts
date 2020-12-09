@@ -14,6 +14,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AuthInterceptor } from './auth/auth.interceptor';
+import { AboutComponent } from './components/containers/about/about.component';
 import { HomeComponent } from './components/containers/home/home.component';
 import { RelationCardComponent } from './components/containers/home/relations-list/relation-card/relation-card.component';
 import { RelationsListComponent } from './components/containers/home/relations-list/relations-list.component';
@@ -80,6 +81,7 @@ class JsonpInterceptorModule {}
     RefDirective,
     MapPinComponent,
     MapComponent,
+    AboutComponent,
   ],
   imports: [
     BrowserModule,

@@ -47,7 +47,26 @@
   "menu": {
     "locale": "English",
     "help": "עזרה",
+    "about": "אודות",
     "logOut": "התנתקות מהחשבון"
+  },
+  "about": {
+    "app": {
+      "header": "אודות יישום זה",
+      "article": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident</p>"
+    },
+    "museum": {
+      "header": "אודות המוזיאון",
+      "subheader": "אתם חלק מהסיפור",
+      "article": "<p>מוזיאון העם היהודי בבית התפוצות הוא יותר ממוזיאון. מוסד עולמי ייחודי זה מספר את סיפורו המתמשך ויוצא הדופן של העם היהודי.</p><p>מוזיאון העם היהודי בבית התפוצות מחבר את העם היהודי לשורשיהם ומחזק את זהותם היהודית האישית והקולקטיבית. מוזיאון העם היהודי מעביר לעולם את הנרטיב המרתק של העם היהודי ואת מהות התרבות, האמונה, המטרה והמעשה היהודיים תוך הצגת התרומה של יהדות העולם לאנושות.</p>"
+    },
+    "share": "מְנָיָה",
+    "links": {
+      "shop": "מוזיאונים <b>חנות</b>",
+      "visit": "<b>בקרו</b> במוזיאון",
+      "database": "את מסד הנתונים הפתוח שלנו <b>חקור</b>",
+      "learn": "<b>למדו</b> תוכניות חינוכיות"
+    }
   },
   "map": {
     "locatedOn": "נמצא בקומה {{value}}"

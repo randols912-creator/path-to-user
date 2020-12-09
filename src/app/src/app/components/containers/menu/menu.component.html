@@ -24,6 +24,10 @@
     >menu.help</a
   >
   <img src="assets/img/lineOfCircles.svg" class="circles-separator" />
+  <a [routerLink]="[aboutUrl]" class="btn btn-link bigger-text" translate
+    >menu.about</a
+  >
+  <img src="assets/img/lineOfCircles.svg" class="circles-separator" />
   <button
     *ngIf="isAuthenticated"
     (click)="logoutHandler()"

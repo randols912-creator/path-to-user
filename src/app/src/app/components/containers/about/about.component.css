@@ -1,0 +1,120 @@
+h2 {
+  padding-top: 6px;
+  text-align: center;
+  font: normal normal 300 14px/20px Open Sans Hebrew;
+  letter-spacing: 0px;
+  color: #535453;
+}
+
+h2::ng-deep span {
+  font-weight: bold;
+}
+
+.logo {
+  display: block;
+  margin: 20px auto 0;
+  width: 30%;
+}
+
+section {
+  padding: 28px 10px;
+  color: #353535;
+}
+
+section.hebrew article::ng-deep p {
+  direction: rtl;
+  text-align: right;
+}
+
+h3,
+h4 {
+  text-align: center;
+  margin: 0;
+  padding: 12px 0;
+  font-weight: bold;
+}
+
+h3 {
+  font-size: 18px;
+  line-height: 11px;
+}
+
+h4 {
+  font-size: 14px;
+  line-height: 11px;
+}
+
+article::ng-deep p {
+  margin: 0;
+  padding: 15px 0;
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: 0px;
+}
+
+.circles {
+  display: flex;
+  justify-content: center;
+}
+
+.circles img {
+  margin: 0 1vw;
+}
+
+button.btn {
+  margin: 0 auto;
+  width: 40%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: none;
+  color: #353535;
+  font-weight: bold;
+}
+
+button.btn i {
+  margin: 0 11px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #e5e5e5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.links {
+  display: grid;
+  padding: 36px 10px;
+  grid-template-columns: 1fr 1fr;
+  gap: 26px;
+}
+
+.links a {
+  height: 116px;
+  border-radius: 4px;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 22px;
+  line-height: 28px;
+}
+
+.links a:nth-child(1) {
+  background-color: #ffb658;
+}
+
+.links a:nth-child(2) {
+  background-color: #199cac;
+}
+
+.links a:nth-child(3) {
+  background-color: #db6158;
+}
+
+.links a:nth-child(4) {
+  background-color: #7590cf;
+}

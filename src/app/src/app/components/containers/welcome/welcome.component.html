@@ -11,7 +11,7 @@
       />
       ME
     </h1>
-    <h2 class="subtitle-text" translate>welcome.top.headline</h2>
+    <h2 class="subtitle-text" [innerHTML]="'welcome.top.headline' | translate"></h2>
     <h4
       class="subtitle-text"
       [ngClass]="{ 'hebrew-direction': isHebrewLocale }"

@@ -1,15 +1,17 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import {
+  ABOUT_PATH,
   HOME_PATH,
   MAP_PATH,
   MENU_PATH,
   PROFILE_PATH,
   RELATION_PATH,
   SETTINGS_PATH,
-  WELCOME_PATH,
+  WELCOME_PATH
 } from './app.constants';
 import { AuthGuard } from './auth/auth.guard';
+import { AboutComponent } from './components/containers/about/about.component';
 import { HomeComponent } from './components/containers/home/home.component';
 import { MapComponent } from './components/containers/map/map.component';
 import { MenuComponent } from './components/containers/menu/menu.component';
@@ -29,6 +31,11 @@ const routes: Routes = [
     path: MENU_PATH,
     component: MenuComponent,
     data: { animation: 'menu' },
+  },
+  {
+    path: ABOUT_PATH,
+    component: AboutComponent,
+    data: { animation: 'about' },
   },
   {
     path: `${RELATION_PATH}/:id`,

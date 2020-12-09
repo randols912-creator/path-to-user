@@ -23,6 +23,7 @@ export const QUADRANT_COUNT = 40;
 export const HOME_PATH = '';
 export const WELCOME_PATH = 'welcome';
 export const MENU_PATH = 'menu';
+export const ABOUT_PATH = 'about';
 export const RELATION_PATH = 'relation';
 export const PROFILE_PATH = 'profile';
 export const SETTINGS_PATH = 'settings';
