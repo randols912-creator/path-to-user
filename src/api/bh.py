@@ -89,8 +89,19 @@ class BHData:
 if __name__ == "__main__":
     import sys
     import asyncio
+    from api.geni import GeniClientAsync
+    geni = GeniClientAsync()
+    authorize_url = geni.build_auth_url()
+    print(f"""Caching BH personalities from Geni. Please goto: 
+
+{authorize_url}
+
+and paste here the token you will see in the redirected URL """)
+    token = input("> ")
+
+
 
     bh = BHData(sys.argv[1])
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(bh.guid_to_profiles(sys.argv[3], sys.argv[2], sys.argv[1] + ".profiled"))
+    loop.run_until_complete(bh.guid_to_profiles(token, os.path.join(os.path.dirname(sys.argv[1]), "locations.csv"), sys.argv[1] + ".profiled"))
