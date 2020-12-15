@@ -2,23 +2,11 @@ import { Pipe, PipeTransform } from '@angular/core';
 import Path from '../model/Path';
 
 const compareByProfileName = (a: Path, b: Path): number =>
-  `${
-    a.target_profile.last_name
-      ? a.target_profile.last_name
-      : a.target_profile.maiden_name
-  }${
-    a.target_profile.first_name
-      ? a.target_profile.first_name
-      : a.target_profile.name
+  `${a.target_profile.last_name || a.target_profile.maiden_name}${
+    a.target_profile.first_name || a.target_profile.name
   }` >
-  `${
-    b.target_profile.last_name
-      ? b.target_profile.last_name
-      : b.target_profile.maiden_name
-  }${
-    b.target_profile.first_name
-      ? b.target_profile.first_name
-      : b.target_profile.name
+  `${b.target_profile.last_name || b.target_profile.maiden_name}${
+    b.target_profile.first_name || b.target_profile.name
   }`
     ? 1
     : -1;

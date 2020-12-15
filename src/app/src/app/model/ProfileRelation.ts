@@ -7,4 +7,6 @@ export default interface Connection {
   profile?: Profile;
   id?: string;
   gender?: Gender;
+  direct?: boolean;
+  stepCount?: number;
 }

@@ -4,5 +4,8 @@
   class="geni-container"
   [@routeChangeAnimation]="getRouteAnimationState(outlet)"
 >
-  <router-outlet #outlet="outlet"></router-outlet>
+  <ng-template app-modal-ref></ng-template>
+  <div [ngClass]="{ locked: isModalOpen }">
+    <router-outlet #outlet="outlet"></router-outlet>
+  </div>
 </main>

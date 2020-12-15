@@ -124,3 +124,8 @@ html * {
   direction: rtl !important;
   text-align: right !important;
 }
+
+.btn.btn-link:focus {
+  box-shadow: none;
+  text-decoration: none;
+}

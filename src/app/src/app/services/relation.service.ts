@@ -158,7 +158,7 @@ export class RelationService {
   fetchRelationDetails({
     source_id,
     target_id,
-  }: Path): Observable<PathDetailsResponse> {
+  }): Observable<PathDetailsResponse> {
     return this.http.get<PathDetailsResponse>(`${PATH_DETAILS_URL}`, {
       params: { source_id, target_id },
     });

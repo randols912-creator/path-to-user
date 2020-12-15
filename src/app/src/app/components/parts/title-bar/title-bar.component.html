@@ -1,0 +1,58 @@
+<div class="title-bar">
+  <button
+    class="btn close-menu-icon"
+    *ngIf="showGoBack"
+    (click)="goBackHandler()"
+  >
+    <img src="assets/img/x.svg" alt="" />
+  </button>
+  <button
+    *ngIf="showGoToAllResultsButton"
+    (click)="goToAllResults()"
+    class="btn close-menu-icon"
+  >
+    <img src="assets/img/x.svg" alt="x" />
+  </button>
+  <button
+    *ngIf="showGoToAllResultsText"
+    (click)="goToAllResults()"
+    class="btn btn-lnk small-text all-results"
+    translate
+  >
+    titleBar.toAllResults
+  </button>
+  <a
+    *ngIf="showSettings"
+    [ngClass]="{ 'active-settings-action': settingsAction === 'sort' }"
+    [routerLink]="[settingsUrl, { action: 'sort' }]"
+  >
+    <img src="assets/img/sort.svg" alt="" />
+    <span class="small-text">Sort by</span>
+  </a>
+  <a
+    *ngIf="showSettings"
+    [ngClass]="{ 'active-settings-action': settingsAction === 'search' }"
+    [routerLink]="[settingsUrl, { action: 'search' }]"
+  >
+    <img src="assets/img/search.svg" alt="" />
+    <span class="small-text">Search</span>
+  </a>
+  <h4 *ngIf="showTitle" class="accent-text">
+    MJP
+    <img
+      src="assets/img/circle-ampersand.png"
+      alt=""
+      id="title-text-ampersand"
+    />ME
+  </h4>
+  <button *ngIf="showP2P" class="btn p2p" (click)="showModalP2P()">
+    <img src="assets/img/searching.svg" alt="p2p" />
+  </button>
+  <button
+    *ngIf="showMenu"
+    class="btn open-menu-icon"
+    (click)="gotoMenuHandler()"
+  >
+    <img src="assets/img/menu.svg" alt="menu" />
+  </button>
+</div>

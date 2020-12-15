@@ -1,0 +1,111 @@
+.app-modal {
+  z-index: 100;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  padding: 6.25vh 5%;
+
+  background: #00000075 0% 0% no-repeat padding-box;
+  opacity: 1;
+}
+
+.app-modal__content {
+  background: #fff;
+  width: 100%;
+  max-width: 672px;
+  height: 87.5vh;
+  margin: 0 auto;
+  padding: 35px 0;
+  border-radius: 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+.app-modal__content::before {
+  content: '';
+  z-index: 200;
+
+  position: absolute;
+
+  top: -12px;
+  left: 88.5%;
+  transform: translateX(-50%);
+
+  border-style: solid;
+  border-width: 7px 15px;
+  border-color: transparent transparent #fff transparent;
+}
+
+@media (min-width: 768px) {
+  .app-modal__content::before {
+    left: 90%;
+  }
+}
+
+.app-modal__content .app-modal__close-btn {
+  position: absolute;
+  box-shadow: none;
+  padding: 1px;
+  line-height: 0;
+  top: 12px;
+  left: 12px;
+  width: 14px;
+}
+
+h4 {
+  text-align: center;
+  margin: 0 auto;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #353535;
+  margin-bottom: 10px;
+}
+
+h4 span {
+  display: block;
+  color: #878787;
+}
+
+.nav-tabs .nav-link {
+  font-size: 12px;
+  line-height: 1.333;
+  color: #333333;
+}
+
+.nav-tabs .nav-link.active {
+  font-weight: bold;
+  background-color: #f3f3f3;
+}
+
+.nav-tabs .nav-item:nth-of-type(1) .nav-link.active {
+  border-radius: 0 15px 0 0 !important;
+}
+
+.nav-tabs .nav-item:nth-of-type(2) .nav-link.active {
+  border-radius: 15px 15px 0 0 !important;
+}
+
+.nav-tabs .nav-item:nth-of-type(3) .nav-link.active {
+  border-radius: 15px 0 0 0 !important;
+}
+
+.nav-tabs .flex-grow-1 {
+  flex: 1;
+}
+
+.tab-content {
+  background-color: #f3f3f3;
+}
+
+.tab-content::ng-deep .tab-pane {
+  height: 65vh;
+  overflow: auto;
+  padding-bottom: 20px;
+}
+
+.hebrew {
+  direction: rtl;
+  text-align: right;
+}

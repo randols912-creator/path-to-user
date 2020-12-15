@@ -9,32 +9,35 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AuthInterceptor } from './auth/auth.interceptor';
-import { AboutComponent } from './components/containers/about/about.component';
-import { HomeComponent } from './components/containers/home/home.component';
-import { RelationCardComponent } from './components/containers/home/relations-list/relation-card/relation-card.component';
-import { RelationsListComponent } from './components/containers/home/relations-list/relations-list.component';
-import { MapComponent } from './components/containers/map/map.component';
-import { MenuComponent } from './components/containers/menu/menu.component';
-import { ProfileComponent } from './components/containers/profile/profile.component';
-import { ConnectionComponent } from './components/containers/relation/connections-list/connection/connection.component';
-import { ConnectionsListComponent } from './components/containers/relation/connections-list/connections-list.component';
-import { GenderDotComponent } from './components/containers/relation/connections-list/gender-dot/gender-dot.component';
-import { RelationComponent } from './components/containers/relation/relation.component';
-import { SettingsComponent } from './components/containers/settings/settings.component';
-import { SortComponent } from './components/containers/settings/sort/sort.component';
-import { WelcomeComponent } from './components/containers/welcome/welcome.component';
-import { InfoBarComponent } from './components/ui/info-bar/info-bar.component';
-import { MapPinComponent } from './components/ui/map-pin/map-pin.component';
-import { ModalComponent } from './components/ui/modal/modal.component';
-import { SpinnerComponent } from './components/ui/spinner/spinner.component';
-import { TitleBarComponent } from './components/ui/title-bar/title-bar.component';
-import { ToolbarComponent } from './components/ui/toolbar/toolbar.component';
-import { RefDirective } from './directives/ref.directive';
+import { AboutComponent } from './components/pages/about/about.component';
+import { HomeComponent } from './components/pages/home/home.component';
+import { RelationCardComponent } from './components/pages/home/relations-list/relation-card/relation-card.component';
+import { RelationsListComponent } from './components/pages/home/relations-list/relations-list.component';
+import { MapComponent } from './components/pages/map/map.component';
+import { MenuComponent } from './components/pages/menu/menu.component';
+import { ProfileComponent } from './components/pages/profile/profile.component';
+import { RelationComponent } from './components/pages/relation/relation.component';
+import { SettingsComponent } from './components/pages/settings/settings.component';
+import { SortComponent } from './components/pages/settings/sort/sort.component';
+import { WelcomeComponent } from './components/pages/welcome/welcome.component';
+import { ConnectionComponent } from './components/parts/connection/connection.component';
+import { ConnectionsListComponent } from './components/parts/connections-list/connections-list.component';
+import { GenderDotComponent } from './components/parts/connections-list/gender-dot/gender-dot.component';
+import { InfoBarComponent } from './components/parts/info-bar/info-bar.component';
+import { MapPinComponent } from './components/parts/map-pin/map-pin.component';
+import { P2pModalComponent } from './components/parts/p2p-modal/p2p-modal.component';
+import { ProfileDetailsComponent } from './components/parts/profile-details/profile-details.component';
+import { RelativesInfoModalComponent } from './components/parts/relatives-info-modal/relatives-info-modal.component';
+import { SpinnerComponent } from './components/parts/spinner/spinner.component';
+import { TitleBarComponent } from './components/parts/title-bar/title-bar.component';
+import { ToolbarComponent } from './components/parts/toolbar/toolbar.component';
+import { ModalRefDirective } from './directives/modal-ref.directive';
 import { RelationsSortByPipe } from './pipes/relations-sort-by.pipe';
 
 const INTERCEPTOR_PROVIDER: Provider = {
@@ -50,10 +53,11 @@ export function HttpLoaderFactory(http: HttpClient) {
 
 /**
  * Hack to alow JSONP requests to use existing interceptors
- */ @NgModule({
+ */
+@NgModule({
   providers: [INTERCEPTOR_PROVIDER],
   declarations: [],
-  imports: [],
+  imports: [NgbModule],
 })
 class JsonpInterceptorModule {}
 
@@ -77,11 +81,13 @@ class JsonpInterceptorModule {}
     RelationsSortByPipe,
     SettingsComponent,
     SortComponent,
-    ModalComponent,
-    RefDirective,
+    RelativesInfoModalComponent,
+    ModalRefDirective,
     MapPinComponent,
     MapComponent,
     AboutComponent,
+    P2pModalComponent,
+    ProfileDetailsComponent,
   ],
   imports: [
     BrowserModule,
@@ -91,6 +97,7 @@ class JsonpInterceptorModule {}
     JsonpInterceptorModule, // Must be before the HttpClientJsonpModule to use interceptor
     HttpClientJsonpModule,
     FontAwesomeModule,
+    NgbModule,
     FormsModule,
     ReactiveFormsModule,
     TranslateModule.forRoot({

@@ -1,0 +1,26 @@
+<app-title-bar [showP2P]="true"></app-title-bar>
+<div class="greet">
+  <app-info-bar *ngIf="user">
+    <div
+      class="small-regular-text"
+      translate
+      [translateParams]="{ value: user.name }"
+    >
+      home.greet
+    </div>
+    <div class="regular-text">
+      <b *ngIf="loading && !relations.length; else foundInfo">{{
+        'home.status.' + status | translate
+      }}</b>
+      <ng-template #foundInfo>
+        <b translate [translateParams]="{ value: relations.length }">
+          home.found
+        </b>
+      </ng-template>
+    </div>
+  </app-info-bar>
+</div>
+<!-- TODO hidden for now -->
+<app-toolbar *ngIf="false"></app-toolbar>
+<app-spinner *ngIf="loading" [small]="relations.length"></app-spinner>
+<app-relations-list [relations]="relations"></app-relations-list>

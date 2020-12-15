@@ -1,0 +1,13 @@
+<div class="app-modal">
+  <div class="app-modal__content" [ngClass]="{ hebrew: isHebrewLocale }">
+    <button class="btn app-modal__close-btn" (click)="closeModal.emit()">
+      <img src="assets/img/x.svg" alt="" />
+    </button>
+    <p translate>modal.relatives.agree</p>
+    <div>
+      <img src="assets/img/hmm.svg" alt="" />
+      <p translate>modal.relatives.what</p>
+    </div>
+    <p translate>modal.relatives.means</p>
+  </div>
+</div>

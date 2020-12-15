@@ -1,0 +1,74 @@
+.title-bar {
+  position: relative;
+  height: 6.1vh;
+  border: 1px solid #efefef;
+  display: flex;
+  align-items: center;
+  background: transparent linear-gradient(270deg, #ffffff 0%, #efefef 100%) 0%
+    0% no-repeat padding-box;
+}
+
+h4 {
+  margin: 0;
+  font-size: 18px;
+  display: flex;
+  color: #535453;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+h4 img {
+  width: 23px;
+  height: 23px;
+}
+
+button {
+  height: 100%;
+  padding: 0 12px;
+}
+
+button:focus {
+  box-shadow: none;
+}
+
+.btn.all-results {
+  color: #535453;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.btn.close-menu-icon img {
+  height: 11px;
+}
+
+.btn.p2p {
+  z-index: 101;
+  padding: 0;
+  height: 28px;
+  width: 28px;
+  border-radius: 50%;
+  background-color: #ffe1bc;
+  position: absolute;
+  top: 50%;
+  left: 85%;
+  transform: translate(-50%, -50%);
+}
+
+.btn.p2p img {
+  height: 100%;
+  margin: 1px;
+}
+
+.btn.open-menu-icon {
+  margin-left: auto;
+}
+
+.btn.open-menu-icon img {
+  height: 18px;
+}
+
+.active-settings-action {
+  border-bottom: 3px solid #ff9e1e;
+}

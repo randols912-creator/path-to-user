@@ -1,0 +1,11 @@
+<app-title-bar [showGoToAllResultsText]="true"></app-title-bar>
+<app-profile-details
+  *ngIf="profile; else spinner"
+  [profile]="profile"
+  [relation]="relation"
+>
+</app-profile-details>
+
+<ng-template #spinner>
+  <app-spinner></app-spinner>
+</ng-template>
