@@ -8,7 +8,6 @@
   padding: 6.25vh 5%;
 
   background: #00000075 0% 0% no-repeat padding-box;
-  opacity: 1;
 }
 
 .app-modal__content {
@@ -17,13 +16,18 @@
   max-width: 672px;
   height: 87.5vh;
   margin: 0 auto;
-  padding: 35px 0;
-  border-radius: 14px;
+  padding: 35px 0 0;
   position: relative;
-  overflow: hidden;
+  border-radius: 14px;
 }
 
-.app-modal__content::before {
+.app-modal__content > div {
+  border-radius: 14px;
+  overflow: hidden;
+  height: 100%;
+}
+
+.app-modal__content::after {
   content: '';
   z-index: 200;
 
@@ -39,7 +43,7 @@
 }
 
 @media (min-width: 768px) {
-  .app-modal__content::before {
+  .app-modal__content::after {
     left: 90%;
   }
 }
