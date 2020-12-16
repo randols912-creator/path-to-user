@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { GENI_API_URL, GENI_OAUTH_URL } from '../app.constants';
+import { FETCH_PROFILE_URL, GENI_OAUTH_URL } from '../app.constants';
 import Profile from '../model/Profile';
 
 export interface FetchProfilesResponse {
@@ -24,34 +24,27 @@ export class GeniService {
     window.location.href = GENI_OAUTH_URL;
   }
 
-  fetchProfile(profile: string, fields?: Array<string>): Observable<Profile> {
-    return this.http.jsonp<Profile>(
-      `${GENI_API_URL}/${profile}${
-        fields ? '?fields=' + fields.join(',') : ''
-      }`,
-      'callback'
-    );
-  }
-
+  /**
+   * Fetch profiles data
+   * @param ids of profiles to fetch, or empty to fetch current user profile
+   * @param fields needed
+   */
   fetchProfiles(
-    ids: string[],
-    fields?: Array<string>
+    ids?: string[],
+    fields?: string[]
   ): Observable<FetchProfilesResponse> {
-    return this.http.jsonp<FetchProfilesResponse>(
-      `${GENI_API_URL}/profile?ids=${ids.join(',')}${
-        fields ? '&fields=' + fields.join(',') : ''
-      }`,
-      'callback'
-    );
-  }
+    const params: { ids?: string; fields?: string } = {};
 
-  fetchProfileByLink(
-    link: string,
-    fields?: Array<string>
-  ): Observable<Profile> {
-    return this.http.jsonp<Profile>(
-      `${link}${fields ? '?fields=' + fields.join(',') : ''}`,
-      'callback'
-    );
+    if (ids) {
+      params.ids = ids.join(',');
+    }
+
+    if (fields) {
+      params.fields = fields.join(',');
+    }
+
+    return this.http.get<FetchProfilesResponse>(FETCH_PROFILE_URL, {
+      params,
+    });
   }
 }

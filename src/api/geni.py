@@ -1,3 +1,4 @@
+import asyncio
 import os, time
 import requests
 import aiohttp
@@ -11,7 +12,7 @@ class GeniClientAsync:
     AUTH_URL = 'platform/oauth/authorize'
     TOKEN_URL = 'platform/oauth/request_token'
     VALIDATE_TOKEN_URL = 'platform/oauth/validate_token'
-    PROFILE_URL = 'api/{profile}?fields=id,name,names,url,first_name,last_name,maiden_name,gender,photo_urls,birth,death,nicknames'
+    PROFILE_URL = 'api/{profile}'
     PATH_BETWEEN_PROFILES_URL = 'api/{source}/path-to/{target}?skip_email=1&skip_notify=1'
     PROFILES_FROM_PROJECT = 'api/project-56250/profiles'
 
@@ -73,19 +74,19 @@ class GeniClientAsync:
 
         return url
 
-    async def get_profile_details(self, token, profile_id="profile"):
+    async def get_profile_details(self, token, profile_id="profile", fields=None):
         """Get the profile details. By default, return details of logged in account"""
         url = self.BASE_URL + self.PROFILE_URL.format(profile=profile_id)
         counter = 0
 
         while counter < 5:
-            profile_raw, token = await self._geni_api_call(url, token)
+            profile_raw, token = await self._geni_api_call(url, token, fields)
 
             if profile_raw['is_success']:
                 break
 
             counter += 1
-            time.sleep(3.0)
+            await asyncio.sleep(0.25)
 
         return profile_raw, token
 

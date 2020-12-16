@@ -12,6 +12,8 @@ export const GENI_TOKEN_EXPIRES_STORAGE_KEY = 'gn-token-exp';
 export const CURRENT_USER_PROFILE_STORAGE_KEY = 'gn-user';
 export const APP_SETTINGE_STORAGE_KEY = 'app-settings';
 
+
+export const FETCH_PROFILE_URL = `${env.relationsServiceHost}/api/v1/profiles/geni`;
 export const FETCH_PATHS_URL = `${env.relationsServiceHost}/api/v1/paths/personalities`;
 export const PATHS_COUNT_URL = `${env.relationsServiceHost}/api/v1/paths/personalities/count`;
 export const PROFILES_COUNT_URL = `${env.relationsServiceHost}/api/v1/profiles/count`;
