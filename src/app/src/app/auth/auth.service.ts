@@ -27,12 +27,15 @@ export class AuthService {
     expires_in: string
   ): void {
     this.setToken(access_token, expires_in);
-    this.geni.fetchProfile(CURRENT_USER_PROFILE_PATH).subscribe((profile) => {
-      localStorage.setItem(
-        CURRENT_USER_PROFILE_STORAGE_KEY,
-        JSON.stringify(profile)
-      );
-    });
+    this.geni.fetchProfiles().subscribe(
+      ({ results: [profile] }) => {
+        localStorage.setItem(
+          CURRENT_USER_PROFILE_STORAGE_KEY,
+          JSON.stringify(profile)
+        );
+      },
+      (err) => console.log
+    );
   }
 
   logout(): void {

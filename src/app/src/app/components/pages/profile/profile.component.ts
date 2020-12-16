@@ -26,20 +26,23 @@ export class ProfileComponent implements OnInit {
 
   fetchProfile() {
     this.geni
-      .fetchProfile(this.route.snapshot.params.id, [
-        'id',
-        'name',
-        'names',
-        'first_name',
-        'last_name',
-        'photo_urls',
-        'birth',
-        'about_me',
-        'detail_strings',
-        'profile_url',
-      ])
-      .subscribe((profile) => {
-        if (!profile.error) {
+      .fetchProfiles(
+        [this.route.snapshot.params.id],
+        [
+          'id',
+          'name',
+          'names',
+          'first_name',
+          'last_name',
+          'photo_urls',
+          'birth',
+          'about_me',
+          'detail_strings',
+          'profile_url',
+        ]
+      )
+      .subscribe(({ results: [profile], error }) => {
+        if (!error) {
           this.profile = profile;
           const relation = this.relations.getRelation(this.profile.id);
           if (relation) {

@@ -121,6 +121,30 @@ class ProfileView(HTTPMethodView):
             count = await ProfileManager(database, geni, token).count(is_user)
         return json({"count": count[0]})
 
+    @staticmethod
+    @bp_profiles.get("/geni")
+    async def get_geni_profiles(request):
+        token = await Token.validate(request)
+        ids = request.args.get("ids")
+        fields = request.args.get('fields', '')
+
+        resp, token = await geni.get_profile_details(
+            token,
+            f'profile?ids={ids}' if ids else 'profile',
+            fields.split(',') if fields else None
+        )
+
+        if resp['is_success']:
+          del resp['api_errors']
+          del resp['internal_errors']
+          del resp['is_success']
+
+        return json(
+          {'results': [resp]}
+          if 'results' not in resp
+          else resp
+        )
+
 def dt_converter(o):
     if isinstance(o, datetime.datetime):
         return o.__str__()
