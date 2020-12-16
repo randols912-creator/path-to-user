@@ -48,13 +48,17 @@ class ProfileManager:
 
     async def iterate_personalities(self):
         query = profiles_table.select().where(profiles_table.c.is_user == False)
-        # TODO: iterate instead of fetching all values
-        #profiles = await self.database.fetch_all(query=query)
-        #return profiles
         async for row in self.database.iterate(query=query):
             yield row
 
-    async def cache_personalities(self):
+    async def iterate_users(self, is_active=True):
+        # TODO: calculate "active" users based on the last update
+        query = profiles_table.select().where(profiles_table.c.is_user == True)
+        async for row in self.database.iterate(query=query):
+            yield row
+
+    # Cache personalities based on Geni project (deprecated)
+    async def cache_personalities_geni(self):
         profiles, next_page_url = await self.geni.get_personalities_profiles(self.token)
 
         while profiles:

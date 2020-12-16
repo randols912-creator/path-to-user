@@ -20,9 +20,13 @@ from asyncio import PriorityQueue
 
 import random
 
+import socketio
+
+sio = socketio.AsyncServer(async_mode='sanic')
 app = Sanic(name='api')
 CORS(app)
 app.blueprint(swagger_blueprint)
+sio.attach(app)
 
 # Load parameters
 load_dotenv()
@@ -34,6 +38,7 @@ from api.models import metadata, paths_table, profiles_table
 from api.geni import GeniClientAsync
 from api.path import PathManager, Task
 from api.profile import ProfileManager
+from api.chat import ChatManager
 # Enabling async template execution which allows you to take advantage
 # of newer Python features requires Python 3.6 or later.
 enable_async = sys.version_info >= (3, 6)
@@ -47,6 +52,8 @@ geni = GeniClientAsync()
 
 bp_profiles = Utils.create_blueprint("profiles")
 bp_paths = Utils.create_blueprint("paths")
+bp_chats = Utils.create_blueprint("chats")
+
 
 class Pagination:
     offset = doc.Integer()
@@ -151,26 +158,48 @@ class PathView(HTTPMethodView):
             await pm.save(my_profile, is_user=True)
             # Enqueue tasks for finding paths to all personalities
             async for personality in pm.iterate_personalities():
-                [task_priority] = random.randint(1, profiles_count),
+                task_priority = random.randint(1, profiles_count)
                 await task_queue.put(
                     Task({"source_id": my_profile['id'],
                           "target_id": personality.id,
                           "token": token},
-                         task_priority))
+                          task_priority))
             return json({"status": "Started paths search"})
 
     @staticmethod
-    @bp_paths.get("/personalities/<target_id>")
+    @bp_paths.post("/users")
     @doc.consumes(Token, location='headers')
-    @doc.summary("Get single paths from current user to given personalities")
-    async def get_personality(request, target_id):
+    @doc.summary("Initiate path search from current user to all active users")
+    async def post_search_personalities(request):
         token = await Token.validate(request)
         async with Database(db_url) as database:
             pm = ProfileManager(database, geni, token)
+            path_mgr = PathManager(database, geni, token)
             my_profile = await pm.cache()
-            logger.debug(my_profile)
-            path = await PathManager(database, geni, token).get_personalities_paths(my_profile['id'], 0, 1, target_id=target_id)
-        return json(dict(path[0]) if len(path) > 0 else None, escape_forward_slashes=False)
+            [personalities_count] = await pm.count(is_user=False)
+            [users_count] = await pm.count(is_user=True)
+            # First, save/update current user's profile
+            await pm.save(my_profile, is_user=True)
+            # Enqueue tasks for finding paths to all active users
+            async for user in pm.iterate_users(is_active=True):
+                if user.id == my_profile['id']:
+                    continue
+                # Start search in both directions because we'll need both paths to present it to both
+                # users and get "named" relationship which is not symmetric
+                for src,tgt in [(my_profile['id'], user.id),
+                                (user.id, my_profile['id'])]:
+                    if path_mgr.get(src, tgt):
+                        logger.debug("Users path {} -> {} already exists - skipping")
+                        continue
+                    # Task priority will be lower than personalities search
+                    task_priority = random.randint(personalities_count, personalities_count + users_count)
+                    await task_queue.put(
+                        Task({"source_id": src,
+                              "target_id": tgt,
+                              "token": token},
+                             task_priority))
+            return json({"status": "Started users paths search"})
+
 
     @staticmethod
     @bp_paths.get("/personalities")
@@ -178,6 +207,18 @@ class PathView(HTTPMethodView):
     @doc.consumes(Pagination)
     @doc.summary("Get found paths from current user to all personalities")
     async def get_personalities(request):
+        return await PathView._get_paths(request, user2user=False)
+
+    @staticmethod
+    @bp_paths.get("/users")
+    @doc.consumes(Token, location='headers')
+    @doc.consumes(Pagination)
+    @doc.summary("Get found paths from current user to all other users")
+    async def get_users(request):
+        return await PathView._get_paths(request, user2user=True)
+
+    @staticmethod
+    async def _get_paths(request, user2user):
         token = await Token.validate(request)
         offset = request.args.get('offset', 0)
         limit = request.args.get('limit', 50)
@@ -185,23 +226,143 @@ class PathView(HTTPMethodView):
             pm = ProfileManager(database, geni, token)
             my_profile = await pm.cache()
             logger.debug(my_profile)
-            paths = await PathManager(database, geni, token).get_personalities_paths(my_profile['id'], offset, limit)
+            paths = await PathManager(database, geni, token).get_paths(my_profile['id'], offset, limit, user2user=user2user)
         return json({"paths": [dict(p) for p in paths]}, escape_forward_slashes=False)
+
+    @staticmethod
+    @bp_paths.get("/personalities/<target_id>")
+    @doc.consumes(Token, location='headers')
+    @doc.summary("Get single path from current user to given personality")
+    async def get_personality(request, target_id):
+        return await PathView._get_path(request, target_id, user2user=False)
+
+    @staticmethod
+    @bp_paths.get("/users/<target_id>")
+    @doc.consumes(Token, location='headers')
+    @doc.summary("Get single path from current user to another user")
+    async def get_user(request, target_id):
+        return await PathView._get_path(request, target_id, user2user=True)
+
+
+    @staticmethod
+    async def _get_path(request, target_id, user2user):
+        token = await Token.validate(request)
+        async with Database(db_url) as database:
+            pm = ProfileManager(database, geni, token)
+            my_profile = await pm.cache()
+            logger.debug(my_profile)
+            path = await PathManager(database, geni, token).get_paths(my_profile['id'], 0, 1,
+                                                                      target_id=target_id,
+                                                                      user2user=user2user)
+        return json(dict(path[0]) if len(path) > 0 else None, escape_forward_slashes=False)
+
+
 
     @staticmethod
     @bp_paths.get("/personalities/count")
     @doc.consumes(Token, location='headers')
     @doc.consumes(Pagination)
-    @doc.summary("Get found paths count for current user")
+    @doc.summary("Get found personalities paths count for current user")
     async def get_personalities_count(request):
+        return await PathView._count_paths(request, user2user=False)
+
+    @staticmethod
+    @bp_paths.get("/users/count")
+    @doc.consumes(Token, location='headers')
+    @doc.consumes(Pagination)
+    @doc.summary("Get found user paths count for current user")
+    async def get_users_count(request):
+        return await PathView._count_paths(request, user2user=True)
+
+    @staticmethod
+    async def _count_paths(request, user2user):
         token = await Token.validate(request)
         connected_only = str(request.args.get('connected_only', True)).lower() == 'true'
         async with Database(db_url) as database:
             pm = ProfileManager(database, geni, token)
             my_profile = await pm.cache()
             logger.debug(my_profile)
-            count = await PathManager(database, geni, token).count_personalities_paths(my_profile['id'], connected_only)
+            count = await PathManager(database, geni, token).count_paths(my_profile['id'], connected_only, user2user=user2user)
         return json({"count": count}, escape_forward_slashes=False)
+
+class ChatView(HTTPMethodView):
+
+    @doc.summary("Get chat details")
+    @doc.consumes(Token, location='headers')
+    @doc.consumes(doc.String(name="chatmate_id", description="Chatmate id"))
+    async def get(self, request):
+        token = await Token.validate(request)
+        chatmate_id = request.args.get('chatmate_id')
+        if not chatmate_id:
+            abort(403, "Chatmate profile id is missing")
+
+        async with Database(db_url) as database:
+            pm = ProfileManager(database, geni, token)
+            cm = ChatManager(database, geni, token)
+            my_profile = await pm.cache()
+            # If chatmate id is given, find specific chat. Otherwise return all chats of
+            # the current user
+            if chatmate_id:
+                chats = [await cm.get_chat_by_profiles(my_profile['id'], chatmate_id)]
+            else:
+                chats = [chat for chat in await cm.iterate_chats(my_profile['id'])]
+        return json({"chats": chats}, escape_forward_slashes=False)
+
+
+
+class ChatsSIO:
+
+    @staticmethod
+    @sio.event
+    async def connect(sid, environ):
+        logger.debug(f'ChatsSIO::connected {sid}')
+
+    @staticmethod
+    @sio.event
+    async def init(sid, data):
+        token = await Token.validate(data['token'])
+
+        async with Database(db_url) as database:
+            # Retrieve profile from the token
+            pm = ProfileManager(database, geni, token)
+            my_profile = await pm.cache()
+            for chat in await ChatManager(database, geni, token).iterate_chats(my_profile['id']):
+                await sio.enter_room(sid, chat['id'])
+
+    @staticmethod
+    @sio.event
+    async def message(sid, data):
+        token = await Token.validate(data['token'])
+
+        async with Database(db_url) as database:
+            # Retrieve profile from the token
+            pm = ProfileManager(database, geni, token)
+            cm = ChatManager(database, geni, token)
+            my_profile = await pm.cache()
+            chat = await cm.get_chat_by_profiles(my_profile['id'], data['chatmate_id'])
+            await cm.save_message(chat, my_profile['id'], data['message'])
+            await sio.emit('message', data, room=chat['id'], skip_sid=sid)
+
+    @staticmethod
+    @sio.event
+    async def read_ack(sid, data):
+        token = await Token.validate(data['token'])
+
+        async with Database(db_url) as database:
+            pm = ProfileManager(database, geni, token)
+            cm = ChatManager(database, geni, token)
+            my_profile = await pm.cache()
+            chat = await cm.get_chat_by_profiles(my_profile['id'], data['chatmate_id'])
+
+            await ChatManager(database, geni, token).save_read_ack(chat, my_profile['id'])
+
+
+    @staticmethod
+    @sio.event
+    def disconnect(sid):
+        logger.debug(f'ChatsSIO::disconnected {sid}')
+
+
 
 # Add blueprints to the app
 Utils.add_blueprint(app, bp_profiles, ProfileView)

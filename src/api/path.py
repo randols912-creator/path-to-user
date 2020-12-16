@@ -1,6 +1,7 @@
 import sys, os
 from sanic.log import logger
 from api.geni import GeniClientAsync
+from api.profile import ProfileManager
 from api.models import CURRENT_TIMESTAMP, paths_table, profiles_table
 from sqlalchemy import and_, select, join
 from databases import Database
@@ -21,6 +22,8 @@ class PathManager:
         self.geni = geni
         self.database = database
         self.token = token
+
+        self.profile_mgr = ProfileManager(database, geni, token)
         # self.source_profile, self.token = geni.get_profile_details(token)
 
     async def find(self, source_id: str, target_id: str):
@@ -44,7 +47,13 @@ class PathManager:
         path = await self.database.fetch_one(query=query)
         return path
 
-    async def get_personalities_paths(self, source_id: str, offset: int, limit: int, connected_only=True, ready_only=False, target_id=None):
+    async def get_paths(self, source_id: str,
+                        offset: int,
+                        limit: int,
+                        connected_only=True,
+                        ready_only=False,
+                        target_id=None,
+                        user2user=False):
         j = join(profiles_table, paths_table,
                  profiles_table.c.id == paths_table.c.target_id)
         step_count_cond = (paths_table.c.step_count >
@@ -59,7 +68,11 @@ class PathManager:
                         profiles_table.c.bh_floor,
                         profiles_table.c.details.label("target_profile")]).select_from(j) \
             .where(
-            and_(paths_table.c.source_id == source_id, step_count_cond, ready_only_cond, target_id_cond))\
+            and_(paths_table.c.source_id == source_id,
+                 paths_table.c.is_user2user == user2user,
+                 step_count_cond,
+                 ready_only_cond,
+                 target_id_cond))\
             .order_by(paths_table.c.finished_on).offset(offset)
 
         if limit:
@@ -68,8 +81,9 @@ class PathManager:
         paths = await self.database.fetch_all(query=query)
         return paths
 
-    async def count_personalities_paths(self, source_id: str, connected_only=True):
-        return len(await self.get_personalities_paths(source_id, 0, 0, connected_only, ready_only=True))
+
+    async def count_paths(self, source_id: str, connected_only=True, user2user=False):
+        return len(await self.get_paths(source_id, 0, 0, connected_only, ready_only=True, user2user=user2user))
 
     async def _save_profile(self, profile):
         query = profiles_table.select().where(profiles_table.c.id==profile['id'])
@@ -103,6 +117,7 @@ class PathManager:
 
         # Insert or update
         if not path:
+            values['is_user2user'] = await self.is_user2user(source_id, target_id) # needed only on insert
             query = paths_table.insert().values(values)
         else:
             query = paths_table.update().where(paths_table.c.id==path['id']).values(values)
@@ -111,6 +126,12 @@ class PathManager:
 
         return pending
 
+    async def is_user2user(self, source_id, target_id):
+        for profile_id in [target_id, source_id]:  # target id is usually personality id, so start with it
+            profile = await self.profile_mgr.get(profile_id)
+            if not profile.is_user:
+                return False
+        return True
 
 async def path_finder_async(number, queue, db_url, geni):
     logger.info(f"Starting process: {number}")
