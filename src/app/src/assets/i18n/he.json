@@ -52,8 +52,8 @@
   },
   "about": {
     "app": {
-      "header": "אודות יישום זה",
-      "article": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident</p>"
+      "header": "על האפליקציה",
+      "article": "<p>‫ולמצוא‬ ‫יהודים‬ ‫מפורסמים‬ ‫עם‬ שלכם‬ ‫המשפחה‬ ‫קשרי‬ ‫את‬ ‫לגלות‬ לכם‬ ‫תסייע‬ ‫זו‬ ‫אפליקציה‬ ‫אתר‬ ( ‫שלכם‬ Geni - ‫ה‬ ‫לחשבון‬ ‫להתחבר‬ ‫הוא‬ ‫לעשות‬ ‫שצריך‬ ‫מה‬ ‫כל‬ . ‫המוזיאון‬ ‫ברחבי‬ ‫אותם‬ ‫אישים‬ ‫רשימת‬ ‫תופיע‬ ‫ההתחברות‬ ‫לאחר‬ . ‫למוזיאון‬ ‫כשתגיעו‬ ) ‫משפחה‬ ‫עצי‬ ‫לבניית‬ ‫גנאלוגי‬ ‫שם‬ ‫על‬ ‫שלכם‬ ‫אחד‬ ‫קליק‬ . ‫הקשר‬ ‫ופירוט‬ , ‫אליהם‬ ‫משפחתי‬ ‫קשר‬ ‫לכם‬ ‫שיש‬ ‫מפורסמים‬ ‫לגלות‬ ‫עשויים‬ ‫אתם‬ - ‫הכל‬ ‫לא‬ ‫עוד‬ ‫וזה‬ . ‫במוזיאון‬ ‫שלה‬ ‫המיקום‬ ‫את‬ ‫בפניכם‬ ‫יחשוף‬ , ‫האישיות‬ ! ‫זמן‬ ‫באותו‬ ‫במוזיאון‬ ‫שמבקרים‬ , ‫שלא‬ ‫או‬ ‫עליהם‬ ‫שידעתם‬ , ‫משפחה‬ ‫קרובי‬ ‫שונברג‬ ‫רנדי‬ ‫ידי‬ ‫על‬ ‫נהגתה‬ ‫האפליקציה‬</p><span>JHN :‫פיתוח‬</span><span>‫דיגיטל‬ ‫מחלקת‬ ‫מנהלת‬ , ‫שרון‬ ‫עינת‬ : ‫פרויקט‬ ‫ניהול‬</span><span>‫דיגיטל‬ ‫מחלקת‬ , ‫מנור‬ ‫נטע‬ : UI/UX ‫עיצוב‬</span><span>‫דרמן‬ ‫אושי‬ , ‫גילת‬ ‫נורית‬ : ‫תוכן‬ ‫תחקיר‬</span>"
     },
     "museum": {
       "header": "אודות המוזיאון",

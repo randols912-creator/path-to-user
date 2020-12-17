@@ -26,6 +26,10 @@ section.hebrew article::ng-deep p {
   text-align: right;
 }
 
+section.hebrew article::ng-deep span {
+  text-align: right;
+}
+
 h3,
 h4 {
   text-align: center;
@@ -45,8 +49,13 @@ h4 {
 }
 
 article::ng-deep p {
-  margin: 0;
   padding: 15px 0;
+}
+
+article::ng-deep p,
+article::ng-deep span {
+  display: block;
+  margin: 0;
   font-size: 14px;
   line-height: 22px;
   letter-spacing: 0px;
