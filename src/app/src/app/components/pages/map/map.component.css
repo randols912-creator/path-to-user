@@ -7,10 +7,11 @@ a.btn.btn-lnk {
   padding: 16px 12px;
 }
 
-.location-info fa-icon {
-  color: #ee4d33;
+.location-info img {
   float: left;
-  padding: 5px 10px;
+  margin: 5px 10px;
+  width: 17px;
+  height: auto;
 }
 
 .map-box {
@@ -45,6 +46,11 @@ a.btn.btn-lnk {
   transition: opacity 2s;
 }
 
+.map-box .profile-pin img {
+  width: 33px;
+  height: auto;
+}
+
 .map-box .profile-pin.visible {
   opacity: 1;
 }
@@ -54,7 +60,7 @@ a.btn.btn-lnk {
   opacity: 0.66;
   position: absolute;
   top: 0;
-  right: 40px;
+  right: 36px;
   color: #f9f9f9;
   padding: 1px 3px;
   font: normal normal normal 10px/14px 'Open Sans Hebrew';
