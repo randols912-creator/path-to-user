@@ -35,6 +35,7 @@
     "birthdate": "Birthdate:",
     "birthplace": "Birthplace:",
     "about": "About {{value}}",
+    "geni": "For more info in Geni about {{value}}",
     "footer": "Try to search for {{value}} in the museum databases"
   },
   "modal": {

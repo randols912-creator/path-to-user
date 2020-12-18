@@ -52,6 +52,16 @@
   word-break: break-word;
 }
 
+.profile-details > a {
+  display: block;
+  color: #000000;
+  text-decoration: underline;
+}
+
+.profile-details > a.hebrew-direction {
+  text-align: right;
+}
+
 .read-more-footer {
   background-color: #f3f3f3;
   padding: 11px 10px;

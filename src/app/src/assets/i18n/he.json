@@ -35,6 +35,7 @@
     "birthdate": ":תאריך לידה",
     "birthplace": ":מקום לידה",
     "about": "אודות: {{value}}",
+    "geni": "למידע נוסף אודות {{value}} ב- Geni",
     "footer": "חפשו עוד על {{value}} במאגרי המידע של המוזיאון"
   },
   "modal": {

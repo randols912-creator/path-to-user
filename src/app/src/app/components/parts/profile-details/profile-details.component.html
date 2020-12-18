@@ -6,8 +6,7 @@
     "
     class="profile-photo"
     [ngStyle]="{ 'background-image': 'url(' + profilePhotoUrl + ')' }"
-  >
-  </div>
+  ></div>
   <div class="profile-details">
     <div
       class="fullname-box"
@@ -48,6 +47,14 @@
         [innerHTML]="aboutProfile"
       ></div>
     </div>
+    <a
+      [href]="profile.profile_url"
+      target="_blank"
+      rel="nofollow noopener"
+      [ngClass]="{ 'hebrew-direction': isHebrewLocale }"
+      [innerHTML]="'profile.geni' | translate: { value: localizedFullname }"
+    >
+    </a>
   </div>
   <div
     class="read-more-footer"
