@@ -5,6 +5,7 @@ from api.profile import ProfileManager
 from api.models import CURRENT_TIMESTAMP, paths_table, profiles_table
 from sqlalchemy import and_, select, join
 from databases import Database
+from asyncio import Queue
 
 PENDING_TIMEOUT = int(os.environ.get('PENDING_TIMEOUT', 2))
 
@@ -18,10 +19,12 @@ class Task:
 
 
 class PathManager:
-    def __init__(self, database: Database, geni: GeniClientAsync, token: str):
+    def __init__(self, database: Database, geni: GeniClientAsync, token: str,
+                 user2user_result_queue: Queue = None):
         self.geni = geni
         self.database = database
         self.token = token
+        self.user2user_result_queue = user2user_result_queue
 
         self.profile_mgr = ProfileManager(database, geni, token)
         # self.source_profile, self.token = geni.get_profile_details(token)
@@ -120,9 +123,14 @@ class PathManager:
             values['is_user2user'] = await self.is_user2user(source_id, target_id) # needed only on insert
             query = paths_table.insert().values(values)
         else:
+            values['is_user2user'] = path['is_user2user']
             query = paths_table.update().where(paths_table.c.id==path['id']).values(values)
         logger.debug(query)
         await self.database.execute(query)
+
+        # Communicate found user2user connection via the queue to the main task
+        if values['step_count'] > 0 and values['is_user2user'] and self.user2user_result_queue:
+            await self.user2user_result_queue.put(values)
 
         return pending
 
@@ -133,14 +141,14 @@ class PathManager:
                 return False
         return True
 
-async def path_finder_async(number, queue, db_url, geni):
+async def path_finder_async(number, queue, user2user_result_queue, db_url, geni):
     logger.info(f"Starting process: {number}")
     async with Database(db_url) as database:
         while True:
             task: Task = await queue.get()
             # since values insertion ordered
             source_id, target_id, token = task.data.values()
-            pm = PathManager(database, geni, token)
+            pm = PathManager(database, geni, token, user2user_result_queue)
             pending = await pm.find(source_id, target_id)
             if pending:
                 await queue.put(task)

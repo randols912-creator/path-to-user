@@ -1,16 +1,13 @@
 import sys, os
 from sanic.log import logger
-from api.geni import GeniClientAsync
 from api.models import chats_table, CURRENT_TIMESTAMP
 from sqlalchemy import and_, or_
 from databases import Database
 import datetime
 
 class ChatManager:
-    def __init__(self, database: Database, geni: GeniClientAsync, token: str):
-        self.geni = geni
+    def __init__(self, database: Database):
         self.database = database
-        self.token = token
 
     async def iterate_chats(self, profile_id):
         query = chats_table.select().where(or_(chats_table.c.profile_id1 == profile_id,
@@ -50,7 +47,7 @@ class ChatManager:
         else:
             query = chats_table.update().where(chats_table.c.id==chat['id']).values(values)
         logger.debug(query)
-        await self.database.execute(query)
+        return await self.database.execute(query)
 
     async def save_message(self, chat, sender_id, message_text):
         messages = chat['messages']

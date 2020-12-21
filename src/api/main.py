@@ -16,7 +16,7 @@ from databases import Database
 from sqlalchemy import create_engine, and_
 
 from multiprocessing import cpu_count
-from asyncio import PriorityQueue
+from asyncio import PriorityQueue, Queue
 
 import random
 
@@ -322,7 +322,7 @@ class ChatView(HTTPMethodView):
 
         async with Database(db_url) as database:
             pm = ProfileManager(database, geni, token)
-            cm = ChatManager(database, geni, token)
+            cm = ChatManager(database)
             my_profile = await pm.cache()
             # If chatmate id is given, find specific chat. Otherwise return all chats of
             # the current user
@@ -335,6 +335,9 @@ class ChatView(HTTPMethodView):
 
 
 class ChatsSIO:
+
+    profile2sid = dict()
+    sid2profile = dict()
 
     @staticmethod
     @sio.event
@@ -350,7 +353,10 @@ class ChatsSIO:
             # Retrieve profile from the token
             pm = ProfileManager(database, geni, token)
             my_profile = await pm.cache()
-            for chat in await ChatManager(database, geni, token).iterate_chats(my_profile['id']):
+
+            ChatsSIO.profile2sid[my_profile['id']] = sid
+
+            for chat in await ChatManager(database).iterate_chats(my_profile['id']):
                 await sio.enter_room(sid, chat['id'])
 
     @staticmethod
@@ -361,7 +367,7 @@ class ChatsSIO:
         async with Database(db_url) as database:
             # Retrieve profile from the token
             pm = ProfileManager(database, geni, token)
-            cm = ChatManager(database, geni, token)
+            cm = ChatManager(database)
             my_profile = await pm.cache()
             chat = await cm.get_chat_by_profiles(my_profile['id'], data['chatmate_id'])
             await cm.save_message(chat, my_profile['id'], data['message'])
@@ -374,18 +380,42 @@ class ChatsSIO:
 
         async with Database(db_url) as database:
             pm = ProfileManager(database, geni, token)
-            cm = ChatManager(database, geni, token)
+            cm = ChatManager(database)
             my_profile = await pm.cache()
             chat = await cm.get_chat_by_profiles(my_profile['id'], data['chatmate_id'])
 
-            await ChatManager(database, geni, token).save_read_ack(chat, my_profile['id'])
+            await ChatManager(database).save_read_ack(chat, my_profile['id'])
 
 
     @staticmethod
     @sio.event
     def disconnect(sid):
         logger.debug(f'ChatsSIO::disconnected {sid}')
+        profile_id = ChatsSIO.sid2profile.get(sid)
+        if profile_id:
+            del ChatsSIO.sid2profile[sid]
+            del ChatsSIO.profile2sid[profile_id]
 
+    @staticmethod
+    async def user2user_result_listener():
+        logger.info(f"Starting user2user listener")
+
+        while True:
+            path_dict = await user2user_result_queue.get()
+
+            async with Database(db_url) as database:
+                cm = ChatManager(database)
+                # Save new chat
+                chat_id = await cm.save_chat(path_dict['source_id'], path_dict['target_id'])
+                # Bring chatmates into the new chat room (if they are online)
+                for profile_id in (path_dict['source_id'], path_dict['target_id']):
+                    sid = ChatsSIO.profile2sid.get(profile_id)
+                    if sid:
+                        await sio.enter_room(sid, chat_id)
+                # Notify both users about new path
+                await sio.emit('user2user_path', {'profile_id1': path_dict['source_id'],
+                                                  'profile_id2': path_dict['target_id']},
+                                                room=chat_id)
 
 
 # Add blueprints to the app
@@ -402,10 +432,13 @@ if __name__ == "__main__":
 
     loop = asyncio.get_event_loop()
     task_queue = PriorityQueue()
-    workers = []
+    user2user_result_queue = Queue()
     # Create concurrent tasks (workers)
     for counter in range(quantity):
-        workers.append(app.add_task(path_finder_async(counter, task_queue, db_url, geni)))
+        app.add_task(path_finder_async(counter, task_queue, user2user_result_queue, db_url, geni))
+    # Create concurrent task for u2u results listener
+    app.add_task(ChatsSIO.user2user_result_listener())
+
     # Create Sanic server
     srv_coro = app.create_server(
         port=int(os.environ.get('PORT', 4200)),
