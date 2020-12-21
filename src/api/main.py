@@ -22,7 +22,7 @@ import random
 
 import socketio
 
-sio = socketio.AsyncServer(async_mode='sanic')
+sio = socketio.AsyncServer(async_mode='sanic', cors_allowed_origins=[])
 app = Sanic(name='api')
 CORS(app)
 app.blueprint(swagger_blueprint)
@@ -32,6 +32,7 @@ sio.attach(app)
 load_dotenv()
 # TODO remove me
 app.config['ACCESS_LOG'] = False
+app.config['CORS_SUPPORTS_CREDENTIALS'] = True
 
 from api.utils import Utils
 from api.models import metadata, paths_table, profiles_table
@@ -317,8 +318,6 @@ class ChatView(HTTPMethodView):
     async def get(self, request):
         token = await Token.validate(request)
         chatmate_id = request.args.get('chatmate_id')
-        if not chatmate_id:
-            abort(403, "Chatmate profile id is missing")
 
         async with Database(db_url) as database:
             pm = ProfileManager(database, geni, token)
@@ -329,7 +328,7 @@ class ChatView(HTTPMethodView):
             if chatmate_id:
                 chats = [await cm.get_chat_by_profiles(my_profile['id'], chatmate_id)]
             else:
-                chats = [chat for chat in await cm.iterate_chats(my_profile['id'])]
+                chats = [chat async for chat in cm.iterate_chats(my_profile['id'])]
         return json({"chats": chats}, escape_forward_slashes=False)
 
 
@@ -341,7 +340,7 @@ class ChatsSIO:
 
     @staticmethod
     @sio.event
-    async def connect(sid, environ):
+    def connect(sid, environ):
         logger.debug(f'ChatsSIO::connected {sid}')
 
     @staticmethod
@@ -421,6 +420,7 @@ class ChatsSIO:
 # Add blueprints to the app
 Utils.add_blueprint(app, bp_profiles, ProfileView)
 Utils.add_blueprint(app, bp_paths, PathView)
+Utils.add_blueprint(app, bp_chats, ChatView)
 
 if __name__ == "__main__":
     from api.path import path_finder_async
