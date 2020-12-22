@@ -12,12 +12,15 @@ export const GENI_TOKEN_EXPIRES_STORAGE_KEY = 'gn-token-exp';
 export const CURRENT_USER_PROFILE_STORAGE_KEY = 'gn-user';
 export const APP_SETTINGE_STORAGE_KEY = 'app-settings';
 
-
 export const FETCH_PROFILE_URL = `${env.relationsServiceHost}/api/v1/profiles/geni`;
+export const SEARCH_USERS_URL = `${env.relationsServiceHost}/api/v1/paths/users`;
 export const FETCH_PATHS_URL = `${env.relationsServiceHost}/api/v1/paths/personalities`;
 export const PATHS_COUNT_URL = `${env.relationsServiceHost}/api/v1/paths/personalities/count`;
 export const PROFILES_COUNT_URL = `${env.relationsServiceHost}/api/v1/profiles/count`;
 export const PATH_DETAILS_URL = `${env.relationsServiceHost}/api/v1/paths`;
+export const FETCH_USERS_URL = `${env.relationsServiceHost}/api/v1/paths/users`;
+export const FETCH_CHATS_URL = `${env.relationsServiceHost}/api/v1/chats`;
+
 export const GENI_TOKEN_HEADER_KEY = 'authorization';
 export const MILLIS_BETWEEN_API_CALLS = 1000;
 export const QUADRANT_COUNT = 40;

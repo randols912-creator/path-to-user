@@ -31,7 +31,7 @@ class GeniClientAsync:
     def build_auth_url(self):
         pass
 
-    async def get_profile_details(self, token, profile_id="profile"):
+    async def get_profile_details(self, token, profile_id="profile", fields=None):
         profile_raw = new_result('status')
         profile_raw.update({
             'id': token,

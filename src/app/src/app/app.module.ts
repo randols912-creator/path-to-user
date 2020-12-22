@@ -12,6 +12,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { SocketIoModule } from 'ngx-socket-io';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AuthInterceptor } from './auth/auth.interceptor';
@@ -107,6 +108,8 @@ class JsonpInterceptorModule {}
         deps: [HttpClient],
       },
     }),
+    // TODO don't hardcode socket url
+    SocketIoModule.forRoot({ url: 'http://localhost:5050', options: {} }),
   ],
   providers: [INTERCEPTOR_PROVIDER],
   bootstrap: [AppComponent],

@@ -1,76 +1,83 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Socket } from 'ngx-socket-io';
+import {
+  FETCH_CHATS_URL,
+  FETCH_USERS_URL,
+  SEARCH_USERS_URL,
+} from '../app.constants';
+import { AuthService } from '../auth/auth.service';
 import Connection from '../model/ProfileRelation';
-import { GeniService } from './geni.service';
+
+const USER_SEARCH_INTERVAL_MILLIS = 1000 * 60 * 3;
+
+interface User2User {
+  profile_id1: string;
+  profile_id2: string;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class P2pService {
-  // TODO fix me
-  relatives: Connection[] = [
-    {
-      id: 'profile-55041592',
-      url: 'https://www.geni.com/api/profile-55041592',
-      name: 'Gregory Raginsky',
-      relation: 'father',
-    },
-    {
-      id: 'profile-55095154',
-      url: 'https://www.geni.com/api/profile-55095154',
-      name:
-        'Lena Raginsky (\u0428\u0443\u043b\u044c\u043c\u0430\u043d/\u0420\u0430\u0433\u0438\u043d\u0441\u043a\u0430\u044f)',
-      relation: 'mother',
-    },
-    {
-      id: 'profile-34740690187',
-      url: 'https://www.geni.com/api/profile-34740690187',
-      name:
-        '\u0425\u0430\u0438\u043c \u0428\u0443\u043b\u044c\u043c\u0430\u043d',
-      relation: 'father',
-    },
-  ];
+  user2userPaths: User2User[] = [];
+  userSearchIntervalId: NodeJS.Timeout;
 
-  constructor(private geni: GeniService) {
-    // TODO fix me
-    this.fetchProfiles(this.relatives.map((r) => r.id));
+  constructor(
+    private http: HttpClient,
+    private socket: Socket,
+    private auth: AuthService
+  ) {
+    setTimeout(() => this.auth.isAuthenticated() && this.init(), 1000);
   }
 
-  // TODO fix and me too
-  private fetchProfiles(
-    ids: string[],
-    sucessCallback?: () => {},
-    retryCallback?: () => void
-  ) {
-    this.geni
-      .fetchProfiles(ids, [
-        'id',
-        'gender',
-        'name',
-        'names',
-        'photo_urls',
-        'birth',
-        'death',
-      ])
-      .subscribe(
-        (resp) => {
-          const { results: profiles, error } = resp;
-          if (!error) {
-            profiles.forEach(
-              (p) => (this.relatives.find((c) => c.id === p.id).profile = p)
-            );
+  private init() {
+    this.socket.on('message', console.log);
 
-            if (sucessCallback) {
-              sucessCallback();
-            }
-          } else {
-            if (retryCallback) {
-              setTimeout(retryCallback, 500);
-            }
-          }
-        },
-        (err) => {
-          console.log(err);
-        }
-      );
+    this.socket.emit('init', { token: this.auth.token });
+
+    this.socket.on('user2user_path', (path: User2User) => {
+      if (
+        path.profile_id1 === this.auth.user.id &&
+        !this.user2userPaths.find((p) => p.profile_id1 === path.profile_id1)
+      ) {
+        this.user2userPaths.push(path);
+      }
+    });
+
+    this.fetchUsers(); // fetch found users while you were absent
+    this.fetchChats();
+    this.searchUsers(); // initial search without delay
+    this.scheduleUserSearch();
+  }
+
+  private scheduleUserSearch() {
+    this.userSearchIntervalId = setInterval(() => {
+      if (this.auth.isAuthenticated()) {
+        this.searchUsers();
+      } else {
+        this.dismiss();
+      }
+    }, USER_SEARCH_INTERVAL_MILLIS);
+  }
+
+  private dismiss() {
+    this.socket.removeAllListeners();
+    if (this.userSearchIntervalId) {
+      clearInterval(this.userSearchIntervalId);
+      console.log('User search canceled');
+    }
+  }
+
+  private searchUsers() {
+    return this.http.post(SEARCH_USERS_URL, {}).subscribe(console.log);
+  }
+
+  private fetchUsers() {
+    return this.http.get(FETCH_USERS_URL).subscribe((data) => console.log);
+  }
+
+  private fetchChats() {
+    return this.http.get(FETCH_CHATS_URL).subscribe(console.log);
   }
 }

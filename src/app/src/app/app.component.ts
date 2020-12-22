@@ -5,6 +5,7 @@ import { routeChangeAnimation } from './app-route-change-animation';
 import { ModalRefDirective } from './directives/modal-ref.directive';
 import { Locale } from './model/Locale';
 import { ModalService } from './services/modal.service';
+import { P2pService } from './services/p2p.service';
 
 @Component({
   selector: 'app-root',
@@ -17,9 +18,10 @@ export class AppComponent implements AfterViewInit {
 
   constructor(
     private translate: TranslateService,
-    private modalService: ModalService
+    private modalService: ModalService,
+    private p2p: P2pService
   ) {
-    translate.setDefaultLang(Locale.EN);
+    this.translate.setDefaultLang(Locale.EN);
   }
 
   ngAfterViewInit(): void {

@@ -4,7 +4,7 @@ import datetime
 from dotenv import load_dotenv
 
 from sanic import Sanic, response
-from sanic.log import logger
+from sanic.log import logger, logging
 from sanic_cors import CORS, cross_origin
 from sanic.response import text, json
 from sanic.request import Request
@@ -22,17 +22,20 @@ import random
 
 import socketio
 
-sio = socketio.AsyncServer(async_mode='sanic', cors_allowed_origins=[])
+logger.setLevel(logging.DEBUG)
+
 app = Sanic(name='api')
-CORS(app)
+CORS(app, supports_credentials=True)
 app.blueprint(swagger_blueprint)
-sio.attach(app)
 
 # Load parameters
 load_dotenv()
 # TODO remove me
 app.config['ACCESS_LOG'] = False
 app.config['CORS_SUPPORTS_CREDENTIALS'] = True
+
+sio = socketio.AsyncServer(async_mode='sanic', cors_allowed_origins=[])
+sio.attach(app)
 
 from api.utils import Utils
 from api.models import metadata, paths_table, profiles_table
@@ -69,9 +72,7 @@ class Token:
     cache_valid_seconds = 300
 
     @staticmethod
-    async def validate(request):
-        logger.debug(f"Headers: {request.headers}")
-        token = request.headers.get(TOKEN_PARAM)
+    async def validate(token):
         if token in Token.cache and (datetime.datetime.now() - Token.cache[token]) < datetime.timedelta(seconds=Token.cache_valid_seconds):
             return token
         if not token or not await geni.validate_token(token):
@@ -88,7 +89,7 @@ class ProfileView(HTTPMethodView):
     @doc.consumes(Token, location='headers')
     @doc.summary("Cache personality profiles from Geni")
     async def post(self, request: Request):
-        token = await Token.validate(request)
+        token = await Token.validate(request.headers.get(TOKEN_PARAM))
 
         async with Database(db_url) as database:
             num_profiles = await ProfileManager(database, geni, token).cache_personalities()
@@ -99,7 +100,7 @@ class ProfileView(HTTPMethodView):
     @doc.consumes(doc.String(name="id", description="Profile id"))
     @doc.summary("Get profile by id")
     async def get(self, request: Request):
-        token = await Token.validate(request)
+        token = await Token.validate(request.headers.get(TOKEN_PARAM))
         profile_id = request.args.get('id')
         if not profile_id:
             abort(403, "Profile id is missing")
@@ -114,7 +115,7 @@ class ProfileView(HTTPMethodView):
     @doc.consumes(doc.String(name="type", description="Profile type", choices=['personality', 'user']))
     @doc.summary("Count profiles")
     async def get_count(request):
-        token = await Token.validate(request)
+        token = await Token.validate(request.headers.get(TOKEN_PARAM))
         type = request.args.get('id')
         is_user = (type == 'user')
 
@@ -125,7 +126,7 @@ class ProfileView(HTTPMethodView):
     @staticmethod
     @bp_profiles.get("/geni")
     async def get_geni_profiles(request):
-        token = await Token.validate(request)
+        token = await Token.validate(request.headers.get(TOKEN_PARAM))
         ids = request.args.get("ids")
         fields = request.args.get('fields', '')
 
@@ -158,7 +159,7 @@ class PathView(HTTPMethodView):
     @doc.consumes(doc.String(name="source_id", description="Source profile id"))
     @doc.consumes(doc.String(name="target_id", description="Target profile id"))
     async def get(self, request):
-        token = await Token.validate(request)
+        token = await Token.validate(request.headers.get(TOKEN_PARAM))
         source_id = request.args.get('source_id')
         target_id = request.args.get('target_id')
         if not source_id or not target_id:
@@ -174,7 +175,7 @@ class PathView(HTTPMethodView):
     @doc.consumes(Token, location='headers')
     @doc.summary("Initiate path search from current user to all personalities")
     async def post_search_personalities(request):
-        token = await Token.validate(request)
+        token = await Token.validate(request.headers.get(TOKEN_PARAM))
         async with Database(db_url) as database:
             pm = ProfileManager(database, geni, token)
             my_profile = await pm.cache()
@@ -195,8 +196,8 @@ class PathView(HTTPMethodView):
     @bp_paths.post("/users")
     @doc.consumes(Token, location='headers')
     @doc.summary("Initiate path search from current user to all active users")
-    async def post_search_personalities(request):
-        token = await Token.validate(request)
+    async def post_search_users(request):
+        token = await Token.validate(request.headers.get(TOKEN_PARAM))
         async with Database(db_url) as database:
             pm = ProfileManager(database, geni, token)
             path_mgr = PathManager(database, geni, token)
@@ -213,9 +214,10 @@ class PathView(HTTPMethodView):
                 # users and get "named" relationship which is not symmetric
                 for src,tgt in [(my_profile['id'], user.id),
                                 (user.id, my_profile['id'])]:
-                    if path_mgr.get(src, tgt):
-                        logger.debug("Users path {} -> {} already exists - skipping")
-                        continue
+                    # TODO
+                    # if await path_mgr.get(src, tgt):
+                    #     logger.debug("Users path {} -> {} already exists - skipping")
+                    #     continue
                     # Task priority will be lower than personalities search
                     task_priority = random.randint(personalities_count, personalities_count + users_count)
                     await task_queue.put(
@@ -244,7 +246,7 @@ class PathView(HTTPMethodView):
 
     @staticmethod
     async def _get_paths(request, user2user):
-        token = await Token.validate(request)
+        token = await Token.validate(request.headers.get(TOKEN_PARAM))
         offset = request.args.get('offset', 0)
         limit = request.args.get('limit', 50)
         async with Database(db_url) as database:
@@ -271,7 +273,7 @@ class PathView(HTTPMethodView):
 
     @staticmethod
     async def _get_path(request, target_id, user2user):
-        token = await Token.validate(request)
+        token = await Token.validate(request.headers.get(TOKEN_PARAM))
         async with Database(db_url) as database:
             pm = ProfileManager(database, geni, token)
             my_profile = await pm.cache()
@@ -301,7 +303,7 @@ class PathView(HTTPMethodView):
 
     @staticmethod
     async def _count_paths(request, user2user):
-        token = await Token.validate(request)
+        token = await Token.validate(request.headers.get(TOKEN_PARAM))
         connected_only = str(request.args.get('connected_only', True)).lower() == 'true'
         async with Database(db_url) as database:
             pm = ProfileManager(database, geni, token)
@@ -316,7 +318,7 @@ class ChatView(HTTPMethodView):
     @doc.consumes(Token, location='headers')
     @doc.consumes(doc.String(name="chatmate_id", description="Chatmate id"))
     async def get(self, request):
-        token = await Token.validate(request)
+        token = await Token.validate(request.headers.get(TOKEN_PARAM))
         chatmate_id = request.args.get('chatmate_id')
 
         async with Database(db_url) as database:
@@ -328,8 +330,8 @@ class ChatView(HTTPMethodView):
             if chatmate_id:
                 chats = [await cm.get_chat_by_profiles(my_profile['id'], chatmate_id)]
             else:
-                chats = [chat async for chat in cm.iterate_chats(my_profile['id'])]
-        return json({"chats": chats}, escape_forward_slashes=False)
+                chats = await cm.fetch_chats(my_profile['id'])
+        return json({"chats": [dict(c) for c in chats]}, escape_forward_slashes=False)
 
 
 
@@ -340,7 +342,7 @@ class ChatsSIO:
 
     @staticmethod
     @sio.event
-    def connect(sid, environ):
+    async def connect(sid, environ):
         logger.debug(f'ChatsSIO::connected {sid}')
 
     @staticmethod
@@ -355,8 +357,8 @@ class ChatsSIO:
 
             ChatsSIO.profile2sid[my_profile['id']] = sid
 
-            for chat in await ChatManager(database).iterate_chats(my_profile['id']):
-                await sio.enter_room(sid, chat['id'])
+            async for chat in ChatManager(database).iterate_chats(my_profile['id']):
+                sio.enter_room(sid, chat['id'])
 
     @staticmethod
     @sio.event
@@ -405,12 +407,12 @@ class ChatsSIO:
             async with Database(db_url) as database:
                 cm = ChatManager(database)
                 # Save new chat
-                chat_id = await cm.save_chat(path_dict['source_id'], path_dict['target_id'])
+                chat_id = await cm.save_new_chat(path_dict['source_id'], path_dict['target_id'])
                 # Bring chatmates into the new chat room (if they are online)
                 for profile_id in (path_dict['source_id'], path_dict['target_id']):
                     sid = ChatsSIO.profile2sid.get(profile_id)
                     if sid:
-                        await sio.enter_room(sid, chat_id)
+                        sio.enter_room(sid, chat_id)
                 # Notify both users about new path
                 await sio.emit('user2user_path', {'profile_id1': path_dict['source_id'],
                                                   'profile_id2': path_dict['target_id']},

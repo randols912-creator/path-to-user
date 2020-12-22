@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
 import {
-  CURRENT_USER_PROFILE_PATH,
   CURRENT_USER_PROFILE_STORAGE_KEY,
   GENI_TOKEN_EXPIRES_STORAGE_KEY,
-  GENI_TOKEN_STORAGE_KEY,
+  GENI_TOKEN_STORAGE_KEY
 } from '../app.constants';
 import Profile from '../model/Profile';
 import { GeniService } from '../services/geni.service';
@@ -13,7 +11,7 @@ import { GeniService } from '../services/geni.service';
   providedIn: 'root',
 })
 export class AuthService {
-  constructor(private router: Router, private geni: GeniService) {}
+  constructor(private geni: GeniService) {}
 
   /**
    * Navigates to Geni for Authorization
