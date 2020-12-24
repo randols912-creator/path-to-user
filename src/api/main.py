@@ -444,6 +444,7 @@ if __name__ == "__main__":
     # Create Sanic server
     srv_coro = app.create_server(
         port=int(os.environ.get('PORT', 4200)),
+        host=os.environ.get('HOST', "127.0.0.1"),
         debug=False,
         return_asyncio_server=True,
         asyncio_server_kwargs=dict(
