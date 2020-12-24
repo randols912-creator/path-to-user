@@ -1,0 +1,34 @@
+.btn {
+  padding: 0;
+  height: 28px;
+  width: 28px;
+  border-radius: 50%;
+  background-color: #ffe1bc;
+  position: relative;
+}
+
+img {
+  height: 100%;
+  margin: 1px;
+}
+
+span {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 50%;
+  line-height: 1.5;
+  color: #ffffff;
+  background-color: #ff9e1e;
+  position: absolute;
+  top: -2px;
+  right: -10px;
+  opacity: 0;
+  transition: opacity 1s ease 1s;
+}
+
+span.visible {
+  opacity: 1;
+}

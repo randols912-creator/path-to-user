@@ -42,7 +42,7 @@ export class ConnectionsListComponent implements OnInit {
 
   private updateAllProfiles() {
     const unfetchedProfiles = this.connections
-      .filter((c) => !c.profile)
+      .filter((c) => !c.target_profile)
       .slice(0, 50)
       .map((c) => c.id);
 
@@ -77,7 +77,7 @@ export class ConnectionsListComponent implements OnInit {
           const { results: profiles, error } = resp;
           if (!error) {
             profiles.forEach(
-              (p) => (this.connections.find((c) => c.id === p.id).profile = p)
+              (p) => (this.connections.find((c) => c.id === p.id).target_profile = p)
             );
 
             if (sucessCallback) {
@@ -104,7 +104,7 @@ export class ConnectionsListComponent implements OnInit {
       this.connections?.length && {
         ...this.connections[0],
         gender: this.auth.user.gender,
-        profile: this.auth.user,
+        target_profile: this.auth.user,
       }
     );
   }

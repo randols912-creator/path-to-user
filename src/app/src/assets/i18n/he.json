@@ -91,6 +91,15 @@
       "logoAlt": "מוזיאון היהודים בבית התפוצות"
     }
   },
+  "p2p": {
+    "modal": {
+      "tabs": {
+        "chat": "צ'אט",
+        "profile": "פרופיל",
+        "connection": "החיבור\nשלנו"
+      }
+    }
+  },
   "theme": {
     "Humanities & Religion": "הוגים",
     "Science": "מדענים",

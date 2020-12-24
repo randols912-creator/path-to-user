@@ -45,9 +45,7 @@
       id="title-text-ampersand"
     />ME
   </h4>
-  <button *ngIf="showP2P" class="btn p2p" (click)="showModalP2P()">
-    <img src="assets/img/Person2person.svg" alt="p2p" />
-  </button>
+  <app-p2p-button *ngIf="showP2P" class="p2p"></app-p2p-button>
   <button
     *ngIf="showMenu"
     class="btn open-menu-icon"

@@ -76,6 +76,7 @@ h4 span {
   font-size: 12px;
   line-height: 1.333;
   color: #333333;
+  white-space: pre;
 }
 
 .nav-tabs .nav-link.active {

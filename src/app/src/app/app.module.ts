@@ -2,7 +2,7 @@ import {
   HttpClient,
   HttpClientJsonpModule,
   HttpClientModule,
-  HTTP_INTERCEPTORS
+  HTTP_INTERCEPTORS,
 } from '@angular/common/http';
 import { NgModule, Provider } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -40,6 +40,7 @@ import { TitleBarComponent } from './components/parts/title-bar/title-bar.compon
 import { ToolbarComponent } from './components/parts/toolbar/toolbar.component';
 import { ModalRefDirective } from './directives/modal-ref.directive';
 import { RelationsSortByPipe } from './pipes/relations-sort-by.pipe';
+import { P2pButtonComponent } from './components/parts/p2p-button/p2p-button.component';
 
 const INTERCEPTOR_PROVIDER: Provider = {
   provide: HTTP_INTERCEPTORS,
@@ -89,6 +90,7 @@ class JsonpInterceptorModule {}
     AboutComponent,
     P2pModalComponent,
     ProfileDetailsComponent,
+    P2pButtonComponent,
   ],
   imports: [
     BrowserModule,
@@ -109,7 +111,10 @@ class JsonpInterceptorModule {}
       },
     }),
     // TODO don't hardcode socket url
-    SocketIoModule.forRoot({ url: 'http://localhost:5050', options: {} }),
+    SocketIoModule.forRoot({
+      url: `${window.location.hostname}:5050`,
+      options: {},
+    }),
   ],
   providers: [INTERCEPTOR_PROVIDER],
   bootstrap: [AppComponent],

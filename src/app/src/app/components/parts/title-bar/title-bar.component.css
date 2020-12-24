@@ -43,22 +43,12 @@ button:focus {
   height: 11px;
 }
 
-.btn.p2p {
+.p2p {
   z-index: 101;
-  padding: 0;
-  height: 28px;
-  width: 28px;
-  border-radius: 50%;
-  background-color: #ffe1bc;
   position: absolute;
   top: 50%;
   left: 85%;
   transform: translate(-50%, -50%);
-}
-
-.btn.p2p img {
-  height: 100%;
-  margin: 1px;
 }
 
 .btn.open-menu-icon {

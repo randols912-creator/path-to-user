@@ -8,11 +8,11 @@ import {
   PATH_DETAILS_URL,
   PROFILES_COUNT_URL,
 } from '../app.constants';
+import { AuthService } from '../auth/auth.service';
 import Path, { PathDetailsResponse } from '../model/Path';
 
-// TODO - strict type for source?
 interface PathServiceResponse {
-  paths: Array<Path>;
+  paths: Path[];
 }
 
 interface PathsCountResponse {
@@ -27,10 +27,18 @@ const debugMessage = (msg: string): void =>
 })
 export class RelationService {
   status = new BehaviorSubject<Status>(Status.INITIALIZING);
-  private relations: Array<Path> = [];
+  private relations: Path[] = [];
   private uniqueIds: Set<string> = new Set<string>();
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private auth: AuthService) {
+    auth.isAuthenticatedSubj.subscribe((isAuthenticated) => {
+      if (isAuthenticated && this.status.value === Status.INITIALIZING) {
+        this.search();
+      }
+    });
+  }
+
+  search() {
     forkJoin(this.getCountQueriesObservables()).subscribe(
       ([
         { paths: relations },

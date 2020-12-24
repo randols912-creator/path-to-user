@@ -8,7 +8,7 @@ import {
   PROFILE_PATH,
   RELATION_PATH,
   SETTINGS_PATH,
-  WELCOME_PATH
+  WELCOME_PATH,
 } from './app.constants';
 import { AuthGuard } from './auth/auth.guard';
 import { AboutComponent } from './components/pages/about/about.component';
@@ -25,7 +25,6 @@ const routes: Routes = [
     path: HOME_PATH,
     component: HomeComponent,
     canActivate: [AuthGuard],
-    data: { animation: 'home' },
   },
   {
     path: MENU_PATH,
@@ -35,7 +34,6 @@ const routes: Routes = [
   {
     path: ABOUT_PATH,
     component: AboutComponent,
-    data: { animation: 'about' },
   },
   {
     path: `${RELATION_PATH}/:id`,

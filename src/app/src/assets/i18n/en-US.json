@@ -91,6 +91,15 @@
       "logoAlt": "Museum of the jewish people at Beit Hatfutsot"
     }
   },
+  "p2p": {
+    "modal": {
+      "tabs": {
+        "chat": "Chat",
+        "profile": "Profile",
+        "connection": "Our\nconnection"
+      }
+    }
+  },
   "theme": {
     "Humanities & Religion": "Humanities & Religion",
     "Science": "Science",
