@@ -1,0 +1,9 @@
+Generic single-database configuration.
+
+
+After modifying schema in models.py, run the following:
+> alembic revision --autogenerate -m "Change description"
+
+
+To modify actual schema in the database
+> alembic upgrade <revision id>

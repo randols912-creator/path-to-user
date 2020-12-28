@@ -207,7 +207,10 @@ class PathView(HTTPMethodView):
             # First, save/update current user's profile
             await pm.save(my_profile, is_user=True)
             # Enqueue tasks for finding paths to all active users
-            async for user in pm.iterate_users(is_active=True):
+            # TODO: make iteration work
+            #async for user in pm.iterate_users(is_active=True):
+            all_users = await pm.fetch_users(is_active=True)
+            for user in all_users:
                 if user.id == my_profile['id']:
                     continue
                 # Start search in both directions because we'll need both paths to present it to both
@@ -215,9 +218,9 @@ class PathView(HTTPMethodView):
                 for src,tgt in [(my_profile['id'], user.id),
                                 (user.id, my_profile['id'])]:
                     # TODO
-                    # if await path_mgr.get(src, tgt):
-                    #     logger.debug("Users path {} -> {} already exists - skipping")
-                    #     continue
+                    if await path_mgr.get(src, tgt):
+                         logger.debug(f"Users path {src} -> {tgt} already exists - skipping")
+                         continue
                     # Task priority will be lower than personalities search
                     task_priority = random.randint(personalities_count, personalities_count + users_count)
                     await task_queue.put(

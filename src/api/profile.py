@@ -1,10 +1,12 @@
 import sys, os
+import datetime
 from sanic.log import logger
 from api.geni import GeniClientAsync
 from api.models import CURRENT_TIMESTAMP, paths_table, profiles_table
 from sqlalchemy import and_
 from databases import Database
 from api.bh import BHData
+
 
 class ProfileManager:
     TOKEN_TO_PROFILE = dict()
@@ -38,6 +40,10 @@ class ProfileManager:
         if self.token in self.TOKEN_TO_PROFILE: return self.TOKEN_TO_PROFILE[self.token]
         profile, self.token = await self.geni.get_profile_details(self.token)
         self.TOKEN_TO_PROFILE[self.token] = profile
+        # Update last active field
+        update = {"last_active_on": datetime.datetime.now()}
+        query = profiles_table.update().where(profiles_table.c.id == profile['id']).values(update)
+        await self.database.execute(query)
 
         return profile
 
@@ -56,6 +62,12 @@ class ProfileManager:
         query = profiles_table.select().where(profiles_table.c.is_user == True)
         async for row in self.database.iterate(query=query):
             yield row
+
+    async def fetch_users(self, is_active=True):
+        # TODO: calculate "active" users based on the last update
+        query = profiles_table.select().where(profiles_table.c.is_user == True)
+        users = await self.database.fetch_all(query=query)
+        return users
 
     # Cache personalities based on Geni project (deprecated)
     async def cache_personalities_geni(self):
