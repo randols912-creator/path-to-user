@@ -1,0 +1,6 @@
+<button class="btn" (click)="showModalP2P()">
+  <img src="assets/img/Person2person.svg" alt="p2p" />
+  <span [ngClass]="{ visible: newUsersCount }" #popup>{{
+    newUsersCount
+  }}</span>
+</button>

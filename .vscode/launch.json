@@ -29,7 +29,8 @@
       "cwd": "${workspaceFolder}/src",
       "justMyCode": false,
       "env": {
-        "PROCESS_QUANTITY": "125"
+        "PROCESS_QUANTITY": "125",
+        "HOST": "0.0.0.0"
       }
     },
     {

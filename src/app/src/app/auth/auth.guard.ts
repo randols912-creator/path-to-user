@@ -3,7 +3,6 @@ import {
   ActivatedRouteSnapshot,
   CanActivate,
   Router,
-  RouterStateSnapshot,
   UrlTree,
 } from '@angular/router';
 import { Observable } from 'rxjs';
@@ -17,8 +16,7 @@ export class AuthGuard implements CanActivate {
   constructor(private authService: AuthService, private router: Router) {}
 
   canActivate(
-    next: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
+    next: ActivatedRouteSnapshot
   ):
     | Observable<boolean | UrlTree>
     | Promise<boolean | UrlTree>

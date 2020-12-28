@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { faAngleDown, faAngleUp } from '@fortawesome/free-solid-svg-icons';
 import { PROFILE_PATH } from 'src/app/app.constants';
 import { AuthService } from 'src/app/auth/auth.service';
+import Path from 'src/app/model/Path';
 import { Gender, LivingDetails } from 'src/app/model/Profile';
 import Connection from 'src/app/model/ProfileRelation';
 import { I18nService } from 'src/app/services/i18n.service';
@@ -44,7 +45,7 @@ export class ConnectionComponent implements OnInit {
   get localizedFullname(): string {
     return (
       this.i18n.extractProfileFullname(
-        this.connection.profile,
+        this.connection.target_profile,
         this.settings.getLocale()
       ) || this.connection.name
     );
@@ -62,7 +63,7 @@ export class ConnectionComponent implements OnInit {
   }
 
   get relationImgUlr(): string {
-    return this.connection.profile?.photo_urls?.medium;
+    return this.connection.target_profile?.photo_urls?.medium;
   }
 
   get isUser(): boolean {
@@ -70,21 +71,21 @@ export class ConnectionComponent implements OnInit {
   }
 
   get gender(): Gender {
-    return this.connection.profile?.gender || this.connection.gender;
+    return this.connection.target_profile?.gender || this.connection.gender;
   }
 
   get livingDates(): string {
     let birthYear = '';
     let deathYear = '';
 
-    if (this.connection.profile) {
-      if (this.connection.profile.birth) {
-        const birth: LivingDetails = this.connection.profile.birth;
+    if (this.connection.target_profile) {
+      if (this.connection.target_profile.birth) {
+        const birth: LivingDetails = this.connection.target_profile.birth;
         birthYear = `${birth.date.year}`;
       }
 
-      if (this.connection.profile.death) {
-        const death: LivingDetails = this.connection.profile.death;
+      if (this.connection.target_profile.death) {
+        const death: LivingDetails = this.connection.target_profile.death;
         deathYear = `${death.date.year}`;
       }
     }

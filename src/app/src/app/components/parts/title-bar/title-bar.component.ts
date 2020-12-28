@@ -26,8 +26,7 @@ export class TitleBarComponent {
 
   constructor(
     private location: Location,
-    private router: Router,
-    private modal: ModalService
+    private router: Router
   ) {}
 
   get settingsUrl() {
@@ -48,9 +47,5 @@ export class TitleBarComponent {
 
   goToAllResults(): void {
     this.router.navigate([`/${HOME_PATH}`]);
-  }
-
-  showModalP2P(): void {
-    this.modal.open(P2pModalComponent);
   }
 }

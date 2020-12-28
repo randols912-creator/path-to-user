@@ -35,13 +35,19 @@ class ChatManager:
         chat = await self.database.fetch_one(query=query)
         return chat
 
-
     async def get_chat_by_profiles(self, profile_id1, profile_id2):
-        query = chats_table.select().where(or_(and_(chats_table.c.profile_id1 == profile_id1,
-                                                    chats_table.c.profile_id2 == profile_id2),
-                                               and_(chats_table.c.profile_id2 == profile_id1,
-                                                    chats_table.c.profile_id1 == profile_id2)
-                                               ))
+        query = select(columns=[
+            chats_table.c.id,
+            chats_table.c.profile_id1,
+            chats_table.c.profile_id2,
+            chats_table.c.messages,
+            chats_table.c.is_unread1,
+            chats_table.c.is_unread2,
+        ]).where(or_(and_(chats_table.c.profile_id1 == profile_id1,
+                          chats_table.c.profile_id2 == profile_id2),
+                     and_(chats_table.c.profile_id2 == profile_id1,
+                          chats_table.c.profile_id1 == profile_id2)
+                     ))
         chat = await self.database.fetch_one(query=query)
         return chat
 

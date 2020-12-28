@@ -1,13 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
+import { Observable } from 'rxjs';
 import {
   FETCH_CHATS_URL,
   FETCH_USERS_URL,
-  SEARCH_USERS_URL,
+  SEARCH_USERS_URL
 } from '../app.constants';
 import { AuthService } from '../auth/auth.service';
-import Connection from '../model/ProfileRelation';
+import Path from '../model/Path';
 
 const USER_SEARCH_INTERVAL_MILLIS = 1000 * 60 * 3;
 
@@ -15,13 +16,16 @@ interface User2User {
   profile_id1: string;
   profile_id2: string;
 }
+interface IUsersConnections {
+  [key: string]: Path;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class P2pService {
-  user2userPaths: User2User[] = [];
-  userSearchIntervalId: NodeJS.Timeout;
+  private userSearchIntervalId: NodeJS.Timeout;
+  private userConnections: IUsersConnections = {};
 
   constructor(
     private http: HttpClient,
@@ -36,25 +40,28 @@ export class P2pService {
 
     this.socket.emit('init', { token: this.auth.token });
 
-    this.socket.on('user2user_path', (path: User2User) => {
-      if (
-        path.profile_id1 === this.auth.user.id &&
-        !this.user2userPaths.find((p) => p.profile_id1 === path.profile_id1)
-      ) {
-        this.user2userPaths.push(path);
+    this.socket.on(
+      'user2user_path',
+      ({ profile_id1: userId, profile_id2: chatmateId }: User2User) => {
+        if (
+          userId === this.auth.user.id &&
+          !this.userConnections.hasOwnProperty(chatmateId)
+        ) {
+          this.userConnections[chatmateId] = undefined;
+          this.fetchUserPath(chatmateId).subscribe(
+            (userPath) => (this.userConnections[chatmateId] = userPath)
+          );
+        }
       }
-    });
-
-    this.fetchUsers(); // fetch found users while you were absent
-    this.fetchChats();
-    this.searchUsers(); // initial search without delay
+    );
     this.scheduleUserSearch();
   }
 
   private scheduleUserSearch() {
+    this.triggerSearchUsersWorkers(); // Initial workers call without delay
     this.userSearchIntervalId = setInterval(() => {
       if (this.auth.isAuthenticated()) {
-        this.searchUsers();
+        this.triggerSearchUsersWorkers();
       } else {
         this.dismiss();
       }
@@ -69,15 +76,21 @@ export class P2pService {
     }
   }
 
-  private searchUsers() {
+  private triggerSearchUsersWorkers() {
     return this.http.post(SEARCH_USERS_URL, {}).subscribe(console.log);
   }
 
-  private fetchUsers() {
-    return this.http.get(FETCH_USERS_URL).subscribe((data) => console.log);
+  private fetchUserPath(id?: string): Observable<Path> {
+    return this.http.get<Path>(`${FETCH_USERS_URL}/${id}`);
   }
 
-  private fetchChats() {
-    return this.http.get(FETCH_CHATS_URL).subscribe(console.log);
+  private fetchChats(id?: string): Observable<any> {
+    return this.http.get(FETCH_CHATS_URL, {
+      params: { chatmate_id: id },
+    });
+  }
+
+  get users() {
+    return Object.values(this.userConnections);
   }
 }

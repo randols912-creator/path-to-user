@@ -4,7 +4,7 @@ export default interface Connection {
   name: string;
   relation: string;
   url: string;
-  profile?: Profile;
+  target_profile?: Profile;
   id?: string;
   gender?: Gender;
   direct?: boolean;

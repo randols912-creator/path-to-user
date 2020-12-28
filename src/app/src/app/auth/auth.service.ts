@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import {
   CURRENT_USER_PROFILE_STORAGE_KEY,
   GENI_TOKEN_EXPIRES_STORAGE_KEY,
-  GENI_TOKEN_STORAGE_KEY
+  GENI_TOKEN_STORAGE_KEY,
 } from '../app.constants';
 import Profile from '../model/Profile';
 import { GeniService } from '../services/geni.service';
@@ -11,7 +12,11 @@ import { GeniService } from '../services/geni.service';
   providedIn: 'root',
 })
 export class AuthService {
-  constructor(private geni: GeniService) {}
+  isAuthenticatedSubj: BehaviorSubject<boolean> = new BehaviorSubject(false);
+
+  constructor(private geni: GeniService) {
+    this.isAuthenticatedSubj.next(!!this.token);
+  }
 
   /**
    * Navigates to Geni for Authorization
@@ -25,23 +30,23 @@ export class AuthService {
     expires_in: string
   ): void {
     this.setToken(access_token, expires_in);
-    this.geni.fetchProfiles().subscribe(
-      ({ results: [profile] }) => {
-        localStorage.setItem(
-          CURRENT_USER_PROFILE_STORAGE_KEY,
-          JSON.stringify(profile)
-        );
-      },
-      (err) => console.log
-    );
+    this.geni.fetchProfiles().subscribe(({ results: [profile] }) => {
+      localStorage.setItem(
+        CURRENT_USER_PROFILE_STORAGE_KEY,
+        JSON.stringify(profile)
+      );
+    }, console.log);
+
+    this.isAuthenticatedSubj.next(!!this.token);
   }
 
   logout(): void {
     this.setToken(null);
+    this.isAuthenticatedSubj.next(!!this.token);
   }
 
   isAuthenticated(): boolean {
-    return !!this.token;
+    return this.isAuthenticatedSubj.value;
   }
 
   get user(): Profile {
