@@ -130,21 +130,29 @@ class ProfileView(HTTPMethodView):
         ids = request.args.get("ids")
         fields = request.args.get('fields', '')
 
-        resp, token = await geni.get_profile_details(
-            token,
-            f'profile?ids={ids}' if ids else 'profile',
-            fields.split(',') if fields else None
-        )
+        if ids:
+            resp, token = await geni.get_profile_details(
+                token,
+                f'profile?ids={ids}',
+                fields.split(',') if fields else None
+            )
+        else:
+            async with Database(db_url) as database:
+                pm = ProfileManager(database, geni, token)
+                my_profile = await pm.cache()
+                # First, save/update current user's profile
+                await pm.save(my_profile, is_user=True)
+                resp = my_profile
 
-        if resp['is_success']:
-          del resp['api_errors']
-          del resp['internal_errors']
-          del resp['is_success']
+        if 'is_success' in resp and resp['is_success']:
+            del resp['api_errors']
+            del resp['internal_errors']
+            del resp['is_success']
 
         return json(
-          {'results': [resp]}
-          if 'results' not in resp
-          else resp
+            {'results': [resp]}
+            if 'results' not in resp
+            else resp
         )
 
 def dt_converter(o):
@@ -180,8 +188,6 @@ class PathView(HTTPMethodView):
             pm = ProfileManager(database, geni, token)
             my_profile = await pm.cache()
             [profiles_count] = await pm.count(is_user=False)
-            # First, save/update current user's profile
-            await pm.save(my_profile, is_user=True)
             # Enqueue tasks for finding paths to all personalities
             async for personality in pm.iterate_personalities():
                 task_priority = random.randint(1, profiles_count)
