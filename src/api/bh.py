@@ -83,8 +83,34 @@ class BHData:
                         continue
                 # Convert location to JSON-based
                 if row_dict['bh_location']:
-                    row_dict['bh_location'] = json.dumps(locations[row_dict['bh_location']])
+                    row_dict['bh_location'] = json.dumps(
+                        self.calc_bh_location(row_dict,
+                                                 locations)
+                    )
                 csv_f.writerow(row_dict.values())
+
+    def calc_bh_location(self, row_dict, locations):
+        location_str = row_dict['bh_location']
+        # Check if it is a predefined location
+        if location_str in locations:
+            return locations[location_str]
+        # If location is not predefined, then parse coordinates
+        (x,y) = [c.strip().lower() for c in location_str.split('-')]
+        # Change
+        if x[0] == 'y' and y[0] == 'x':
+            c = x[1:]
+            x = y[1:]
+            y = c
+        assert(int(x) and int(y))
+
+        location = {
+            'key': row_dict['geni_profile_name'],
+            'name.en-US': row_dict['geni_profile_name'],
+            'name.he': '', # TODO
+            'coordinates': f'{x},{y}',
+            'floor': row_dict['bh_floor']
+        }
+        return location
 
 if __name__ == "__main__":
     import sys
