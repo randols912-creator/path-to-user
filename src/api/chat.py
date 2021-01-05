@@ -70,14 +70,11 @@ class ChatManager:
         logger.debug(query)
         return await self.database.execute(query)
 
-    async def save_message(self, chat, sender_id, message_text):
+    async def save_message(self, chat, sender_id, message):
+        message.update({'is_new': True})
+
         messages = chat['messages']
-        messages.append({
-            'sender_id': sender_id,
-            'text': message_text,
-            'sent_on': datetime.datetime.now(),
-            'is_new': True
-        })
+        messages.append(message)
         # Mark 'unread' in the opposite chatmate field
         is_unread = 'is_unread2' if chat['profile_id1'] == sender_id else 'is_unread1'
 
@@ -92,7 +89,7 @@ class ChatManager:
     async def save_read_ack(self, chat, reader_id):
         # Mark all reader's messages as 'read'
         for m in chat['messages']:
-            if m['sender_id'] != reader_id:
+            if m['fromId'] != reader_id:
                 m['is_new'] = False
         is_unread = 'is_unread1' if chat['profile_id1'] == reader_id else 'is_unread2'
         values = {
