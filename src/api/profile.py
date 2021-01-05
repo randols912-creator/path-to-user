@@ -25,6 +25,11 @@ class ProfileManager:
     async def save(self, profile_dict, is_user):
         profile = {k:v for k,v in profile_dict.items() if k in ["id", "name", "url"]}
         profile["is_user"] = is_user
+        profile["details"] = {
+            k:v
+            for k,v in profile_dict.items() 
+            if k not in ["api_errors", "internal_errors", "is_success"]
+        }
         logger.debug("save: ", profile)
         profile_db = await self.get(profile['id'])
         # Insert or update
