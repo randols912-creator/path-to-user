@@ -1,7 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import {
+  ChatAdapter,
+  IChatParticipant,
+  Message,
+  ParticipantResponse
+} from 'ng-chat';
 import { Socket } from 'ngx-socket-io';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import {
   FETCH_CHATS_URL,
   FETCH_USERS_URL,
@@ -20,10 +26,22 @@ interface IUsersConnections {
   [key: string]: Path;
 }
 
+interface ChatDetails {
+  chats: {
+    messages: Message[];
+  }[];
+}
+
+interface UserPaths {
+  paths: Path[];
+}
+
 @Injectable({
   providedIn: 'root',
 })
-export class P2pService {
+export class P2pService extends ChatAdapter {
+  activeChatUser: IChatParticipant;
+
   private userSearchIntervalId: NodeJS.Timeout;
   private userConnections: IUsersConnections = {};
 
@@ -32,11 +50,18 @@ export class P2pService {
     private socket: Socket,
     private auth: AuthService
   ) {
+    super();
     setTimeout(() => this.auth.isAuthenticated() && this.init(), 1000);
   }
 
   private init() {
-    this.socket.on('message', console.log);
+    this.socket.on('message', ({ message }) => {
+      this.onMessageReceived(this.activeChatUser, message);
+
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification(message.message, {});
+      }
+    });
 
     this.socket.emit('init', { token: this.auth.token });
 
@@ -48,49 +73,97 @@ export class P2pService {
           !this.userConnections.hasOwnProperty(chatmateId)
         ) {
           this.userConnections[chatmateId] = undefined;
-          this.fetchUserPath(chatmateId).subscribe(
+          this.fetchSingleUserPath(chatmateId).subscribe(
             (userPath) => (this.userConnections[chatmateId] = userPath)
           );
         }
       }
     );
+
+    this.fetchUserPaths().subscribe(({ paths }) => {
+      paths.forEach((path) => {
+        if (!this.userConnections[path.target_id]) {
+          this.userConnections[path.target_id] = path;
+        }
+      });
+    });
+
     this.scheduleUserSearch();
   }
 
   private scheduleUserSearch() {
-    this.triggerSearchUsersWorkers(); // Initial workers call without delay
+    // Initial workers call without delay
+    this.triggerSearchUsersWorkers().subscribe();
+
     this.userSearchIntervalId = setInterval(() => {
       if (this.auth.isAuthenticated()) {
-        this.triggerSearchUsersWorkers();
+        this.triggerSearchUsersWorkers().subscribe();
       } else {
-        this.dismiss();
+        this.dismissService();
       }
     }, USER_SEARCH_INTERVAL_MILLIS);
   }
 
-  private dismiss() {
+  private dismissService() {
     this.socket.removeAllListeners();
+
     if (this.userSearchIntervalId) {
       clearInterval(this.userSearchIntervalId);
       console.log('User search canceled');
     }
   }
 
-  private triggerSearchUsersWorkers() {
-    return this.http.post(SEARCH_USERS_URL, {}).subscribe(console.log);
+  private triggerSearchUsersWorkers(): Observable<any> {
+    return this.http.post(SEARCH_USERS_URL, {});
   }
 
-  private fetchUserPath(id?: string): Observable<Path> {
+  private fetchUserPaths(): Observable<UserPaths> {
+    return this.http.get<UserPaths>(FETCH_USERS_URL);
+  }
+
+  private fetchSingleUserPath(id?: string): Observable<Path> {
     return this.http.get<Path>(`${FETCH_USERS_URL}/${id}`);
   }
 
-  private fetchChats(id?: string): Observable<any> {
-    return this.http.get(FETCH_CHATS_URL, {
+  private fetchChat(id?: string): Observable<ChatDetails> {
+    return this.http.get<ChatDetails>(FETCH_CHATS_URL, {
       params: { chatmate_id: id },
+    });
+  }
+
+  public acknowledgeSeenMessage(): void {
+    this.socket.emit('read_ack', {
+      token: this.auth.token,
+      chatmate_id: this.activeChatUser.id,
     });
   }
 
   get users() {
     return Object.values(this.userConnections);
   }
+
+  /////////////////////////////////// CHAT ///////////////////////////////////
+  listFriends(): Observable<ParticipantResponse[]> {
+    return of([]);
+  }
+
+  getMessageHistory(destinataryId: any): Observable<Message[]> {
+    return new Observable((observer) => {
+      this.fetchChat(destinataryId).subscribe(({ chats: [resp] }) => {
+        const { messages } = resp;
+        observer.next(messages);
+      });
+    });
+  }
+
+  sendMessage(message: Message): void {
+    setTimeout(() => {
+      this.socket.emit('message', {
+        message,
+        token: this.auth.token,
+        chatmate_id: this.activeChatUser.id,
+      });
+    }, 1000);
+  }
+  /////////////////////////////////// CHAT ///////////////////////////////////
 }

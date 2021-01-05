@@ -1,0 +1,10 @@
+<ng-chat
+  [adapter]="adapter"
+  [userId]="userId"
+  [hideFriendsList]="true"
+  [isViewportOnMobileEnabled]="true"
+  [browserNotificationsEnabled]="false"
+  (onParticipantChatOpened)="onParticipantChatOpened($event)"
+  (onMessagesSeen)="onMessagesSeen($event)"
+  #ngChat
+></ng-chat>

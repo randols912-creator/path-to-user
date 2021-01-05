@@ -1,6 +1,6 @@
 .app-modal {
   z-index: 100;
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   bottom: 0;
@@ -24,7 +24,8 @@
 .app-modal__content > div {
   border-radius: 14px;
   overflow: hidden;
-  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .app-modal__content::after {
@@ -108,6 +109,11 @@ h4 span {
   height: 65vh;
   overflow: auto;
   padding-bottom: 20px;
+}
+
+.tab-content::ng-deep .tab-pane:first-child {
+  overflow: hidden;
+  padding-bottom: 0;
 }
 
 .hebrew {

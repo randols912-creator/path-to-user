@@ -1,0 +1,19 @@
+:host::ng-deep #ng-chat {
+  position: static;
+  display: flex;
+  height: 100%;
+}
+
+:host::ng-deep #ng-chat .ng-chat-title {
+  display: none;
+}
+
+:host::ng-deep #ng-chat .ng-chat-window {
+  position: initial;
+  width: 100%;
+  height: unset;
+}
+
+:host::ng-deep #ng-chat .ng-chat-window .ng-chat-messages {
+  height: calc(90%);
+}

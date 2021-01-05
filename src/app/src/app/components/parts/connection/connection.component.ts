@@ -45,9 +45,9 @@ export class ConnectionComponent implements OnInit {
   get localizedFullname(): string {
     return (
       this.i18n.extractProfileFullname(
-        this.connection.target_profile,
+        this.connection?.target_profile,
         this.settings.getLocale()
-      ) || this.connection.name
+      ) || this.connection?.name
     );
   }
 
@@ -63,7 +63,7 @@ export class ConnectionComponent implements OnInit {
   }
 
   get relationImgUlr(): string {
-    return this.connection.target_profile?.photo_urls?.medium;
+    return this.connection?.target_profile?.photo_urls?.medium;
   }
 
   get isUser(): boolean {
@@ -71,21 +71,21 @@ export class ConnectionComponent implements OnInit {
   }
 
   get gender(): Gender {
-    return this.connection.target_profile?.gender || this.connection.gender;
+    return this.connection?.target_profile?.gender || this.connection?.gender;
   }
 
   get livingDates(): string {
     let birthYear = '';
     let deathYear = '';
 
-    if (this.connection.target_profile) {
-      if (this.connection.target_profile.birth) {
-        const birth: LivingDetails = this.connection.target_profile.birth;
+    if (this.connection?.target_profile) {
+      if (this.connection?.target_profile.birth) {
+        const birth: LivingDetails = this.connection?.target_profile.birth;
         birthYear = `${birth.date.year}`;
       }
 
-      if (this.connection.target_profile.death) {
-        const death: LivingDetails = this.connection.target_profile.death;
+      if (this.connection?.target_profile.death) {
+        const death: LivingDetails = this.connection?.target_profile.death;
         deathYear = `${death.date.year}`;
       }
     }

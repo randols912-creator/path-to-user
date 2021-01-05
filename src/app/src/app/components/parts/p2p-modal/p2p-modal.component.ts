@@ -1,9 +1,15 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
+import {
+  ChatParticipantStatus,
+  ChatParticipantType,
+  IChatParticipant,
+} from 'ng-chat';
 import { AuthService } from 'src/app/auth/auth.service';
 import Path, { PathDetailsResponse } from 'src/app/model/Path';
 import Profile from 'src/app/model/Profile';
 import Connection from 'src/app/model/ProfileRelation';
 import { GeniService } from 'src/app/services/geni.service';
+import { I18nService } from 'src/app/services/i18n.service';
 import { P2pService } from 'src/app/services/p2p.service';
 import { RelationService } from 'src/app/services/relation.service';
 import { SettingsService } from 'src/app/services/settings.service';
@@ -13,11 +19,13 @@ import { SettingsService } from 'src/app/services/settings.service';
   templateUrl: './p2p-modal.component.html',
   styleUrls: ['./p2p-modal.component.css'],
 })
-export class P2pModalComponent implements OnInit {
+export class P2pModalComponent {
   @Output() public closeModal: EventEmitter<void> = new EventEmitter();
   activeUser: Path;
   activeUserConnections: Connection[];
   activeUserProfile: Profile;
+  activeChatUser: IChatParticipant;
+
   activeTab = 1;
 
   constructor(
@@ -25,12 +33,9 @@ export class P2pModalComponent implements OnInit {
     private settings: SettingsService,
     private auth: AuthService,
     private relations: RelationService,
-    private geni: GeniService
+    private geni: GeniService,
+    private i18n: I18nService
   ) {}
-
-  ngOnInit(): void {
-    console.log('ngOnInit');
-  }
 
   get isHebrewLocale() {
     return this.settings.isHebrewLocale;
@@ -44,6 +49,17 @@ export class P2pModalComponent implements OnInit {
     this.activeUser = user;
     this.fetchRelationDetails();
     this.fetchProfile();
+
+    this.activeChatUser = {
+      id: this.activeUser.target_id,
+      participantType: ChatParticipantType.User,
+      status: ChatParticipantStatus.Online,
+      displayName: this.i18n.extractProfileFullname(
+        this.activeUser?.target_profile,
+        this.settings.getLocale()
+      ),
+      avatar: this.activeUser.target_profile.photo_urls?.small,
+    };
   }
 
   fetchRelationDetails() {

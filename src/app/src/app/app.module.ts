@@ -2,7 +2,7 @@ import {
   HttpClient,
   HttpClientJsonpModule,
   HttpClientModule,
-  HTTP_INTERCEPTORS,
+  HTTP_INTERCEPTORS
 } from '@angular/common/http';
 import { NgModule, Provider } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -12,7 +12,9 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { NgChatModule } from 'ng-chat';
 import { SocketIoModule } from 'ngx-socket-io';
+import { environment as env } from 'src/environments/environment';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AuthInterceptor } from './auth/auth.interceptor';
@@ -32,6 +34,8 @@ import { ConnectionsListComponent } from './components/parts/connections-list/co
 import { GenderDotComponent } from './components/parts/connections-list/gender-dot/gender-dot.component';
 import { InfoBarComponent } from './components/parts/info-bar/info-bar.component';
 import { MapPinComponent } from './components/parts/map-pin/map-pin.component';
+import { P2pButtonComponent } from './components/parts/p2p-button/p2p-button.component';
+import { P2pChatComponent } from './components/parts/p2p-chat/p2p-chat.component';
 import { P2pModalComponent } from './components/parts/p2p-modal/p2p-modal.component';
 import { ProfileDetailsComponent } from './components/parts/profile-details/profile-details.component';
 import { RelativesInfoModalComponent } from './components/parts/relatives-info-modal/relatives-info-modal.component';
@@ -40,7 +44,6 @@ import { TitleBarComponent } from './components/parts/title-bar/title-bar.compon
 import { ToolbarComponent } from './components/parts/toolbar/toolbar.component';
 import { ModalRefDirective } from './directives/modal-ref.directive';
 import { RelationsSortByPipe } from './pipes/relations-sort-by.pipe';
-import { P2pButtonComponent } from './components/parts/p2p-button/p2p-button.component';
 
 const INTERCEPTOR_PROVIDER: Provider = {
   provide: HTTP_INTERCEPTORS,
@@ -91,6 +94,7 @@ class JsonpInterceptorModule {}
     P2pModalComponent,
     ProfileDetailsComponent,
     P2pButtonComponent,
+    P2pChatComponent,
   ],
   imports: [
     BrowserModule,
@@ -112,9 +116,10 @@ class JsonpInterceptorModule {}
     }),
     // TODO don't hardcode socket url
     SocketIoModule.forRoot({
-      url: `${window.location.hostname}:5050`,
+      url: env.socketioUrl,
       options: {},
     }),
+    NgChatModule,
   ],
   providers: [INTERCEPTOR_PROVIDER],
   bootstrap: [AppComponent],
