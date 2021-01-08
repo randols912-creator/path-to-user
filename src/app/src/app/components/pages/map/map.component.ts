@@ -1,6 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { PROFILE_PATH, QUADRANT_COUNT } from 'src/app/app.constants';
 import Path from 'src/app/model/Path';
@@ -154,10 +153,6 @@ export class MapComponent implements OnInit {
 
   get profilePhoto() {
     return this.relation?.value?.target_profile?.photo_urls?.small;
-  }
-
-  get icon() {
-    return faMapMarkerAlt;
   }
 
   get labelText() {

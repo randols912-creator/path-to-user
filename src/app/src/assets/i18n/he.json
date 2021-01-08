@@ -35,6 +35,7 @@
     "birthdate": ":תאריך לידה",
     "birthplace": ":מקום לידה",
     "about": "אודות: {{value}}",
+    "geni": "למידע נוסף אודות {{value}} ב- Geni",
     "footer": "חפשו עוד על {{value}} במאגרי המידע של המוזיאון"
   },
   "modal": {
@@ -52,8 +53,8 @@
   },
   "about": {
     "app": {
-      "header": "אודות יישום זה",
-      "article": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident</p>"
+      "header": "על האפליקציה",
+      "article": "<p dir=\"rtl\">אפליקציה זו תסייע לכם לגלות את קשרי המשפחה שלכם עם מפורסמים יהודים ולמצוא אותם ברחבי המוזיאון. כל מה שצריך לעשות הוא <a href=\"https://geni.com\" target=\"_blank\">להתחבר לחשבון ה-Geni שלכם</a> (אתר גנאלוגי לבניית עצי משפחה) כשתגיעו למוזיאון. לאחר ההתחברות תופיע רשימת אישים מפורסמים שיש לכם קשר משפחתי אליהם, ופירוט הקשר. קליק אחד שלכם על שם האישיות, יחשוף בפניכם את המיקום שלה במוזיאון. וזה עוד לא הכל - אתם עשויים לגלות<br />\nקרובי משפחה, שידעתם עליהם או שלא, שמבקרים במוזיאון באותו זמן!</p>\n\n<p dir=\"rtl\"><em>האפליקציה נהגתה על ידי רנדי שונברג<br />\nפיתוח: <a href=\"https://jhn.ngo\" target=\"_blank\">JHN</a><br />\nניהול פרויקט:עינת שרון, מנהלת מחלקת דיגיטל<br />\nעיצוב UI/UX: נטע מנור, מחלקת דיגיטל<br />\nתחקיר תוכן: נורית גילת, אושי דרמן</em></p>\n"
     },
     "museum": {
       "header": "אודות המוזיאון",
@@ -74,7 +75,7 @@
   "welcome": {
     "top": {
       "headline": "מוזיאון העם היהודי",
-      "question": "רוצה לדעת אם יש לך קשר משפחתי ליהודים מפורסמים כמו אלברט איינשטיין, דונה גרציה או תיאודור הרצל?",
+      "question": "רוצה לדעת אם יש לך קשר משפחתי ליהודים מפורסמים כמו אלברט איינשטיין, אמה לזרוס או תיאודור הרצל?",
       "whatToDo": "הנה מה שצריך לעשות על מנת לגלות את זה וגם היכן הם נמצאים במוזיאון:"
     },
     "middle": {

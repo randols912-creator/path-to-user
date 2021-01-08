@@ -35,6 +35,7 @@
     "birthdate": "Birthdate:",
     "birthplace": "Birthplace:",
     "about": "About {{value}}",
+    "geni": "For more info in Geni about {{value}}",
     "footer": "Try to search for {{value}} in the museum databases"
   },
   "modal": {
@@ -53,12 +54,12 @@
   "about": {
     "app": {
       "header": "About this app",
-      "article": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident</p>"
+      "article": "<p>This app will let you discover your family connection to famous Jewish people and let you know where they are located in the museum. All you need to do &ndash; when you arrive to the museum - is to log in to your <a href=\"https://geni.com\" target=\"_blank\">Geni</a> account. Once you&rsquo;e in, you&rsquo;ll see a list of famous people you&rsquo;re connected to and the relationship path for each one. A click on each person will reveal the exact location in the museum. You may even find your relationship to other museum visitors!</p>\n\n<p><em>This app was conceived by E. Randol Schoenberg<br />\nApp developer: <a href=\"https://jhn.ngo\" target=\"_blank\">JHN</a><br />\nProject manager: Eynat Sharon, Museum CDO<br />\nUI/UX designer: Neta Manor, Museum Digital Department<br />\nContent researchers: Nurit Gillath, Ushi Derman</em></p>"
     },
     "museum": {
       "header": "About the museum",
       "subheader": "You Are Part of the Story",
-      "article": "<p>The Museum of the Jewish People at Beit Hatfutsot is more than a Museum. This unique global institution tells the ongoing and extraordinary story of the Jewish people.</p><p> The Museum of the Jewish People at Beit Hatfutsot connects Jewish people to their roots and strengthens their personal and collective Jewish identity. The Museum of the Jewish People conveys to the world the fascinating narrative of the Jewish people and the essence of the Jewish culture, faith, purpose and deed while presenting the contribution of world Jewry to humanity.</p>"
+      "article": "<p>The Museum of the Jewish People is more than a Museum. This unique global institution tells the ongoing and extraordinary story of the Jewish people.</p><p> The Museum of the Jewish People connects Jewish people to their roots and strengthens their personal and collective Jewish identity. The Museum of the Jewish People conveys to the world the fascinating narrative of the Jewish people and the essence of the Jewish culture, faith, purpose and deed while presenting the contribution of world Jewry to humanity.</p>"
     },
     "share": "Share",
     "links": {
@@ -74,7 +75,7 @@
   "welcome": {
     "top": {
       "headline": "<span>M</span>useum of the <span>J</span>ewish <span>P</span>eople",
-      "question": "Wouldn’t it be great to know if you have a family connection to famous Jewish people like Albert Einstein, Dona Gracia or Theodor Herzl?",
+      "question": "Wouldn’t it be great to know if you have a family connection to famous Jewish people like Albert Einstein, Emma Lazarus or Theodor Herzl?",
       "whatToDo": "Here's what you need to do in order to discover that and where they are located in the museum:"
     },
     "middle": {
