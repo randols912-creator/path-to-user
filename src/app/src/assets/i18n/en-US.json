@@ -93,10 +93,22 @@
   },
   "p2p": {
     "modal": {
+      "found": {
+        "headline": "we found {{ value }} relative(s) now at the museum",
+        "click": "click on relative for more options"
+      },
       "tabs": {
         "chat": "Chat",
         "profile": "Profile",
         "connection": "Our\nconnection"
+      }
+    },
+    "chat": {
+      "pre": {
+        "headline": "choose a message or write your own",
+        "first": "Let's meet at Aroma in half an hour",
+        "second": "I wear __________________________if you see me say hello to me",
+        "third": "Hi relative, here is my email I would love to talk to you later"
       }
     }
   },

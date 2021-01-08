@@ -1,3 +1,7 @@
+:host {
+  position: relative;
+}
+
 :host::ng-deep #ng-chat {
   position: static;
   display: flex;
@@ -16,4 +20,15 @@
 
 :host::ng-deep #ng-chat .ng-chat-window .ng-chat-messages {
   height: calc(90%);
+}
+
+app-predefined-messages {
+  z-index: 1000;
+  position: absolute;
+  top: 0;
+  padding: 10px;
+}
+
+:host::ng-deep ng-chat.hebrew #ng-chat .ng-chat-footer .chat-window-input {
+  direction: rtl;
 }

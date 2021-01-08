@@ -1,4 +1,9 @@
+<app-predefined-messages
+  *ngIf="showPredefinedMessages"
+  (predefinedMessageSelected)="onPredefineMessageSelected($event)"
+></app-predefined-messages>
 <ng-chat
+  [ngClass]="{ hebrew: isHebrewLocale }"
   [adapter]="adapter"
   [userId]="userId"
   [hideFriendsList]="true"
@@ -7,4 +12,5 @@
   (onParticipantChatOpened)="onParticipantChatOpened($event)"
   (onMessagesSeen)="onMessagesSeen($event)"
   #ngChat
-></ng-chat>
+>
+</ng-chat>

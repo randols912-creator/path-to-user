@@ -1,8 +1,10 @@
 import { Message } from '@angular/compiler/src/i18n/i18n_ast';
 import { AfterViewInit, Component, Input, ViewChild } from '@angular/core';
-import { IChatController, IChatParticipant } from 'ng-chat';
+import { IChatParticipant } from 'ng-chat';
+import { NgChat } from 'ng-chat/ng-chat/ng-chat.component';
 import { AuthService } from 'src/app/auth/auth.service';
 import { P2pService } from 'src/app/services/p2p.service';
+import { SettingsService } from 'src/app/services/settings.service';
 
 @Component({
   selector: 'app-p2p-chat',
@@ -11,11 +13,15 @@ import { P2pService } from 'src/app/services/p2p.service';
 })
 export class P2pChatComponent implements AfterViewInit {
   @Input() activeChatUser: IChatParticipant;
-  @ViewChild('ngChat') ngChat: IChatController;
+  @ViewChild('ngChat') ngChat: NgChat;
 
   userId: string;
 
-  constructor(public p2p: P2pService, private auth: AuthService) {
+  constructor(
+    public p2p: P2pService,
+    private auth: AuthService,
+    private settings: SettingsService
+  ) {
     this.userId = this.auth.user.id;
   }
 
@@ -25,15 +31,30 @@ export class P2pChatComponent implements AfterViewInit {
   }
 
   onParticipantChatOpened(user: IChatParticipant) {
-    console.log(user);
+    // TODO fix me
   }
 
   onMessagesSeen(messages: Message[]) {
-    console.log(messages);
-    // this.p2p.acknowledgeSeenMessage();
+    // TODO add messages acknoledgement
+  }
+
+  onPredefineMessageSelected(text) {
+    this.ngChat.windows[0].newMessage = text;
   }
 
   get adapter() {
     return this.p2p;
+  }
+
+  get showPredefinedMessages(): boolean {
+    return (
+      this.p2p.isNewChat &&
+      !this.ngChat?.windows[0].messages.length &&
+      !this.ngChat?.windows[0].newMessage
+    );
+  }
+
+  get isHebrewLocale(): boolean {
+    return this.settings.isHebrewLocale;
   }
 }

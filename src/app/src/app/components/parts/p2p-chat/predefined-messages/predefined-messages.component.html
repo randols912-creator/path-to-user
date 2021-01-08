@@ -1,0 +1,28 @@
+<h6 translate>p2p.chat.pre.headline</h6>
+<div
+  class="message-container"
+  [ngClass]="{ 'hebrew-direction-deep': isHebrewLocale }"
+>
+  <img src="/assets/img/Yes.svg" class="avatar" />
+  <div class="message" (click)="selectPredefinedMessage('p2p.chat.pre.first')">
+    <span translate>p2p.chat.pre.first</span>
+  </div>
+</div>
+<div
+  class="message-container"
+  [ngClass]="{ 'hebrew-direction-deep': isHebrewLocale }"
+>
+  <img src="/assets/img/Wear.svg" class="avatar" />
+  <div class="message" (click)="selectPredefinedMessage('p2p.chat.pre.second')">
+    <span translate>p2p.chat.pre.second</span>
+  </div>
+</div>
+<div
+  class="message-container"
+  [ngClass]="{ 'hebrew-direction-deep': isHebrewLocale }"
+>
+  <img src="/assets/img/no.svg" class="avatar" />
+  <div class="message" (click)="selectPredefinedMessage('p2p.chat.pre.third')">
+    <span translate>p2p.chat.pre.third</span>
+  </div>
+</div>

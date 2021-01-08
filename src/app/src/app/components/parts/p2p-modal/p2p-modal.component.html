@@ -71,8 +71,8 @@
 <ng-template #relativesList>
   <div class="px-2" *ngIf="users">
     <h4>
-      we found {{ users?.length }} relative(s) now at the museum
-      <span>click on relative for more options</span>
+      {{ 'p2p.modal.found.headline' | translate: { value: users?.length } }}
+      <span translate>p2p.modal.found.click</span>
     </h4>
     <app-connection
       *ngFor="let user of users; index as i"

@@ -2,7 +2,7 @@ import {
   HttpClient,
   HttpClientJsonpModule,
   HttpClientModule,
-  HTTP_INTERCEPTORS
+  HTTP_INTERCEPTORS,
 } from '@angular/common/http';
 import { NgModule, Provider } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -36,6 +36,7 @@ import { InfoBarComponent } from './components/parts/info-bar/info-bar.component
 import { MapPinComponent } from './components/parts/map-pin/map-pin.component';
 import { P2pButtonComponent } from './components/parts/p2p-button/p2p-button.component';
 import { P2pChatComponent } from './components/parts/p2p-chat/p2p-chat.component';
+import { PredefinedMessagesComponent } from './components/parts/p2p-chat/predefined-messages/predefined-messages.component';
 import { P2pModalComponent } from './components/parts/p2p-modal/p2p-modal.component';
 import { ProfileDetailsComponent } from './components/parts/profile-details/profile-details.component';
 import { RelativesInfoModalComponent } from './components/parts/relatives-info-modal/relatives-info-modal.component';
@@ -95,6 +96,7 @@ class JsonpInterceptorModule {}
     ProfileDetailsComponent,
     P2pButtonComponent,
     P2pChatComponent,
+    PredefinedMessagesComponent,
   ],
   imports: [
     BrowserModule,

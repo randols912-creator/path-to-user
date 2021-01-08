@@ -4,14 +4,14 @@ import {
   ChatAdapter,
   IChatParticipant,
   Message,
-  ParticipantResponse
+  ParticipantResponse,
 } from 'ng-chat';
 import { Socket } from 'ngx-socket-io';
 import { Observable, of } from 'rxjs';
 import {
   FETCH_CHATS_URL,
   FETCH_USERS_URL,
-  SEARCH_USERS_URL
+  SEARCH_USERS_URL,
 } from '../app.constants';
 import { AuthService } from '../auth/auth.service';
 import Path from '../model/Path';
@@ -41,6 +41,7 @@ interface UserPaths {
 })
 export class P2pService extends ChatAdapter {
   activeChatUser: IChatParticipant;
+  isNewChat: boolean;
 
   private userSearchIntervalId: NodeJS.Timeout;
   private userConnections: IUsersConnections = {};
@@ -151,6 +152,7 @@ export class P2pService extends ChatAdapter {
     return new Observable((observer) => {
       this.fetchChat(destinataryId).subscribe(({ chats: [resp] }) => {
         const { messages } = resp;
+        this.isNewChat = messages.length === 0;
         observer.next(messages);
       });
     });
