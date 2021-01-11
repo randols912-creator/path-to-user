@@ -380,8 +380,8 @@ class ChatsSIO:
             cm = ChatManager(database)
             my_profile = await pm.cache()
             chat = await cm.get_chat_by_profiles(my_profile['id'], data['chatmate_id'])
-            await cm.save_message(chat, my_profile['id'], data['message'])
             await sio.emit('message', data, room=chat['id'], skip_sid=sid)
+            await cm.save_message(chat, my_profile['id'], data['message'])
 
     @staticmethod
     @sio.event
