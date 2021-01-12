@@ -220,9 +220,9 @@ class PathView(HTTPMethodView):
                 if user.id == my_profile['id']:
                     continue
                 # Start search in both directions because we'll need both paths to present it to both
-                # users and get "named" relationship which is not symmetric
-                for src,tgt in [(my_profile['id'], user.id),
-                                (user.id, my_profile['id'])]:
+                # users and get "named" relationship which is not symmetric.
+                # FIXME: Geni doesn't let to search in the reverse direction, searching only one direction
+                for src,tgt in [(my_profile['id'], user.id)]:
                     # TODO
                     if await path_mgr.get(src, tgt):
                          logger.debug(f"Users path {src} -> {tgt} already exists - skipping")
@@ -352,7 +352,7 @@ class ChatsSIO:
     @staticmethod
     @sio.event
     async def connect(sid, environ):
-        logger.debug(f'ChatsSIO::connected {sid}')
+        logger.info(f'ChatsSIO::connected {sid}')
 
     @staticmethod
     @sio.event
@@ -366,6 +366,7 @@ class ChatsSIO:
 
             ChatsSIO.profile2sid[my_profile['id']] = sid
 
+            logger.info(f'ChatsSIO::init {my_profile["id"]}')
             async for chat in ChatManager(database).iterate_chats(my_profile['id']):
                 sio.enter_room(sid, chat['id'])
 
@@ -380,6 +381,7 @@ class ChatsSIO:
             cm = ChatManager(database)
             my_profile = await pm.cache()
             chat = await cm.get_chat_by_profiles(my_profile['id'], data['chatmate_id'])
+            logger.info(f'ChatsSIO::message from {my_profile["id"]} to {data["chatmate_id"]}')
             await sio.emit('message', data, room=chat['id'], skip_sid=sid)
             await cm.save_message(chat, my_profile['id'], data['message'])
 
@@ -400,7 +402,7 @@ class ChatsSIO:
     @staticmethod
     @sio.event
     def disconnect(sid):
-        logger.debug(f'ChatsSIO::disconnected {sid}')
+        logger.info(f'ChatsSIO::disconnected {sid}')
         profile_id = ChatsSIO.sid2profile.get(sid)
         if profile_id:
             del ChatsSIO.sid2profile[sid]
