@@ -1,6 +1,6 @@
 aiohttp==3.6.2
-aiomysql==0.0.20
-databases==0.3.2
+aiomysql==0.0.21
+databases==0.4.1
 Jinja2==2.11.2
 mysqlclient==2.0.1
 python-dotenv==0.14.0
