@@ -3,7 +3,7 @@ from sanic.log import logger
 from api.geni import GeniClientAsync
 from api.profile import ProfileManager
 from api.models import CURRENT_TIMESTAMP, paths_table, profiles_table
-from sqlalchemy import and_, select, join
+from sqlalchemy import and_, select, join, func
 from databases import Database
 from asyncio import Queue
 
@@ -86,7 +86,15 @@ class PathManager:
 
 
     async def count_paths(self, source_id: str, connected_only=True, user2user=False):
-        return len(await self.get_paths(source_id, 0, 0, connected_only, ready_only=True, user2user=user2user))
+        step_count_cond = (paths_table.c.step_count >
+                           0) if connected_only else True
+        query = select([func.count()]).where(
+            and_(paths_table.c.source_id == source_id,
+                 paths_table.c.is_user2user == user2user,
+                 step_count_cond)
+        )
+        count = await self.database.fetch_one(query=query)
+        return count[0]
 
     async def _save_profile(self, profile):
         query = profiles_table.select().where(profiles_table.c.id==profile['id'])
