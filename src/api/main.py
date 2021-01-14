@@ -11,7 +11,7 @@ from sanic.request import Request
 from sanic.views import HTTPMethodView
 from sanic.exceptions import abort
 from sanic_openapi import doc, swagger_blueprint, api as sanic_api
-from jinja2 import Environment, PackageLoader, select_autoescape
+from collections import defaultdict
 from databases import Database
 from sqlalchemy import create_engine, and_
 
@@ -337,7 +337,16 @@ class ChatView(HTTPMethodView):
             # If chatmate id is given, find specific chat. Otherwise return all chats of
             # the current user
             if chatmate_id:
-                chats = [await cm.get_chat_by_profiles(my_profile['id'], chatmate_id)]
+                chat = await cm.get_chat_by_profiles(my_profile['id'], chatmate_id)
+                # Create chat if doesn't exist
+                if not chat:
+                    chatmate_profile = await pm.get(chatmate_id)
+                    if chatmate_profile:
+                        await cm.save_new_chat(my_profile['id'], chatmate_id)
+                        chat = await cm.get_chat_by_profiles(my_profile['id'], chatmate_id)
+                    else:
+                        logger.warning("Trying to create chat for current user {my_profile['id']} with non-existent profile {chatmate_id}")
+                chats = [chat] if chat else []
             else:
                 chats = await cm.fetch_chats(my_profile['id'])
         return json({"chats": [dict(c) for c in chats]}, escape_forward_slashes=False)
@@ -346,7 +355,7 @@ class ChatView(HTTPMethodView):
 
 class ChatsSIO:
 
-    profile2sid = dict()
+    profile2sid = defaultdict(set) # user might have multiple connections from different devices
     sid2profile = dict()
 
     @staticmethod
@@ -364,7 +373,7 @@ class ChatsSIO:
             pm = ProfileManager(database, geni, token)
             my_profile = await pm.cache()
 
-            ChatsSIO.profile2sid[my_profile['id']] = sid
+            ChatsSIO.profile2sid[my_profile['id']].add(sid)
 
             logger.info(f'ChatsSIO::init {my_profile["id"]}')
             async for chat in ChatManager(database).iterate_chats(my_profile['id']):
@@ -406,7 +415,10 @@ class ChatsSIO:
         profile_id = ChatsSIO.sid2profile.get(sid)
         if profile_id:
             del ChatsSIO.sid2profile[sid]
-            del ChatsSIO.profile2sid[profile_id]
+            # Remove sid from set of current profile connections. If set becomes empty, remove it altogether
+            ChatsSIO.profile2sid[profile_id].remove(sid)
+            if len(ChatsSIO.profile2sid[profile_id]) == 0:
+                del ChatsSIO.profile2sid[profile_id]
 
     @staticmethod
     async def user2user_result_listener():
@@ -421,8 +433,7 @@ class ChatsSIO:
                 chat_id = await cm.save_new_chat(path_dict['source_id'], path_dict['target_id'])
                 # Bring chatmates into the new chat room (if they are online)
                 for profile_id in (path_dict['source_id'], path_dict['target_id']):
-                    sid = ChatsSIO.profile2sid.get(profile_id)
-                    if sid:
+                    for sid in ChatsSIO.profile2sid[profile_id]:
                         sio.enter_room(sid, chat_id)
                 # Notify both users about new path
                 await sio.emit('user2user_path', {'profile_id1': path_dict['source_id'],
