@@ -41,14 +41,20 @@ class ProfileManager:
         await self.database.execute(query)
 
     async def cache(self, profile_id=None):
-        # TODO: check if token has expired
-        if self.token in self.TOKEN_TO_PROFILE: return self.TOKEN_TO_PROFILE[self.token]
-        profile, self.token = await self.geni.get_profile_details(self.token)
-        self.TOKEN_TO_PROFILE[self.token] = profile
-        # Update last active field
-        update = {"last_active_on": datetime.datetime.now()}
-        query = profiles_table.update().where(profiles_table.c.id == profile['id']).values(update)
-        await self.database.execute(query)
+        # Check if token is still in cache
+        if self.token in self.TOKEN_TO_PROFILE:
+            profile =  self.TOKEN_TO_PROFILE[self.token]
+            update_active = datetime.datetime.now() - profile['cached_at'] > datetime.timedelta(minutes=5)
+        else:
+            profile, self.token = await self.geni.get_profile_details(self.token)
+            profile['cached_at'] = datetime.datetime.now()
+            self.TOKEN_TO_PROFILE[self.token] = profile
+            update_active = True
+        # Update last active field (if needed)
+        if update_active:
+            update = {"last_active_on": datetime.datetime.now()}
+            query = profiles_table.update().where(profiles_table.c.id == profile['id']).values(update)
+            await self.database.execute(query)
 
         return profile
 
