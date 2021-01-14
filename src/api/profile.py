@@ -43,12 +43,11 @@ class ProfileManager:
     async def cache(self, profile_id=None):
         # Check if token is still in cache
         if self.token in self.TOKEN_TO_PROFILE:
-            profile =  self.TOKEN_TO_PROFILE[self.token]
-            update_active = datetime.datetime.now() - profile['cached_at'] > datetime.timedelta(minutes=5)
+            profile,cached_at =  self.TOKEN_TO_PROFILE[self.token]
+            update_active = datetime.datetime.now() - cached_at > datetime.timedelta(minutes=5)
         else:
             profile, self.token = await self.geni.get_profile_details(self.token)
-            profile['cached_at'] = datetime.datetime.now()
-            self.TOKEN_TO_PROFILE[self.token] = profile
+            self.TOKEN_TO_PROFILE[self.token] = profile,datetime.datetime.now()
             update_active = True
         # Update last active field (if needed)
         if update_active:
