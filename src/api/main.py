@@ -191,7 +191,7 @@ class PathView(HTTPMethodView):
             # Enqueue tasks for finding paths to all personalities
             async for personality in pm.iterate_personalities():
                 task_priority = random.randint(1, profiles_count)
-                await task_queue.put(
+                await app.task_queue.put(
                     Task({"source_id": my_profile['id'],
                           "target_id": personality.id,
                           "token": token},
@@ -229,7 +229,7 @@ class PathView(HTTPMethodView):
                          continue
                     # Task priority will be lower than personalities search
                     task_priority = random.randint(personalities_count, personalities_count + users_count)
-                    await task_queue.put(
+                    await app.task_queue.put(
                         Task({"source_id": src,
                               "target_id": tgt,
                               "token": token},
@@ -425,7 +425,7 @@ class ChatsSIO:
         logger.info(f"Starting user2user listener")
 
         while True:
-            path_dict = await user2user_result_queue.get()
+            path_dict = await app.user2user_result_queue.get()
 
             async with Database(db_url) as database:
                 cm = ChatManager(database)
@@ -446,40 +446,24 @@ Utils.add_blueprint(app, bp_profiles, ProfileView)
 Utils.add_blueprint(app, bp_paths, PathView)
 Utils.add_blueprint(app, bp_chats, ChatView)
 
-if __name__ == "__main__":
+@app.listener('after_server_start')
+def setup_workers(app, loop):
     from api.path import path_finder_async
-    import asyncio
 
     process_quantity = int(os.environ.get('PROCESS_QUANTITY',
                                           sys.argv[1] if len(sys.argv) > 1 else 0))
     quantity = process_quantity if process_quantity else cpu_count()*2+1
 
-    loop = asyncio.get_event_loop()
-    task_queue = PriorityQueue()
-    user2user_result_queue = Queue()
+    app.task_queue = PriorityQueue(loop=loop)
+    app.user2user_result_queue = Queue(loop=loop)
     # Create concurrent tasks (workers)
     for counter in range(quantity):
-        app.add_task(path_finder_async(counter, task_queue, user2user_result_queue, db_url, geni))
+        app.add_task(path_finder_async(counter, app.task_queue, app.user2user_result_queue, db_url, geni))
     # Create concurrent task for u2u results listener
     app.add_task(ChatsSIO.user2user_result_listener())
 
-    # Create Sanic server
-    srv_coro = app.create_server(
-        port=int(os.environ.get('PORT', 4200)),
+if __name__ == "__main__":
+    app.run( port=int(os.environ.get('PORT', 4200)),
         host=os.environ.get('HOST', "127.0.0.1"),
         debug=False,
-        return_asyncio_server=True,
-        asyncio_server_kwargs=dict(
-            start_serving=False
-        )
-    )
-    # Run Sanic server and path workers as concurrent tasks
-    srv = loop.run_until_complete(srv_coro)
-    try:
-        assert srv.is_serving() is False
-        loop.run_until_complete(srv.start_serving())
-        assert srv.is_serving() is True
-        loop.run_until_complete(asyncio.gather(srv.serve_forever()))
-    except KeyboardInterrupt:
-        srv.close()
-        loop.close()
+        workers=cpu_count())
