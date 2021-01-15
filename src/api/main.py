@@ -39,7 +39,10 @@ sio.attach(app)
 
 from api.utils import Utils
 from api.models import metadata, paths_table, profiles_table
-from api.geni import GeniClientAsync
+if os.getenv("GENI_MOCK"):
+    from api.mock.geni import GeniClientAsync
+else:
+    from api.geni import GeniClientAsync
 from api.path import PathManager, Task
 from api.profile import ProfileManager
 from api.chat import ChatManager
