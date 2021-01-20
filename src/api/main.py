@@ -18,6 +18,8 @@ from sqlalchemy import create_engine, and_
 from multiprocessing import cpu_count
 from asyncio import PriorityQueue, Queue
 
+from utils import Timer
+timer = Timer("main", logging.DEBUG)
 import random
 
 import socketio
@@ -194,7 +196,7 @@ class PathView(HTTPMethodView):
                       "target_id": personality.id,
                       "token": token},
                       task_priority))
-        return json({"status": "Started paths search"})
+        return json({"status": "Started personalities paths search for profile {my_profile['id']}"})
 
     @staticmethod
     @bp_paths.post("/users")
@@ -231,7 +233,7 @@ class PathView(HTTPMethodView):
                           "target_id": tgt,
                           "token": token},
                          task_priority))
-        return json({"status": "Started users paths search"})
+        return json({"status": "Started users paths search for profile {my_profile['id']}"})
 
 
     @staticmethod
@@ -252,14 +254,22 @@ class PathView(HTTPMethodView):
 
     @staticmethod
     async def _get_paths(request, user2user):
+        timer.start("PathView:get_paths")
+        timer.start("PathView:get_paths:validate_token")
         token = await Token.validate(request.headers.get(TOKEN_PARAM))
+        timer.stop("PathView:get_paths:validate_token")
         offset = request.args.get('offset', 0)
         limit = request.args.get('limit', 50)
 
         pm = ProfileManager(database, geni, token)
+        timer.start("PathView:get_paths:cache")
         my_profile = await pm.cache()
+        timer.stop("PathView:get_paths:cache")
         logger.debug(my_profile)
+        timer.start("PathView:get_paths:query")
         paths = await PathManager(database, geni, token).get_paths(my_profile['id'], offset, limit, user2user=user2user)
+        timer.stop("PathView:get_paths:query")
+        timer.stop("PathView:get_paths")
         return json({"paths": [dict(p) for p in paths]}, escape_forward_slashes=False)
 
     @staticmethod
@@ -446,6 +456,7 @@ def setup_workers(app, loop):
 
     app.task_queue = PriorityQueue(loop=loop)
     app.user2user_result_queue = Queue(loop=loop)
+
     # Create concurrent tasks (workers)
     for counter in range(quantity):
         app.add_task(path_finder_async(counter, app.task_queue, app.user2user_result_queue, db_url, geni))
@@ -461,7 +472,9 @@ async def close_db(app, loop):
     await database.disconnect()
     
 if __name__ == "__main__":
+    worker_quantity = int(os.environ.get('WORKER_QUANTITY',cpu_count()))
+
     app.run( port=int(os.environ.get('PORT', 4200)),
         host=os.environ.get('HOST', "127.0.0.1"),
         debug=False,
-        workers=cpu_count())
+        workers=worker_quantity)

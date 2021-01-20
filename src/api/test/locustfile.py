@@ -6,6 +6,7 @@ from locust import constant, task
 from locust.contrib.fasthttp import FastHttpUser
 
 URLS = {
+    'geni': '/api/v1/profiles/geni',
     'paths': '/api/v1/paths/personalities',
     'paths_count': '/api/v1/paths/personalities/count',
     'profiles_count': '/api/v1/profiles/count'
@@ -14,12 +15,17 @@ URLS = {
 
 class GeniTestUser(FastHttpUser):
     wait_time = constant(1)
+    counter = 1000
 
     @task
     def new_profile_setup(self):
-        from uuid import uuid4
-
-        token = str(uuid4())
+        #from uuid import uuid4
+        #token = random.#str(uuid4())
+        token = f"token-{GeniTestUser.counter}"
+        GeniTestUser.counter += 1
+        # Init/cache current user's geni profile
+        self.client.get(URLS['geni'],
+                                  headers={'authorization': token}).json()
 
         fetched_relations = set()
 
@@ -33,7 +39,7 @@ class GeniTestUser(FastHttpUser):
         logging.info('Interval fetch enabled')
 
         while len(fetched_relations) < paths_count or total_paths_count < profiles_count:
-            time.sleep(1)
+            time.sleep(5)
 
             paths, paths_count, profiles_count, total_paths_count = self._perform_cycle_requests(
                 token,

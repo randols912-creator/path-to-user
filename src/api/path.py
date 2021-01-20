@@ -5,7 +5,7 @@ from api.profile import ProfileManager
 from api.models import CURRENT_TIMESTAMP, paths_table, profiles_table
 from sqlalchemy import and_, select, join, func
 from databases import Database
-from asyncio import Queue
+from asyncio import Queue, sleep as asyncio_sleep
 
 PENDING_TIMEOUT = int(os.environ.get('PENDING_TIMEOUT', 2))
 
@@ -36,7 +36,7 @@ class PathManager:
         # Call Geni API to find path between source and target profiles
         result, self.token = await self.geni.get_path_to(source_id, target_id, self.token)
 
-        logger.info("[{}] Status for {} -> {}".format(os.getpid(), target_id, result.get('status')))
+        logger.debug("[{}] Status for {} -> {}".format(os.getpid(), target_id, result.get('status')))
         # Save resulted path (or its pending status) to DB
         pending = result.get('status') == 'pending' or result['is_success'] == False
         # Pending can be changed by timeout during save
@@ -149,8 +149,11 @@ class PathManager:
                 return False
         return True
 
+import random
+
 async def path_finder_async(number, queue, user2user_result_queue, db_url, geni):
     logger.info(f"Starting process: {number}")
+    cycles = 0
     async with Database(db_url) as database:
         while True:
             task: Task = await queue.get()
@@ -160,7 +163,11 @@ async def path_finder_async(number, queue, user2user_result_queue, db_url, geni)
             pending = await pm.find(source_id, target_id)
             if pending:
                 await queue.put(task)
-
+            cycles += 1
+            if random.choices([False, True], weights=[25, 1])[0]:
+                logger.info(
+                    f"W{os.getpid()}:P{number}, priority: {task.priority}, source_id: {source_id}")
+                logger.info(f"Cycles: {cycles}, Queue size: {queue.qsize()}")
 
 def _is_pending_timeout(path):
     is_pending_timeout = (
