@@ -25,6 +25,15 @@ class GeniClientAsync:
 
         return result, token
 
+    async def get_batch_path_to(self, task_list):
+        requests = []
+        for task in task_list:
+            requests.append(self.get_path_to(task.data['source_id'],
+                                             task.data['target_id'],
+                                             task.data['token']))
+        status_list = await asyncio.gather(*requests)
+        return status_list
+
     async def get_personalities_profiles(self, token, next_page_url=None):
         pass
 
