@@ -6,8 +6,11 @@ from api.models import CURRENT_TIMESTAMP, paths_table, profiles_table
 from sqlalchemy import and_, select, join, func
 from databases import Database
 from asyncio import Queue, sleep as asyncio_sleep
+import datetime
+import random
 
 PENDING_TIMEOUT = int(os.environ.get('PENDING_TIMEOUT', 2))
+PATH_FIND_BATCH = int(os.environ.get('PATH_FIND_BATCH', 10))
 
 class Task:
     def __init__(self, data: dict, priority: int) -> None:
@@ -43,6 +46,19 @@ class PathManager:
         pending = await self._save_path(source_id, target_id, result, pending=pending)
 
         return pending
+
+    async def find_batch(self, task_list):
+
+        # First, save source profile to DB (if not saved yet). TODO: save outside of PathFinder
+        # self._save_profile(session, self.source_profile)
+        # Call Geni API to find path between source and target profiles
+        results = await self.geni.get_batch_path_to(task_list)
+
+        logger.debug("[{}] Status for {} -> {}".format(os.getpid(), task_list, results))
+        # Pending can be changed by timeout during save
+        pending_list = await self._save_path_batch(task_list, results)
+        return pending_list
+
 
     async def get(self, source_id: str, target_id: str):
         query = paths_table.select().where(
@@ -120,7 +136,7 @@ class PathManager:
         logger.debug("values: ", values)
 
         # Checking pending timeout
-        if path and pending and _is_pending_timeout(path):
+        if path and pending and self._is_pending_timeout(path):
             pending = False
 
         if not pending:
@@ -142,6 +158,44 @@ class PathManager:
 
         return pending
 
+    async def _save_path_batch(self, task_list, result_list):
+        values_list = []
+        pending_task_list = []
+        for task,(result,token) in zip(task_list, result_list):
+            source_id,target_id,is_user2user,pending_ts,token = task.data.values()
+            # Calculate pending status
+            pending = (result.get('status') == 'pending' or result['is_success'] == False) \
+                      and not self._is_pending_timeout(pending_ts)
+            if pending:
+                if not task.data.get('pending_ts'):
+                    task.data['pending_ts'] = datetime.datetime.now()
+                pending_task_list.append(task)
+                continue
+
+            values = {
+                'source_id': source_id,
+                'target_id': target_id,
+                'is_user2user': is_user2user,
+                'url': result.get('url', ''),
+                'step_count': result.get('step_count', 0),
+                'relationship': result.get('relationship', ''),
+                'relations': result.get('relations', ''),
+                'updated_on': CURRENT_TIMESTAMP,
+                'finished_on': CURRENT_TIMESTAMP
+            }
+            logger.debug("values: ", values)
+            values_list.append(values)
+
+            # Communicate found user2user connection via the queue to the main task
+            if values['step_count'] > 0 and values['is_user2user'] and self.user2user_result_queue:
+                await self.user2user_result_queue.put(values)
+
+        query = paths_table.insert()
+        logger.debug(query)
+        await self.database.execute_many(query, values_list)
+
+        return pending_task_list
+
     async def is_user2user(self, source_id, target_id):
         for profile_id in [target_id, source_id]:  # target id is usually personality id, so start with it
             profile = await self.profile_mgr.get(profile_id)
@@ -149,31 +203,31 @@ class PathManager:
                 return False
         return True
 
-import random
+    @staticmethod
+    def _is_pending_timeout(timestamp):
+        if not timestamp: return False
+        is_pending_timeout = (datetime.datetime.now() - timestamp).total_seconds() / 60 > PENDING_TIMEOUT
+        return is_pending_timeout
+
 
 async def path_finder_async(number, queue, user2user_result_queue, db_url, geni):
     logger.info(f"Starting process: {number}")
     cycles = 0
     async with Database(db_url) as database:
         while True:
-            task: Task = await queue.get()
+            priority,task_or_list = await queue.get()
+            if isinstance(task_or_list, Task):
+                task_or_list = [task_or_list]
+
             # since values insertion ordered
-            source_id, target_id, token = task.data.values()
-            pm = PathManager(database, geni, token, user2user_result_queue)
-            pending = await pm.find(source_id, target_id)
-            if pending:
-                await queue.put(task)
-            cycles += 1
+            pm = PathManager(database, geni, None, user2user_result_queue)
+            pending_list = await pm.find_batch(task_or_list)
+            if pending_list:
+                await queue.put((priority+10, pending_list))
+
+            cycles += len(task_or_list)
             if random.choices([False, True], weights=[25, 1])[0]:
                 logger.info(
-                    f"W{os.getpid()}:P{number}, priority: {task.priority}, source_id: {source_id}")
+                    f"W{os.getpid()}:P{number}, priority: {priority}, source_id: {task_or_list[0].data['source_id']}")
                 logger.info(f"Cycles: {cycles}, Queue size: {queue.qsize()}")
 
-def _is_pending_timeout(path):
-    is_pending_timeout = (
-        path.updated_on - path.created_on).total_seconds() / 60 > PENDING_TIMEOUT
-
-    if is_pending_timeout:
-        logger.info(f'Stopped search for path {path}! Took more than {PENDING_TIMEOUT} minutes.')
-
-    return is_pending_timeout

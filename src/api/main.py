@@ -45,7 +45,7 @@ if os.getenv("GENI_MOCK"):
     from api.mock.geni import GeniClientAsync
 else:
     from api.geni import GeniClientAsync
-from api.path import PathManager, Task
+from api.path import PathManager, Task, PATH_FIND_BATCH
 from api.profile import ProfileManager
 from api.chat import ChatManager
 # Enabling async template execution which allows you to take advantage
@@ -64,7 +64,6 @@ geni = GeniClientAsync()
 bp_profiles = Utils.create_blueprint("profiles")
 bp_paths = Utils.create_blueprint("paths")
 bp_chats = Utils.create_blueprint("chats")
-
 
 class Pagination:
     offset = doc.Integer()
@@ -92,6 +91,14 @@ class Token:
         return token
 
 class ProfileView(HTTPMethodView):
+    PERSONALITIES = []
+
+    @staticmethod
+    async def load_personalities():
+        if not ProfileView.PERSONALITIES:
+            logger.info("Pre-loading personalities from DB")
+            ProfileView.PERSONALITIES = await ProfileManager(database, geni, None).load_personalities()
+
     @bp_profiles.get("/cache")
     @doc.consumes(Token, location='headers')
     @doc.summary("Cache personality profiles from Geni")
@@ -122,9 +129,10 @@ class ProfileView(HTTPMethodView):
         token = await Token.validate(request.headers.get(TOKEN_PARAM))
         type = request.args.get('id')
         is_user = (type == 'user')
+        # Count personalities from cache
+        count = len(ProfileView.PERSONALITIES) if not is_user else await ProfileManager(database, geni, token).count(is_user)[0]
 
-        count = await ProfileManager(database, geni, token).count(is_user)
-        return json({"count": count[0]})
+        return json({"count": count})
 
     @staticmethod
     @bp_profiles.get("/geni")
@@ -186,16 +194,30 @@ class PathView(HTTPMethodView):
     async def post_search_personalities(request):
         token = await Token.validate(request.headers.get(TOKEN_PARAM))
         pm = ProfileManager(database, geni, token)
+        path_mgr = PathManager(database, geni, token)
+
         my_profile = await pm.cache()
         [profiles_count] = await pm.count(is_user=False)
         # Enqueue tasks for finding paths to all personalities
-        async for personality in pm.iterate_personalities():
+        batch = []
+        for personality in ProfileView.PERSONALITIES:
+            src,tgt = my_profile['id'],personality.id
+            if await path_mgr.get(src, tgt):
+                logger.debug(f"Personality path {src} -> {tgt} already exists - skipping")
+                continue
             task_priority = random.randint(1, profiles_count)
-            await app.task_queue.put(
-                Task({"source_id": my_profile['id'],
-                      "target_id": personality.id,
+            batch.append(Task({"source_id": src,
+                      "target_id": tgt,
+                      "is_user2user": False,
+                      "pending_ts": None,  # the first time the path became pending
                       "token": token},
                       task_priority))
+            if len(batch) >= PATH_FIND_BATCH:
+                await app.task_queue.put((random.randint(1, profiles_count), batch))
+                batch = []
+        # Last batch remainder
+        if len(batch):
+            await app.task_queue.put((random.randint(1, profiles_count), batch))
         return json({"status": "Started personalities paths search for profile {my_profile['id']}"})
 
     @staticmethod
@@ -221,18 +243,26 @@ class PathView(HTTPMethodView):
             # Start search in both directions because we'll need both paths to present it to both
             # users and get "named" relationship which is not symmetric.
             # FIXME: Geni doesn't let to search in the reverse direction, searching only one direction
+            batch = []
             for src,tgt in [(my_profile['id'], user.id)]:
                 # TODO
                 if await path_mgr.get(src, tgt):
                      logger.debug(f"Users path {src} -> {tgt} already exists - skipping")
                      continue
-                # Task priority will be lower than personalities search
-                task_priority = random.randint(personalities_count, personalities_count + users_count)
-                await app.task_queue.put(
-                    Task({"source_id": src,
-                          "target_id": tgt,
-                          "token": token},
-                         task_priority))
+                task_priority = random.randint(1, int(personalities_count/2))
+                batch.append(Task({"source_id": src,
+                                   "target_id": tgt,
+                                   "is_user2user": True,
+                                   "pending_ts": None,  # the first time the path became pending
+                                   "token": token},
+                                  task_priority))
+                if len(batch) >= PATH_FIND_BATCH:
+                    await app.task_queue.put((random.randint(1, int(personalities_count/2)), batch))
+                    batch = []
+            # Last batch remainder
+            if len(batch):
+                await app.task_queue.put((random.randint(1, int(personalities_count/2)), batch))
+
         return json({"status": "Started users paths search for profile {my_profile['id']}"})
 
 
@@ -456,6 +486,9 @@ def setup_workers(app, loop):
 
     app.task_queue = PriorityQueue(loop=loop)
     app.user2user_result_queue = Queue(loop=loop)
+
+    # One-time load personalities
+    app.add_task(ProfileView.load_personalities())
 
     # Create concurrent tasks (workers)
     for counter in range(quantity):

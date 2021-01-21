@@ -62,6 +62,12 @@ class ProfileManager:
         count = await self.database.fetch_one(query=query)
         return count
 
+    async def load_personalities(self):
+        personalities = []
+        async for personality in self.iterate_personalities():
+            personalities.append(personality)
+        return personalities
+
     async def iterate_personalities(self):
         query = profiles_table.select().where(profiles_table.c.is_user == False)
         async for row in self.database.iterate(query=query):
