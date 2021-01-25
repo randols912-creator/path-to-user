@@ -183,7 +183,6 @@ class PathManager:
                 'updated_on': CURRENT_TIMESTAMP,
                 'finished_on': CURRENT_TIMESTAMP
             }
-            logger.debug("values: ", values)
             values_list.append(values)
 
             # Communicate found user2user connection via the queue to the main task
@@ -192,7 +191,9 @@ class PathManager:
 
         query = paths_table.insert()
         logger.debug(query)
-        await self.database.execute_many(query, values_list)
+        logger.debug(f"values: {values_list}")
+        if values_list:
+            await self.database.execute_many(query, values_list)
 
         return pending_task_list
 
@@ -215,19 +216,22 @@ async def path_finder_async(number, queue, user2user_result_queue, db_url, geni)
     cycles = 0
     async with Database(db_url) as database:
         while True:
+            logger.info(f"Waiting for the next tasks")
             priority,task_or_list = await queue.get()
             if isinstance(task_or_list, Task):
                 task_or_list = [task_or_list]
+            logger.info(f"Received  {len(task_or_list)} tasks, queue size: {queue.qsize()}")
 
             # since values insertion ordered
             pm = PathManager(database, geni, None, user2user_result_queue)
             pending_list = await pm.find_batch(task_or_list)
             if pending_list:
                 await queue.put((priority+10, pending_list))
+                logger.error(f"Pending list size: {len(pending_list)}, queue size after adding pending: {queue.qsize()}")
 
             cycles += len(task_or_list)
-            if random.choices([False, True], weights=[25, 1])[0]:
-                logger.info(
+
+            logger.info(
                     f"W{os.getpid()}:P{number}, priority: {priority}, source_id: {task_or_list[0].data['source_id']}")
-                logger.info(f"Cycles: {cycles}, Queue size: {queue.qsize()}")
+            logger.info(f"Cycles: {cycles}, Queue size: {queue.qsize()}")
 

@@ -16,6 +16,7 @@ from databases import Database
 from sqlalchemy import create_engine, and_
 
 from multiprocessing import cpu_count
+import asyncio
 from asyncio import PriorityQueue, Queue
 
 from utils import Timer
@@ -96,8 +97,8 @@ class ProfileView(HTTPMethodView):
     @staticmethod
     async def load_personalities():
         if not ProfileView.PERSONALITIES:
-            logger.info("Pre-loading personalities from DB")
             ProfileView.PERSONALITIES = await ProfileManager(database, geni, None).load_personalities()
+            logger.info(f"Pre-loading personalities from DB: {len(ProfileView.PERSONALITIES)}")
 
     @bp_profiles.get("/cache")
     @doc.consumes(Token, location='headers')
@@ -193,6 +194,12 @@ class PathView(HTTPMethodView):
     @doc.summary("Initiate path search from current user to all personalities")
     async def post_search_personalities(request):
         token = await Token.validate(request.headers.get(TOKEN_PARAM))
+        asyncio.create_task(PathView._post_search_personalities(token))
+        logger.info(f"Started personalities paths search: {token}")
+        return json({"status": "Started personalities paths search"})
+
+    @staticmethod 
+    async def _post_search_personalities(token):
         pm = ProfileManager(database, geni, token)
         path_mgr = PathManager(database, geni, token)
 
@@ -200,6 +207,7 @@ class PathView(HTTPMethodView):
         [profiles_count] = await pm.count(is_user=False)
         # Enqueue tasks for finding paths to all personalities
         batch = []
+        count = 0
         for personality in ProfileView.PERSONALITIES:
             src,tgt = my_profile['id'],personality.id
             if await path_mgr.get(src, tgt):
@@ -214,11 +222,13 @@ class PathView(HTTPMethodView):
                       task_priority))
             if len(batch) >= PATH_FIND_BATCH:
                 await app.task_queue.put((random.randint(1, profiles_count), batch))
+                count += len(batch)
+                logger.info(f"Added to queue tasks of {count} profiles, queue size: {app.task_queue.qsize()}")
                 batch = []
         # Last batch remainder
         if len(batch):
             await app.task_queue.put((random.randint(1, profiles_count), batch))
-        return json({"status": "Started personalities paths search for profile {my_profile['id']}"})
+            logger.info(f"Added to queue tasks of {count} profiles, queue size: {app.task_queue.qsize()}")
 
     @staticmethod
     @bp_paths.post("/users")
@@ -350,10 +360,12 @@ class PathView(HTTPMethodView):
     async def _count_paths(request, user2user):
         token = await Token.validate(request.headers.get(TOKEN_PARAM))
         connected_only = str(request.args.get('connected_only', True)).lower() == 'true'
+
         pm = ProfileManager(database, geni, token)
         my_profile = await pm.cache()
         logger.debug(my_profile)
         count = await PathManager(database, geni, token).count_paths(my_profile['id'], connected_only, user2user=user2user)
+
         return json({"count": count}, escape_forward_slashes=False)
 
 class ChatView(HTTPMethodView):
