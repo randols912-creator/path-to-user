@@ -3,7 +3,7 @@ from sanic.log import logger
 from api.geni import GeniClientAsync
 from api.profile import ProfileManager
 from api.models import CURRENT_TIMESTAMP, paths_table, profiles_table
-from sqlalchemy import and_, select, join, func
+from sqlalchemy import and_, select, join, func, distinct
 from databases import Database
 from asyncio import Queue, sleep as asyncio_sleep
 import datetime
@@ -104,7 +104,7 @@ class PathManager:
     async def count_paths(self, source_id: str, connected_only=True, user2user=False):
         step_count_cond = (paths_table.c.step_count >
                            0) if connected_only else True
-        query = select([func.count()]).where(
+        query = select([func.count(distinct(paths_table.c.target_id))]).where(
             and_(paths_table.c.source_id == source_id,
                  paths_table.c.is_user2user == user2user,
                  step_count_cond)
@@ -223,8 +223,13 @@ async def path_finder_async(number, queue, user2user_result_queue, db_url, geni)
             logger.info(f"Received  {len(task_or_list)} tasks, queue size: {queue.qsize()}")
 
             # since values insertion ordered
-            pm = PathManager(database, geni, None, user2user_result_queue)
-            pending_list = await pm.find_batch(task_or_list)
+            try:
+                pm = PathManager(database, geni, None, user2user_result_queue)
+                pending_list = await pm.find_batch(task_or_list)
+            except:
+                # If any exception happened during processing, refer to all batch as 'pending'
+                pending_list = task_or_list
+            # Enqueue pending list
             if pending_list:
                 await queue.put((priority+10, pending_list))
                 logger.error(f"Pending list size: {len(pending_list)}, queue size after adding pending: {queue.qsize()}")
