@@ -22,12 +22,10 @@ class Task:
 
 
 class PathManager:
-    def __init__(self, database: Database, geni: GeniClientAsync, token: str,
-                 user2user_result_queue: Queue = None):
+    def __init__(self, database: Database, geni: GeniClientAsync, token: str):
         self.geni = geni
         self.database = database
         self.token = token
-        self.user2user_result_queue = user2user_result_queue
 
         self.profile_mgr = ProfileManager(database, geni, token)
         # self.source_profile, self.token = geni.get_profile_details(token)
@@ -56,8 +54,8 @@ class PathManager:
 
         logger.debug("[{}] Status for {} -> {}".format(os.getpid(), task_list, results))
         # Pending can be changed by timeout during save
-        pending_list = await self._save_path_batch(task_list, results)
-        return pending_list
+        u2u_list,pending_list = await self._save_path_batch(task_list, results)
+        return u2u_list,pending_list
 
 
     async def get(self, source_id: str, target_id: str):
@@ -161,6 +159,7 @@ class PathManager:
     async def _save_path_batch(self, task_list, result_list):
         values_list = []
         pending_task_list = []
+        user2user_list = []
         for task,(result,token) in zip(task_list, result_list):
             source_id,target_id,is_user2user,pending_ts,token = task.data.values()
             # Calculate pending status
@@ -185,9 +184,9 @@ class PathManager:
             }
             values_list.append(values)
 
-            # Communicate found user2user connection via the queue to the main task
-            if values['step_count'] > 0 and values['is_user2user'] and self.user2user_result_queue:
-                await self.user2user_result_queue.put(values)
+            # Communicate found user2user connection
+            if values['step_count'] > 0 and values['is_user2user']:
+                user2user_list.append(values)
 
         query = paths_table.insert()
         logger.debug(query)
@@ -195,7 +194,7 @@ class PathManager:
         if values_list:
             await self.database.execute_many(query, values_list)
 
-        return pending_task_list
+        return user2user_list,pending_task_list
 
     async def is_user2user(self, source_id, target_id):
         for profile_id in [target_id, source_id]:  # target id is usually personality id, so start with it
@@ -224,8 +223,11 @@ async def path_finder_async(number, queue, user2user_result_queue, db_url, geni)
 
             # since values insertion ordered
             try:
-                pm = PathManager(database, geni, None, user2user_result_queue)
-                pending_list = await pm.find_batch(task_or_list)
+                pm = PathManager(database, geni, None)
+                u2u_list,pending_list = await pm.find_batch(task_or_list)
+                # Communicate found user2user connection via the queue to the main task
+                for u2u in u2u_list:
+                    await user2user_result_queue.put(u2u)
             except:
                 # If any exception happened during processing, refer to all batch as 'pending'
                 pending_list = task_or_list
