@@ -19,7 +19,7 @@ from multiprocessing import cpu_count
 import asyncio
 from asyncio import PriorityQueue, Queue
 
-from utils import Timer
+from api.utils import Timer
 timer = Timer("main", logging.DEBUG)
 import random
 
@@ -40,6 +40,7 @@ app.config['CORS_SUPPORTS_CREDENTIALS'] = True
 sio = socketio.AsyncServer(async_mode='sanic', cors_allowed_origins=[])
 sio.attach(app)
 
+from bh import BHData
 from api.utils import Utils
 from api.models import metadata, paths_table, profiles_table
 if os.getenv("GENI_MOCK"):
@@ -61,6 +62,8 @@ metadata.create_all(engine)
 database = Database(db_url)
 
 geni = GeniClientAsync()
+
+bh_data = BHData()
 
 bp_profiles = Utils.create_blueprint("profiles")
 bp_paths = Utils.create_blueprint("paths")
