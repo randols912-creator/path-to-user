@@ -225,14 +225,17 @@ class PathView(HTTPMethodView):
                       "token": token},
                       task_priority))
             if len(batch) >= PATH_FIND_BATCH:
-                await app.task_queue.put((random.randint(1, max_priority), batch))
+                q_index = random.randint(0, len(app.task_queue)-1)
+                await app.task_queue[q_index].put((random.randint(1, max_priority), batch))
+
                 count += len(batch)
-                logger.info(f"Added to queue tasks of {count} profiles, queue size: {app.task_queue.qsize()}")
+                logger.info(f"Added to queue tasks of {count} profiles, queue size: {app.task_queue[q_index].qsize()}")
                 batch = []
         # Last batch remainder
         if len(batch):
-            await app.task_queue.put((random.randint(1, max_priority), batch))
-            logger.info(f"Added to queue tasks of {count} profiles, queue size: {app.task_queue.qsize()}")
+            q_index = random.randint(0, len(app.task_queue)-1)
+            await app.task_queue[q_index].put((random.randint(1, max_priority), batch))
+            logger.info(f"Added to queue tasks of {count} profiles, queue size: {app.task_queue[q_index].qsize()}")
 
     @staticmethod
     @bp_paths.post("/users")
@@ -271,11 +274,13 @@ class PathView(HTTPMethodView):
                                    "token": token},
                                   task_priority))
                 if len(batch) >= PATH_FIND_BATCH:
-                    await app.task_queue.put((random.randint(1, int(personalities_count/2)), batch))
+                    q_index = random.randint(0, len(app.task_queue)-1)
+                    await app.task_queue[q_index].put((random.randint(1, int(personalities_count/2)), batch))
                     batch = []
             # Last batch remainder
             if len(batch):
-                await app.task_queue.put((random.randint(1, int(personalities_count/2)), batch))
+                q_index = random.randint(0, len(app.task_queue)-1)
+                await app.task_queue[q_index].put((random.randint(1, int(personalities_count/2)), batch))
 
         return json({"status": "Started users paths search for profile {my_profile['id']}"})
 
@@ -500,7 +505,7 @@ def setup_workers(app, loop):
                                           sys.argv[1] if len(sys.argv) > 1 else 0))
     quantity = process_quantity if process_quantity else cpu_count()*2+1
 
-    app.task_queue = PriorityQueue(loop=loop)
+    app.task_queue = [PriorityQueue(loop=loop)] * quantity
     app.user2user_result_queue = Queue(loop=loop)
 
     # One-time load personalities
@@ -508,7 +513,7 @@ def setup_workers(app, loop):
 
     # Create concurrent tasks (workers)
     for counter in range(quantity):
-        app.add_task(path_finder_async(counter, app.task_queue, app.user2user_result_queue, db_url, geni))
+        app.add_task(path_finder_async(counter, app.task_queue[counter], app.user2user_result_queue, db_url, geni))
     # Create concurrent task for u2u results listener
     app.add_task(ChatsSIO.user2user_result_listener())
 
