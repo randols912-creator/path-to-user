@@ -40,7 +40,7 @@ app.config['CORS_SUPPORTS_CREDENTIALS'] = True
 sio = socketio.AsyncServer(async_mode='sanic', cors_allowed_origins=[])
 sio.attach(app)
 
-from bh import BHData
+from api.bh import BHData
 from api.utils import Utils
 from api.models import metadata, paths_table, profiles_table
 if os.getenv("GENI_MOCK"):
@@ -209,6 +209,7 @@ class PathView(HTTPMethodView):
         my_profile = await pm.cache()
         [profiles_count] = await pm.count(is_user=False)
         # Enqueue tasks for finding paths to all personalities
+        max_priority = int(profiles_count/PATH_FIND_BATCH)
         batch = []
         count = 0
         for personality in ProfileView.PERSONALITIES:
@@ -224,13 +225,13 @@ class PathView(HTTPMethodView):
                       "token": token},
                       task_priority))
             if len(batch) >= PATH_FIND_BATCH:
-                await app.task_queue.put((random.randint(1, profiles_count), batch))
+                await app.task_queue.put((random.randint(1, max_priority), batch))
                 count += len(batch)
                 logger.info(f"Added to queue tasks of {count} profiles, queue size: {app.task_queue.qsize()}")
                 batch = []
         # Last batch remainder
         if len(batch):
-            await app.task_queue.put((random.randint(1, profiles_count), batch))
+            await app.task_queue.put((random.randint(1, max_priority), batch))
             logger.info(f"Added to queue tasks of {count} profiles, queue size: {app.task_queue.qsize()}")
 
     @staticmethod
