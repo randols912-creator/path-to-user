@@ -19,6 +19,7 @@
   padding: 35px 0 0;
   position: relative;
   border-radius: 14px;
+  overflow-y: scroll;
 }
 
 .app-modal__content > div {

@@ -9,7 +9,7 @@ from asyncio import Queue, sleep as asyncio_sleep
 import datetime
 import random
 
-PENDING_TIMEOUT = int(os.environ.get('PENDING_TIMEOUT', 1))
+PENDING_TIMEOUT = int(os.environ.get('PENDING_TIMEOUT', 30))
 PATH_FIND_BATCH = int(os.environ.get('PATH_FIND_BATCH', 10))
 
 class Task:
@@ -206,7 +206,7 @@ class PathManager:
     @staticmethod
     def _is_pending_timeout(timestamp):
         if not timestamp: return False
-        is_pending_timeout = (datetime.datetime.now() - timestamp).total_seconds() / 60 > PENDING_TIMEOUT
+        is_pending_timeout = (datetime.datetime.now() - timestamp).total_seconds()  > PENDING_TIMEOUT
         return is_pending_timeout
 
 
