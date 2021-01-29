@@ -75,7 +75,7 @@
       <span translate>p2p.modal.found.click</span>
     </h4>
     <app-connection
-      *ngFor="let user of users; index as i"
+      *ngFor="let user of users | relationsSortBy: sortOrder: limit; index as i"
       [connection]="user"
       [stepCount]="user?.step_count"
       [expandable]="false"

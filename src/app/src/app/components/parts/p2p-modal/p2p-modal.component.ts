@@ -4,6 +4,11 @@ import {
   ChatParticipantType,
   IChatParticipant,
 } from 'ng-chat';
+
+import {
+  INITIAL_RELATIONS_LIMIT,
+} from 'src/app/app.constants';
+
 import { AuthService } from 'src/app/auth/auth.service';
 import Path, { PathDetailsResponse } from 'src/app/model/Path';
 import Profile from 'src/app/model/Profile';
@@ -13,6 +18,7 @@ import { I18nService } from 'src/app/services/i18n.service';
 import { P2pService } from 'src/app/services/p2p.service';
 import { RelationService } from 'src/app/services/relation.service';
 import { SettingsService } from 'src/app/services/settings.service';
+import { RelationSortOrder } from 'src/app/pipes/relations-sort-by.pipe';
 
 @Component({
   selector: 'app-p2p-modal',
@@ -27,6 +33,8 @@ export class P2pModalComponent {
   activeChatUser: IChatParticipant;
 
   activeTab = 1;
+
+  limit = INITIAL_RELATIONS_LIMIT;
 
   constructor(
     private p2p: P2pService,
@@ -102,5 +110,9 @@ export class P2pModalComponent {
           setTimeout(() => this.fetchProfile(), 500);
         }
       }, console.log);
+  }
+
+  get sortOrder(): RelationSortOrder {
+    return this.settings.getSortOrder();
   }
 }
