@@ -4,6 +4,7 @@ import { BehaviorSubject, forkJoin, Observable } from 'rxjs';
 import {
   FETCH_PATHS_URL,
   MILLIS_BETWEEN_API_CALLS,
+  PATHS_TIMEOUT,
   PATHS_COUNT_URL,
   PATH_DETAILS_URL,
   PROFILES_COUNT_URL,
@@ -29,6 +30,9 @@ export class RelationService {
   status = new BehaviorSubject<Status>(Status.INITIALIZING);
   private relations: Path[] = [];
   private uniqueIds: Set<string> = new Set<string>();
+
+  private pathsCount = 0;
+  private pathsCountTs = Date.now();
 
   constructor(private http: HttpClient, private auth: AuthService) {
     auth.isAuthenticatedSubj.subscribe((isAuthenticated) => {
@@ -71,6 +75,9 @@ export class RelationService {
     totalPathsCount: number,
     profilesCount: number
   ): boolean {
+    if (this.pathsCount == pathsCount && (Date.now() - this.pathsCountTs) > PATHS_TIMEOUT*1000  ) {
+       return false; // stuck on the same path count and timed out, stop search
+    }
     return (
       this.relations.length < pathsCount || totalPathsCount < profilesCount
     );
@@ -109,6 +116,10 @@ export class RelationService {
         this.status.next(Status.PART_FETCHED);
 
         if (this.notReady(pathsCount, totalPathsCount, profilesCount)) {
+          if (this.pathsCount != pathsCount) {
+            this.pathsCount = pathsCount;
+            this.pathsCountTs = Date.now();
+          }
           setTimeout(
             () => this.fetchAll(this.relations.length),
             filtered.length > 0 ? 0 : MILLIS_BETWEEN_API_CALLS

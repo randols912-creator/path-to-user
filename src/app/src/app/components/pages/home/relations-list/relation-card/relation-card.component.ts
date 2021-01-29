@@ -49,12 +49,16 @@ export class RelationCardComponent implements AfterViewInit {
 
     if (this.relation.target_profile.birth?.date) {
       const birth: LivingDetails = this.relation.target_profile.birth;
-      birthYear = `${birth.date.year}`;
+      if (birth && birth.date) {
+        birthYear = `${birth.date.year}`;
+      }
     }
 
     if (this.relation.target_profile.death?.date) {
       const death: LivingDetails = this.relation.target_profile.death;
-      deathYear = ` - ${death.date.year}`;
+      if (death && death.date) {
+        deathYear = ` - ${death.date.year}`;
+      }
     }
 
     return `${birthYear}${deathYear}`;
