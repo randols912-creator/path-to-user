@@ -81,12 +81,12 @@ export class ConnectionComponent implements OnInit {
     if (this.connection?.target_profile) {
       if (this.connection?.target_profile.birth) {
         const birth: LivingDetails = this.connection?.target_profile.birth;
-        birthYear = `${birth.date.year}`;
+        birthYear = birth.date ? `${birth.date.year}` : '?';
       }
 
       if (this.connection?.target_profile.death) {
         const death: LivingDetails = this.connection?.target_profile.death;
-        deathYear = `${death.date.year}`;
+        deathYear = death.date ? `${death.date.year}` : '?';
       }
     }
 
