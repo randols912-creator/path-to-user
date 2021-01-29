@@ -9,7 +9,7 @@ from asyncio import Queue, sleep as asyncio_sleep
 import datetime
 import random
 
-PENDING_TIMEOUT = int(os.environ.get('PENDING_TIMEOUT', 2))
+PENDING_TIMEOUT = int(os.environ.get('PENDING_TIMEOUT', 1))
 PATH_FIND_BATCH = int(os.environ.get('PATH_FIND_BATCH', 10))
 
 class Task:
@@ -212,14 +212,15 @@ class PathManager:
 
 async def path_finder_async(number, queue, user2user_result_queue, db_url, geni):
     logger.info(f"Starting process: {number}")
+    log_prefix = f"W{os.getpid()}:P{number}"
     cycles = 0
     async with Database(db_url) as database:
         while True:
-            logger.info(f"Waiting for the next tasks")
+            logger.info(f"{log_prefix} Waiting for the next tasks")
             priority,task_or_list = await queue.get()
             if isinstance(task_or_list, Task):
                 task_or_list = [task_or_list]
-            logger.info(f"Received  {len(task_or_list)} tasks, queue size: {queue.qsize()}")
+            logger.info(f"{log_prefix} Received  {len(task_or_list)} tasks, queue size: {queue.qsize()}")
 
             # since values insertion ordered
             try:
@@ -228,17 +229,21 @@ async def path_finder_async(number, queue, user2user_result_queue, db_url, geni)
                 # Communicate found user2user connection via the queue to the main task
                 for u2u in u2u_list:
                     await user2user_result_queue.put(u2u)
-            except:
+            except Exception as e:
                 # If any exception happened during processing, refer to all batch as 'pending'
                 pending_list = task_or_list
+                logger.warning(f"{log_prefix} Exception caught, requeueing the whole batch: {e}")
             # Enqueue pending list
             if pending_list:
+                await asyncio_sleep(0.5) # make a pause before inserting again pending tasks
                 await queue.put((priority+10, pending_list))
-                logger.error(f"Pending list size: {len(pending_list)}, queue size after adding pending: {queue.qsize()}")
+                logger.info(f"{log_prefix} Pending list size: {len(pending_list)}, queue size after adding pending: {queue.qsize()}")
+            else:
+                await asyncio_sleep(0.1) # wait a bit to let other tasks run
 
             cycles += len(task_or_list)
 
             logger.info(
-                    f"W{os.getpid()}:P{number}, priority: {priority}, source_id: {task_or_list[0].data['source_id']}")
-            logger.info(f"Cycles: {cycles}, Queue size: {queue.qsize()}")
+                    f"{log_prefix}, priority: {priority}, source_id: {task_or_list[0].data['source_id']}")
+            logger.info(f"{log_prefix} Cycles: {cycles}, Queue size: {queue.qsize()}")
 
