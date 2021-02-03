@@ -177,7 +177,7 @@ class PathManager:
                 'is_user2user': is_user2user,
                 'url': result.get('url', ''),
                 'step_count': result.get('step_count', 0),
-                'relationship': result.get('relationship', ''),
+                'relationship': result.get('relationship', '')[:255],
                 'relations': result.get('relations', ''),
                 'updated_on': CURRENT_TIMESTAMP,
                 'finished_on': CURRENT_TIMESTAMP
