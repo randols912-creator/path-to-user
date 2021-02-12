@@ -3,7 +3,7 @@ import datetime
 from sanic.log import logger
 from api.geni import GeniClientAsync
 from api.models import CURRENT_TIMESTAMP, paths_table, profiles_table
-from sqlalchemy import and_
+from sqlalchemy import and_, func
 from databases import Database
 from api.bh import BHData
 
@@ -74,16 +74,25 @@ class ProfileManager:
             yield row
 
     async def iterate_users(self, is_active=True):
-        # TODO: calculate "active" users based on the last update
-        query = profiles_table.select().where(profiles_table.c.is_user == True)
+        query = profiles_table.select().where(self._where_is_active(is_active))
         async for row in self.database.iterate(query=query):
             yield row
 
     async def fetch_users(self, is_active=True):
-        # TODO: calculate "active" users based on the last update
-        query = profiles_table.select().where(profiles_table.c.is_user == True)
+        # Calculate "active" users based on the last update
+        query = profiles_table.select().where(self._where_is_active(is_active))
+
         users = await self.database.fetch_all(query=query)
         return users
+
+    def _where_is_active(self, is_active):
+        ACTIVITY_HOURS=4
+        # Calculate "active" users based on the last update
+        updated_on_cond = True if not is_active \
+                             else func.hour(func.timediff( func.current_timestamp(), profiles_table.c.last_active_on)) < ACTIVITY_HOURS
+        where_cond = and_(profiles_table.c.is_user == True,
+                          updated_on_cond )
+        return where_cond
 
     # Cache personalities based on Geni project (deprecated)
     async def cache_personalities_geni(self):
@@ -163,7 +172,32 @@ and paste here the token you will see in the redirected URL """)
     # Initialize database
     db_url = os.getenv("SQLALCHEMY_DATABASE_URI")
     async with Database(db_url) as database:
-        await ProfileManager(database, geni, token).cache_personalities_bh()
+        pm = ProfileManager(database, geni, token)
+        #await pm.cache_personalities_bh()
+        await profile_report(pm, geni, token)
+
+async def profile_report(pm, geni, token):
+    batch = []
+    async for profile in pm.iterate_personalities():
+        #print(profile['details'].keys())
+        batch.append(profile)
+        if len(batch) >= 50:
+            await profile_report_batch(geni, token, batch)
+            batch = []
+
+    if batch:
+        await profile_report_batch(geni, token, batch)
+
+async def profile_report_batch(geni, token, batch):
+    ids_str = ",".join([p['id'] for p in batch])
+    batch_details = await geni.get_profile_details(token=token, profile_id=ids_str, fields=['profile_url', 'about_me', 'detail_strings'])
+    for p, d in zip(batch, batch_details[0]['results']):
+        ds = d.get('detail_strings')
+        if not ds or not ds.get('he') or not ds.get('he').get('about_me'):
+            print(f"Missing Hebrew bio: {p['id']}, {d['profile_url']}")
+        if not d.get('about_me'):
+            print(f"Missing English bio: {p['id']}, {d['profile_url']}")
+
 
 
 if __name__ == "__main__":
