@@ -6,7 +6,7 @@ import {
   Message,
   ParticipantResponse,
 } from 'ng-chat';
-import { Socket } from 'ngx-socket-io';
+import { Socket } from '../ngx-socket-io/index'; //'ngx-socket-io';
 import { Observable, of } from 'rxjs';
 import {
   FETCH_CHATS_URL,
@@ -58,7 +58,7 @@ export class P2pService extends ChatAdapter {
   private init() {
     this.socket.on('message', ({ message }) => {
       this.onMessageReceived(this.activeChatUser, message);
-
+      alert(message.message);
       if ('Notification' in window && Notification.permission === 'granted') {
         new Notification(message.message, {});
       }
