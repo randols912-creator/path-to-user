@@ -1,5 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { environment as env } from 'src/environments/environment';
+import { io } from 'socket.io-client';
+
 import {
   ChatAdapter,
   IChatParticipant,
@@ -45,17 +48,34 @@ export class P2pService extends ChatAdapter {
 
   private userSearchIntervalId: NodeJS.Timeout;
   private userConnections: IUsersConnections = {};
+  private socket;
 
   constructor(
     private http: HttpClient,
-    private socket: Socket,
+    //private socket: Socket,
     private auth: AuthService
   ) {
     super();
     setTimeout(() => this.auth.isAuthenticated() && this.init(), 1000);
+    this.socket = io(env.socketioUrl)
   }
 
   private init() {
+/*    if ('serviceWorker' in navigator && 'PushManager' in window) {
+      console.log('Service Worker and Push is supported');
+
+      navigator.serviceWorker.register("/assets/notifications/serviceworker.js")
+        .then(function(swReg) {
+          console.log('Service Worker is registered', swReg);
+          //initializeUI();
+        })
+        .catch(function(error) {
+          console.error('Service Worker Error', error);
+        });
+    } else {
+      console.warn('Push meapplicationServerPublicKeyssaging is not supported');
+    }
+*/
     this.socket.on('message', ({ message }) => {
       this.onMessageReceived(this.activeChatUser, message);
       alert(message.message);
