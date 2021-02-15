@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment as env } from 'src/environments/environment';
-import * as io from 'socket.io-client';
+//import * as io from 'socket.io-client';
 
 
 import {
@@ -49,10 +49,10 @@ export class P2pService extends ChatAdapter {
 
   private userSearchIntervalId: NodeJS.Timeout;
   private userConnections: IUsersConnections = {};
-  private socket;
 
   constructor(
     private http: HttpClient,
+    private socket: Socket,
     private auth: AuthService
   ) {
     super();
@@ -60,8 +60,8 @@ export class P2pService extends ChatAdapter {
   }
 
   private init() {
-    var io_func = (io as any).default ? (io as any).default : io;
-    this.socket = io_func(env.socketioUrl);
+//    var io_func = (io as any).default ? (io as any).default : io;
+//    this.socket = io_func(env.socketioUrl);
 
     this.socket.on('message', ({ message }) => {
       this.onMessageReceived(this.activeChatUser, message);
