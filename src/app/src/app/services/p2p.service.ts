@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment as env } from 'src/environments/environment';
-import { io } from 'socket.io-client';
+import * as io from 'socket.io-client';
+
 
 import {
   ChatAdapter,
@@ -52,30 +53,16 @@ export class P2pService extends ChatAdapter {
 
   constructor(
     private http: HttpClient,
-    //private socket: Socket,
     private auth: AuthService
   ) {
     super();
     setTimeout(() => this.auth.isAuthenticated() && this.init(), 1000);
-    this.socket = io(env.socketioUrl)
   }
 
   private init() {
-/*    if ('serviceWorker' in navigator && 'PushManager' in window) {
-      console.log('Service Worker and Push is supported');
+    var io_func = (io as any).default ? (io as any).default : io;
+    this.socket = io_func(env.socketioUrl);
 
-      navigator.serviceWorker.register("/assets/notifications/serviceworker.js")
-        .then(function(swReg) {
-          console.log('Service Worker is registered', swReg);
-          //initializeUI();
-        })
-        .catch(function(error) {
-          console.error('Service Worker Error', error);
-        });
-    } else {
-      console.warn('Push meapplicationServerPublicKeyssaging is not supported');
-    }
-*/
     this.socket.on('message', ({ message }) => {
       this.onMessageReceived(this.activeChatUser, message);
       alert(message.message);
@@ -100,6 +87,14 @@ export class P2pService extends ChatAdapter {
         }
       }
     );
+
+    this.socket.on('disconnect', (reason) => {
+        if (reason === 'io server disconnect') {
+            // the disconnection was initiated by the server, you need to reconnect manually
+            this.socket.connect();
+        }
+        // else the socket will automatically try to reconnect
+    });
 
     this.fetchUserPaths().subscribe(({ paths }) => {
       paths.forEach((path) => {

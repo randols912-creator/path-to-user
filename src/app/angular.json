@@ -29,6 +29,9 @@
             ],
             "scripts": [
               "node_modules/wiky/lib/wiky.js"
+            ],
+           "allowedCommonJsDependencies": [
+                 "socket.io-client"
             ]
           },
           "configurations": {
