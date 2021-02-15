@@ -9,7 +9,7 @@ import {
   Message,
   ParticipantResponse,
 } from 'ng-chat';
-import { Socket } from '../ngx-socket-io/index'; //'ngx-socket-io';
+import { Socket } from 'ngx-socket-io';
 import { Observable, of } from 'rxjs';
 import {
   FETCH_CHATS_URL,
