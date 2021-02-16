@@ -102,7 +102,11 @@
         "chat": "צ'אט",
         "profile": "פרופיל",
         "connection": "החיבור\nשלנו"
+      },
+      "message" :{
+        "new_message":  "הודעה חדשה מאת "
       }
+
     },
     "chat": {
       "pre": {

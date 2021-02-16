@@ -102,6 +102,9 @@
         "chat": "Chat",
         "profile": "Profile",
         "connection": "Our\nconnection"
+      },
+      "message" : {
+        "new_message":  "New message from "
       }
     },
     "chat": {

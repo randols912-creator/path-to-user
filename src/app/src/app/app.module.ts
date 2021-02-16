@@ -8,6 +8,8 @@ import { NgModule, Provider } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ServiceWorkerModule } from '@angular/service-worker';
+//import { NgWebPushModule } from 'ng-webpush';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
@@ -38,6 +40,7 @@ import { P2pButtonComponent } from './components/parts/p2p-button/p2p-button.com
 import { P2pChatComponent } from './components/parts/p2p-chat/p2p-chat.component';
 import { PredefinedMessagesComponent } from './components/parts/p2p-chat/predefined-messages/predefined-messages.component';
 import { P2pModalComponent } from './components/parts/p2p-modal/p2p-modal.component';
+import { P2pMessageModalComponent } from './components/parts/p2p-message-modal/p2p-message-modal.component';
 import { ProfileDetailsComponent } from './components/parts/profile-details/profile-details.component';
 import { RelativesInfoModalComponent } from './components/parts/relatives-info-modal/relatives-info-modal.component';
 import { SpinnerComponent } from './components/parts/spinner/spinner.component';
@@ -97,6 +100,7 @@ class JsonpInterceptorModule {}
     P2pButtonComponent,
     P2pChatComponent,
     PredefinedMessagesComponent,
+    P2pMessageModalComponent
   ],
   imports: [
     BrowserModule,

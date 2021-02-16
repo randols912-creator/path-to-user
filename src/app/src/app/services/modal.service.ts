@@ -38,6 +38,7 @@ export class ModalService {
     } else {
       this.modal.instance.closeModal.emit();
     }
+    return this.modal ? this.modal.instance : null;
   }
 
   isModalOpen(): boolean {

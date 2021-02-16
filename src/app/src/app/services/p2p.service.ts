@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment as env } from 'src/environments/environment';
-//import * as io from 'socket.io-client';
+import { ModalService } from 'src/app/services/modal.service';
+import { P2pMessageModalComponent } from '../components/parts/p2p-message-modal/p2p-message-modal.component';
 
 
 import {
@@ -53,19 +54,24 @@ export class P2pService extends ChatAdapter {
   constructor(
     private http: HttpClient,
     private socket: Socket,
-    private auth: AuthService
+    private auth: AuthService,
+    private modal: ModalService
   ) {
     super();
     setTimeout(() => this.auth.isAuthenticated() && this.init(), 1000);
   }
 
   private init() {
-//    var io_func = (io as any).default ? (io as any).default : io;
-//    this.socket = io_func(env.socketioUrl);
 
     this.socket.on('message', ({ message }) => {
       this.onMessageReceived(this.activeChatUser, message);
-      alert(message.message);
+      // Open message modal (if window is active)
+      if (!this.modal.isModalOpen()) {
+        var modalInstance = this.modal.open(P2pMessageModalComponent);
+        modalInstance.messageText = message.message;
+        modalInstance.messageSender = this.userConnections[message.fromId].target_profile["name"];
+      }
+      // Also, try notifying via Natification API (TODO: support mobile via service worker)
       if ('Notification' in window && Notification.permission === 'granted') {
         new Notification(message.message, {});
       }

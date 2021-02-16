@@ -1,0 +1,13 @@
+<div class="app-modal">
+  <div class="app-modal__content">
+    <button class="btn app-modal__close-btn" (click)="closeModal.emit()">
+      <img src="assets/img/x.svg" alt="" />
+    </button>
+    <h4>
+      <span>{{'p2p.modal.message.new_message' | translate}} {{ messageSender }}</span>
+    </h4>
+    <span>
+      {{ messageText }}
+    </span>
+  </div>
+</div>
