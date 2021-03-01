@@ -86,8 +86,8 @@ class ChatManager:
     async def save_new_chat(self, source_id, target_id):
         chat = await self.get_chat_by_profiles(source_id, target_id)
         values = {
-            'is_unread1': True,
-            'is_unread2': True,
+            'is_unread1': False,
+            'is_unread2': False,
             'profile_id1': source_id,
             'profile_id2': target_id,
             'messages': [] 
