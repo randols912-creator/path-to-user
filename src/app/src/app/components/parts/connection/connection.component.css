@@ -157,3 +157,21 @@
   justify-content: space-between;
   align-items: baseline;
 }
+
+.new-message-count {
+  display: inline-block;
+  width: 25px;
+  font-weight: bold;
+  border-radius: 50%;
+  background-color: #EE4D33;
+  opacity: 1;
+  position: relative;
+  top: -15px;
+  right:  -85%;
+  transition: opacity 0.5s ease 0.5s;
+}
+
+.new-message-count img {
+    margin: 0px 0px 0px 6px;
+    width: 50%;
+}

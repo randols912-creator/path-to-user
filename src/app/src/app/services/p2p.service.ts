@@ -16,6 +16,7 @@ import { Observable, of } from 'rxjs';
 import {
   FETCH_CHATS_URL,
   FETCH_USERS_URL,
+  FETCH_NEW_MESSAGES_COUNT,
   SEARCH_USERS_URL,
 } from '../app.constants';
 import { AuthService } from '../auth/auth.service';
@@ -29,6 +30,10 @@ interface User2User {
 }
 interface IUsersConnections {
   [key: string]: Path;
+}
+
+interface IUsersNewMessagesCount {
+  [key: string]: number;
 }
 
 interface ChatDetails {
@@ -50,6 +55,7 @@ export class P2pService extends ChatAdapter {
 
   private userSearchIntervalId: NodeJS.Timeout;
   private userConnections: IUsersConnections = {};
+  private usersNewMessagesCount: IUsersNewMessagesCount = {};
 
   constructor(
     private http: HttpClient,
@@ -65,6 +71,11 @@ export class P2pService extends ChatAdapter {
 
     this.socket.on('message', ({ message }) => {
       this.onMessageReceived(this.activeChatUser, message);
+      // Increase new message counter
+      this.usersNewMessagesCount[message.fromId] = (message.fromId in this.usersNewMessagesCount)
+                                                    ? this.usersNewMessagesCount[message.fromId]+1
+                                                    : 1;
+
       // Open message modal (if window is active)
       if (!this.modal.isModalOpen()) {
         var modalInstance = this.modal.open(P2pMessageModalComponent);
@@ -110,6 +121,11 @@ export class P2pService extends ChatAdapter {
       });
     });
 
+    this.fetchNewMessagesCount().subscribe((counts) => {
+      this.usersNewMessagesCount = counts;
+    });
+
+
     this.scheduleUserSearch();
   }
 
@@ -153,7 +169,12 @@ export class P2pService extends ChatAdapter {
     });
   }
 
+  private fetchNewMessagesCount(id?: string): Observable<IUsersNewMessagesCount> {
+    return this.http.get<IUsersNewMessagesCount>(FETCH_NEW_MESSAGES_COUNT);
+  }
+
   public acknowledgeSeenMessage(): void {
+    delete this.usersNewMessagesCount[this.activeChatUser.id];
     this.socket.emit('read_ack', {
       token: this.auth.token,
       chatmate_id: this.activeChatUser.id,
@@ -164,6 +185,15 @@ export class P2pService extends ChatAdapter {
     return Object.values(this.userConnections);
   }
 
+  get hasNewMessages() {
+    return Object.keys(this.usersNewMessagesCount).length > 0;
+  }
+
+  countNewMessages(userId) {
+    return (userId in this.usersNewMessagesCount)
+              ? this.usersNewMessagesCount[userId]
+              : 0;
+  }
   /////////////////////////////////// CHAT ///////////////////////////////////
   listFriends(): Observable<ParticipantResponse[]> {
     return of([]);
