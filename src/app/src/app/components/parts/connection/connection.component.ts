@@ -7,6 +7,7 @@ import { Gender, LivingDetails } from 'src/app/model/Profile';
 import Connection from 'src/app/model/ProfileRelation';
 import { I18nService } from 'src/app/services/i18n.service';
 import { SettingsService } from 'src/app/services/settings.service';
+import { P2pService } from 'src/app/services/p2p.service';
 
 @Component({
   selector: 'app-connection',
@@ -29,7 +30,8 @@ export class ConnectionComponent implements OnInit {
   constructor(
     private auth: AuthService,
     private settings: SettingsService,
-    private i18n: I18nService
+    private i18n: I18nService,
+    private p2p: P2pService
   ) {}
 
   ngOnInit(): void {
@@ -40,6 +42,13 @@ export class ConnectionComponent implements OnInit {
 
   toggleExpandedHandler(): void {
     this.expanded = !this.expanded;
+    if (this.expanded) {
+      this.acknowledgeSeenMessage()
+    }
+  }
+
+  acknowledgeSeenMessage(): void {
+    this.p2p.acknowledgeSeenMessage();
   }
 
   get localizedFullname(): string {
@@ -92,4 +101,15 @@ export class ConnectionComponent implements OnInit {
 
     return `${birthYear}${deathYear ? ' - ' + deathYear : ''}`;
   }
+
+
+  get hasNewMessages() {
+    return this.countNewMessages > 0;
+  }
+
+  get countNewMessages() {
+    return this.p2p.countNewMessages(this.connection?.target_profile.id);
+  }
+
+
 }

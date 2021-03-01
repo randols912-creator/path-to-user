@@ -27,7 +27,8 @@
             ngbNavLink
             class="border-0 h-100 d-flex flex-column justify-content-center align-items-center"
             translate
-            >p2p.modal.tabs.chat</a
+            (click)="acknowledgeSeenMessage()"
+            ><span class="new-messages-count" [ngClass]="{ visible: hasNewMessages }" style="color:white">&nbsp;{{countNewMessages()}}</span>&nbsp; p2p.modal.tabs.chat</a
           >
           <ng-template ngbNavContent>
             <app-p2p-chat [activeChatUser]="activeChatUser"></app-p2p-chat>

@@ -39,6 +39,11 @@
         >
           {{ localizedFullname }}
         </a>
+        <span *ngIf="!direct && hasNewMessages" class="new-message-count small-text" style="color:white" #popup>
+          &nbsp; &nbsp; {{ countNewMessages }}
+          <img src="assets/img/Mails.svg" alt="New messages" />
+        </span>
+
       </div>
       <div *ngIf="relatedConnection && direct" class="small-text">
         {{ relation }}
@@ -73,6 +78,7 @@
     {{ relation }}
     <app-gender-dot [gender]="gender" [inline]="false"></app-gender-dot>
   </div>
+
 </div>
 <div [ngClass]="direct ? 'direct' : 'indirect'">
   <div *ngIf="drawArrowDown" class="arrow-down"></div>

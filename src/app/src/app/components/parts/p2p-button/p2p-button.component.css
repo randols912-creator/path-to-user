@@ -12,7 +12,29 @@ img {
   margin: 1px;
 }
 
-span {
+span.p2p_button_mails {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  font-weight: bold;
+  border-radius: 50%;
+  line-height: 1.5;
+  background-color: #EE4D33;
+  position: absolute;
+  top: -2px;
+  right: 22px;
+  opacity: 0;
+  transition: opacity 0.5s ease 0.5s;
+
+}
+
+.p2p_button_mails img {
+    margin: 0px 0px 15px;
+    width: 70%;
+}
+
+
+span.p2p_button_users {
   display: inline-block;
   width: 16px;
   height: 16px;

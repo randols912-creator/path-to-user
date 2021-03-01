@@ -406,6 +406,18 @@ class ChatView(HTTPMethodView):
             chats = await cm.fetch_chats(my_profile['id'])
         return json({"chats": [dict(c) for c in chats]}, escape_forward_slashes=False)
 
+    @bp_chats.get("/messages/count_new")
+    @doc.summary("Get new message counts")
+    @doc.consumes(Token, location='headers')
+    async def get_new_message_counts(request):
+        token = await Token.validate(request.headers.get(TOKEN_PARAM))
+
+        pm = ProfileManager(database, geni, token)
+        cm = ChatManager(database)
+        my_profile = await pm.cache()
+        new_message_counts = await cm.count_new_messages(my_profile['id'])
+        return json(new_message_counts)
+
 
 
 class ChatsSIO:

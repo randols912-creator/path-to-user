@@ -121,3 +121,17 @@ h4 span {
   direction: rtl;
   text-align: right;
 }
+
+span.new-messages-count {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  font-weight: bold;
+  border-radius: 50%;
+  background-color: #EE4D33;
+  opacity: 0;
+}
+
+span.visible {
+  opacity: 1;
+}

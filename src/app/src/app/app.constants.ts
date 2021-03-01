@@ -20,6 +20,7 @@ export const PROFILES_COUNT_URL = `${env.relationsServiceHost}/api/v1/profiles/c
 export const PATH_DETAILS_URL = `${env.relationsServiceHost}/api/v1/paths`;
 export const FETCH_USERS_URL = `${env.relationsServiceHost}/api/v1/paths/users`;
 export const FETCH_CHATS_URL = `${env.relationsServiceHost}/api/v1/chats`;
+export const FETCH_NEW_MESSAGES_COUNT = `${env.relationsServiceHost}/api/v1/chats/messages/count_new`;
 
 export const GENI_TOKEN_HEADER_KEY = 'authorization';
 export const MILLIS_BETWEEN_API_CALLS = 1000;

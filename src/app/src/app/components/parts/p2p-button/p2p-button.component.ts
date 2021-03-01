@@ -18,4 +18,9 @@ export class P2pButtonComponent {
   get newUsersCount() {
     return Object.keys(this.p2p.users).length;
   }
+
+  get hasNewMessages() {
+    return this.p2p.hasNewMessages;
+  }
+
 }

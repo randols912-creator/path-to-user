@@ -115,4 +115,17 @@ export class P2pModalComponent {
   get sortOrder(): RelationSortOrder {
     return this.settings.getSortOrder();
   }
+
+  acknowledgeSeenMessage() {
+    this.p2p.acknowledgeSeenMessage();
+  }
+
+  get hasNewMessages() {
+    return this.countNewMessages() > 0;
+  }
+
+
+  countNewMessages() {
+    return this.p2p.countNewMessages(this.activeChatUser.id);
+  }
 }

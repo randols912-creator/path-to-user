@@ -16,7 +16,13 @@ class ChatManager:
             yield row
 
 
-    async def fetch_chats(self, profile_id):
+    async def fetch_chats(self, profile_id, unread_only=False):
+
+        profile_id_cond = or_(chats_table.c.profile_id1 == profile_id,
+                                               chats_table.c.profile_id2 == profile_id)
+        unread_cond = True if not unread_only else or_(chats_table.c.is_unread1 == True,
+                                                       chats_table.c.is_unread2 == True)
+
         query = select(columns=[
             chats_table.c.id,
             chats_table.c.profile_id1,
@@ -24,11 +30,37 @@ class ChatManager:
             chats_table.c.messages,
             chats_table.c.is_unread1,
             chats_table.c.is_unread2,
-        ]).where(or_(chats_table.c.profile_id1 == profile_id,
-                                               chats_table.c.profile_id2 == profile_id))
+        ]).where(and_(profile_id_cond, unread_cond))
+
         chats = await self.database.fetch_all(query=query)
         return chats
 
+    async def count_new_messages(self, profile_id):
+        new_chats = await self.fetch_chats(profile_id, unread_only=True)
+        count_dict = dict()
+        for chat in new_chats:
+            if chat['profile_id1'] == profile_id and chat['is_unread1']:
+                from_ = chat['profile_id2']
+                to_ = chat['profile_id1']
+            elif chat['profile_id2'] == profile_id and chat['is_unread2']:
+                from_ = chat['profile_id1']
+                to_ = chat['profile_id2']
+            else:
+                logger.warning("Count new messages: invalid chat: {chat}")
+                continue
+
+            count_dict[from_] = await self._count_new_messages(chat, from_=from_, to_=to_)
+        return count_dict
+
+    async def _count_new_messages(self, chat, from_, to_):
+        count = 0
+        for m in reversed(chat["messages"]):
+            if m["fromId"] == from_ and m["toId"] == to_:
+                if m["is_new"]:
+                    count += 1
+                else:
+                    break
+        return count
 
     async def get_chat(self, chat_id):
         query = chats_table.select().where(chats_table.c.id == chat_id)
@@ -88,12 +120,15 @@ class ChatManager:
 
     async def save_read_ack(self, chat, reader_id):
         # Mark all reader's messages as 'read'
+        messages = []
         for m in chat['messages']:
-            if m['fromId'] != reader_id:
-                m['is_new'] = False
+            m_dict = dict(m)
+            if m_dict['fromId'] != reader_id:
+                m_dict['is_new'] = False
+            messages.append(m_dict)
         is_unread = 'is_unread1' if chat['profile_id1'] == reader_id else 'is_unread2'
         values = {
-           'messages': chat['messages'],
+           'messages': messages,
            is_unread: False
         }
         query = chats_table.update().where(chats_table.c.id == chat['id']).values(values)
