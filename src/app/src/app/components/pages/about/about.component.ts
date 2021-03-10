@@ -25,4 +25,8 @@ export class AboutComponent {
   get isHebrewLocale() {
     return this.settings.isHebrewLocale;
   }
+
+  get logoHebrewSuffix() {
+    return this.isHebrewLocale ? 'Heb' : 'Eng';
+  }
 }
