@@ -1,4 +1,4 @@
-<button class="btn" (click)="showModalP2P()">
+<button class="btn" (click)="showModalP2P()" [ngClass]="{ invisible: !p2pEnabled }" >
   <img src="assets/img/Person2person.svg" alt="p2p" />
   <span class="p2p_button_mails" [ngClass]="{ visible: hasNewMessages }" #popup>
     <img src="assets/img/Mails.svg" alt="p2p" />

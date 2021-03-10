@@ -21,7 +21,9 @@ export class SettingsService {
   }
 
   private initSettings() {
-    this.settings = { sort: RelationSortOrder.DEFAULT, locale: Locale.EN };
+    this.settings = { sort: RelationSortOrder.DEFAULT,
+                      locale: Locale.EN,
+                      p2p: true };
     this.saveSettings();
   }
 
@@ -72,9 +74,19 @@ export class SettingsService {
   get isHebrewLocale() {
     return this.getLocale() === Locale.HE;
   }
+
+  setP2p(value: boolean) {
+    this.settings.p2p = value;
+    this.saveSettings();
+  }
+
+  getP2p(): boolean {
+    return this.settings.p2p;
+  }
 }
 
 export interface Settings {
   sort: number;
   locale: Locale;
+  p2p: boolean;
 }

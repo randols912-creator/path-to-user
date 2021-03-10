@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { environment as env } from 'src/environments/environment';
 import { ModalService } from 'src/app/services/modal.service';
 import { P2pMessageModalComponent } from '../components/parts/p2p-message-modal/p2p-message-modal.component';
+import { SettingsService } from 'src/app/services/settings.service';
 
 
 import {
@@ -61,13 +62,19 @@ export class P2pService extends ChatAdapter {
     private http: HttpClient,
     private socket: Socket,
     private auth: AuthService,
-    private modal: ModalService
+    private modal: ModalService,
+    private settings: SettingsService
   ) {
     super();
     setTimeout(() => this.auth.isAuthenticated() && this.init(), 1000);
   }
 
   private init() {
+    // Check if p2p disabled
+    if (!this.settings.getP2p()) {
+      this.dismissService();
+      return;
+    }
 
     this.socket.on('message', ({ message }) => {
       this.onMessageReceived(this.activeChatUser, message);

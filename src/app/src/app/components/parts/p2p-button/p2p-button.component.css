@@ -54,3 +54,7 @@ span.p2p_button_users {
 span.visible {
   opacity: 1;
 }
+
+button.invisible {
+  opacity: 0;
+}

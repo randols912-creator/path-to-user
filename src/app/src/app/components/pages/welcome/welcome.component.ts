@@ -36,8 +36,8 @@ export class WelcomeComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.loginForm = this.formBuilder.group({
       agreeToTerms: [false, Validators.requiredTrue],
-      agreeToConnectRelatives: [true, Validators.requiredTrue],
-    });
+      agreeToConnectRelatives: [true], // optional
+     });
 
     if (this.authService.isAuthenticated) {
       this.router.navigate([HOME_PATH]);
@@ -45,6 +45,9 @@ export class WelcomeComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
+    // Take default from the settings
+    this.relativesRef.nativeElement.checked = this.settings.getP2p();
+
     setTimeout(() => {
       const { nativeElement: el } = this.photosBox;
       el.scrollLeft = 2000;
@@ -65,10 +68,10 @@ export class WelcomeComponent implements OnInit, AfterViewInit {
 
   loginHandler(): void {
     if (this.loginForm.valid) {
+      this.settings.setP2p(this.relativesRef.nativeElement.checked);
       this.authService.login();
     } else {
       this.termsRef.nativeElement.classList.add('required');
-      this.relativesRef.nativeElement.classList.add('required');
     }
   }
 
@@ -86,5 +89,9 @@ export class WelcomeComponent implements OnInit, AfterViewInit {
 
   get isHebrewLocale() {
     return this.settings.isHebrewLocale;
+  }
+
+  get logoHebrewSuffix() {
+    return this.isHebrewLocale ? 'Heb' : 'Eng';
   }
 }

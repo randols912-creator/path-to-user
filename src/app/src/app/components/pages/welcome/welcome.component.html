@@ -75,18 +75,18 @@
     </form>
   </section>
   <section class="box welcome__bottom">
-    <div class="other-platform">
-      <h5 class="accent-text" translate>welcome.bottom.anotherPlatform</h5>
-      <p class="regular-text" translate>welcome.bottom.uploadGedcom</p>
+    <div class="other-platform" >
+      <h5 class="accent-text" translate [ngClass]="{ 'hebrew-direction': isHebrewLocale }" >welcome.bottom.anotherPlatform</h5>
+      <p class="regular-text" translate [ngClass]="{ 'hebrew-direction': isHebrewLocale }" >welcome.bottom.uploadGedcom</p>
     </div>
     <div class="none-platform">
-      <h5 class="accent-text" translate>welcome.bottom.noFamilyTree</h5>
-      <p class="regular-text" translate>welcome.bottom.invitedToDesk</p>
+      <h5 class="accent-text" translate [ngClass]="{ 'hebrew-direction': isHebrewLocale }" >welcome.bottom.noFamilyTree</h5>
+      <p class="regular-text" translate [ngClass]="{ 'hebrew-direction': isHebrewLocale }" >welcome.bottom.invitedToDesk</p>
     </div>
     <img src="assets/img/lineOfCircles.svg" class="circles-separator" />
     <img
       class="bottom-logo"
-      src="assets/img/logoBHeng.svg"
+      src="assets/img/Anu_Pos_{{logoHebrewSuffix}}.svg"
       [alt]="'welcome.bottom.logoAlt' | translate"
     />
   </section>
