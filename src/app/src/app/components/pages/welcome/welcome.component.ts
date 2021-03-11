@@ -6,12 +6,13 @@ import {
   ViewChild
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { HOME_PATH, termsOfUseUrl, welcomePhotos } from 'src/app/app.constants';
 import { AuthService } from 'src/app/auth/auth.service';
 import { ModalService } from 'src/app/services/modal.service';
 import { SettingsService } from 'src/app/services/settings.service';
 import { RelativesInfoModalComponent } from '../../parts/relatives-info-modal/relatives-info-modal.component';
+import { Locale } from 'src/app/model/Locale';
 
 @Component({
   selector: 'app-welcome',
@@ -29,11 +30,20 @@ export class WelcomeComponent implements OnInit, AfterViewInit {
     private formBuilder: FormBuilder,
     private authService: AuthService,
     private router: Router,
+    private activatedRoute: ActivatedRoute,
     private settings: SettingsService,
     private modal: ModalService
   ) {}
 
   ngOnInit(): void {
+    this.activatedRoute.queryParams.subscribe(params => {
+      let lang = params['lang'];
+      if(lang) {
+          lang = (lang == 'en') ? Locale.EN : lang;
+          this.settings.setLocale(lang)
+      }
+    });
+
     this.loginForm = this.formBuilder.group({
       agreeToTerms: [false, Validators.requiredTrue],
       agreeToConnectRelatives: [true], // optional
