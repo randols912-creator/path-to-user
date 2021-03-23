@@ -1,16 +1,11 @@
 <div class="welcome">
   <app-title-bar [showTitle]="false"></app-title-bar>
   <section class="box welcome__top">
-    <h1 class="title-text">
-      MJP
       <img
-        src="assets/img/circle-ampersand.png"
+        src="assets/img/ANU-family.svg"
         alt=""
-        id="title-text-ampersand"
+        class="title-logo"
       />
-      ME
-    </h1>
-    <h2 class="subtitle-text" [innerHTML]="'welcome.top.headline' | translate"></h2>
     <h4
       class="subtitle-text"
       [ngClass]="{ 'hebrew-direction': isHebrewLocale }"

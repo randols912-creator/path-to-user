@@ -33,6 +33,15 @@ app-title-bar::ng-deep .title-bar {
   align-items: center;
   text-align: center;
 }
+
+.welcome__top .title-logo {
+  width: 20%;
+  display: block;
+  margin: 20px auto 0;
+
+}
+
+
 .welcome__top h2 {
   padding-top: 10px;
   text-align: center;
