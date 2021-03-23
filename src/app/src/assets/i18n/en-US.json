@@ -63,10 +63,22 @@
     },
     "share": "Share",
     "links": {
-      "shop": "Museum <b>Shop</b>",
-      "visit": "<span><b>Visit</b> the</span> Museum",
-      "database": "<b>Explore</b> our Open Database",
-      "learn": "<b>Learn</b> Educational Programs"
+      "shop": {
+        "text": "Museum <b>Shop</b>",
+        "url": "https://www.anumuseum.org.il/shop/"
+      },
+      "visit": {
+        "text": "<span><b>Visit</b> the</span> Museum",
+        "url": "https://www.anumuseum.org.il/home/"
+      },
+      "database": {
+        "text": "<b>Explore</b> our Open Database",
+        "url": "https://www.anumuseum.org.il/databases/jewish-genealogy/"
+      },
+      "learn":  {
+        "text": "<b>Learn</b> Educational Programs",
+        "url": "https://www.anumuseum.org.il/education-homepage/"
+      }
     }
   },
   "map": {
