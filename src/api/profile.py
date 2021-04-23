@@ -173,8 +173,8 @@ and paste here the token you will see in the redirected URL """)
     db_url = os.getenv("SQLALCHEMY_DATABASE_URI")
     async with Database(db_url) as database:
         pm = ProfileManager(database, geni, token)
-        #await pm.cache_personalities_bh()
-        await profile_report(pm, geni, token)
+        await pm.cache_personalities_bh()
+        #await profile_report(pm, geni, token)
 
 async def profile_report(pm, geni, token):
     batch = []
