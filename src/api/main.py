@@ -511,7 +511,7 @@ Utils.add_blueprint(app, bp_chats, ChatView)
 
 @app.listener('after_server_start')
 def setup_workers(app, loop):
-    from api.path import path_finder_async
+    from api.path import path_finder_async, path_cleaner
 
     process_quantity = int(os.environ.get('PROCESS_QUANTITY',
                                           sys.argv[1] if len(sys.argv) > 1 else 0))
@@ -528,6 +528,9 @@ def setup_workers(app, loop):
         app.add_task(path_finder_async(counter, app.task_queue[counter], app.user2user_result_queue, db_url, geni))
     # Create concurrent task for u2u results listener
     app.add_task(ChatsSIO.user2user_result_listener())
+    # Create concurrent task for cleaning expired paths
+    app.add_task(path_cleaner(db_url, geni))
+
 
 @app.listener('before_server_start')
 async def setup_db(app, loop):

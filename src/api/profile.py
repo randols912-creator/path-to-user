@@ -87,9 +87,11 @@ class ProfileManager:
 
     def _where_is_active(self, is_active):
         ACTIVITY_HOURS=4
+
+        is_active_ts = datetime.datetime.now() - datetime.timedelta(hours=ACTIVITY_HOURS)
         # Calculate "active" users based on the last update
         updated_on_cond = True if not is_active \
-                             else func.hour(func.timediff( func.current_timestamp(), profiles_table.c.last_active_on)) < ACTIVITY_HOURS
+                             else (profiles_table.c.last_active_on > is_active_ts)
         where_cond = and_(profiles_table.c.is_user == True,
                           updated_on_cond )
         return where_cond

@@ -3,7 +3,7 @@ from sanic.log import logger
 from api.geni import GeniClientAsync
 from api.profile import ProfileManager
 from api.models import CURRENT_TIMESTAMP, paths_table, profiles_table
-from sqlalchemy import and_, select, join, func, distinct
+from sqlalchemy import and_, select, join, func, distinct, delete
 from databases import Database
 from asyncio import Queue, sleep as asyncio_sleep
 import datetime
@@ -109,6 +109,17 @@ class PathManager:
         )
         count = await self.database.fetch_one(query=query)
         return count[0]
+
+    async def clear_expired_paths(self, user2user=False):
+        EXPIRED_HOURS= 24 if user2user else 24*3
+
+        expired_ts = datetime.datetime.now() - datetime.timedelta(hours=EXPIRED_HOURS)
+        query = delete(paths_table).where(and_(paths_table.c.updated_on < expired_ts,
+                                          paths_table.c.is_user2user == user2user))
+        result = await self.database.execute(query=query)
+
+        return result
+
 
     async def _save_profile(self, profile):
         query = profiles_table.select().where(profiles_table.c.id==profile['id'])
@@ -246,4 +257,16 @@ async def path_finder_async(number, queue, user2user_result_queue, db_url, geni)
             logger.info(
                     f"{log_prefix}, priority: {priority}, source_id: {task_or_list[0].data['source_id']}")
             logger.info(f"{log_prefix} Cycles: {cycles}, Queue size: {queue.qsize()}")
+
+# Clear expired paths reqgularly
+async def path_cleaner(db_url, geni):
+    logger.info(f"Starting path cleaner")
+    async with Database(db_url) as database:
+        while True:
+            logger.info("Clear expired paths")
+            pm = PathManager(database, geni, None)
+            await pm.clear_expired_paths(False)
+            await pm.clear_expired_paths(True)
+
+            await asyncio_sleep(60*60)  # clean once an hour
 
