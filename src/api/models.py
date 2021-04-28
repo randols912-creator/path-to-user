@@ -36,6 +36,7 @@ paths_table = sqlalchemy.Table(
      sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
      sqlalchemy.Column("source_id", sqlalchemy.String(255), ForeignKey("profiles.id"), nullable=False),
      sqlalchemy.Column("target_id", sqlalchemy.String(255), ForeignKey("profiles.id"), nullable=False),
+     sqlalchemy.Column("chat_id", sqlalchemy.Integer, ForeignKey("chats.id")), # chat id for u2u communication
      sqlalchemy.Column("is_user2user", sqlalchemy.Boolean, default=False),
      sqlalchemy.Column("url", sqlalchemy.String(500)),
      sqlalchemy.Column("step_count", sqlalchemy.Integer),
