@@ -260,6 +260,8 @@ async def path_finder_async(number, queue, user2user_result_queue, db_url, geni)
 
 # Clear expired paths reqgularly
 async def path_cleaner(db_url, geni):
+    # Sleep for a while to avoid database connection problem
+    await asyncio_sleep(10) 
     logger.info(f"Starting path cleaner")
     async with Database(db_url) as database:
         while True:
