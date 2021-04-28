@@ -492,8 +492,11 @@ class ChatsSIO:
             path_dict = await app.user2user_result_queue.get()
 
             cm = ChatManager(database)
+            pm = PathManager(database, geni, None)
             # Save new chat
             chat_id = await cm.save_new_chat(path_dict['source_id'], path_dict['target_id'])
+            # Relate chat to path
+            await pm.update_chat(path_dict['source_id'], path_dict['target_id'], chat_id)
             # Bring chatmates into the new chat room (if they are online)
             for profile_id in (path_dict['source_id'], path_dict['target_id']):
                 for sid in ChatsSIO.profile2sid[profile_id]:
