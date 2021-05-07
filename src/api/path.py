@@ -202,7 +202,7 @@ class PathManager:
                 'is_user2user': is_user2user,
                 'url': result.get('url', ''),
                 'step_count': result.get('step_count', 0),
-                'relationship': result.get('relationship', '')[:255],
+                'relationship': result.get('relationship', '')[:250],
                 'relations': result.get('relations', ''),
                 'updated_on': CURRENT_TIMESTAMP,
                 'finished_on': CURRENT_TIMESTAMP
@@ -257,7 +257,10 @@ async def path_finder_async(number, queue, user2user_result_queue, db_url, geni)
             except Exception as e:
                 # If any exception happened during processing, refer to all batch as 'pending'
                 pending_list = task_or_list
-                logger.warning(f"{log_prefix} Exception caught, requeueing the whole batch: {e}")
+                for task in pending_list:
+                    if not task.data.get('pending_ts'):
+                        task.data['pending_ts'] = datetime.datetime.now()
+                logger.warning(f"{log_prefix} Exception caught, ignoring the whole batch: {e}")
             # Enqueue pending list
             if pending_list:
                 await asyncio_sleep(0.5) # make a pause before inserting again pending tasks
