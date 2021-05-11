@@ -27,7 +27,7 @@
       </div>
     </div>
     <img
-      [src]="'/assets/img/maps/floor' + floor + '.jpg'"
+      [src]="'/assets/img/maps/floor' + floor + '-' + settings.getLocale() + '.jpg'"
       alt="map"
       (load)="mapLoadedHandler()"
       #map
