@@ -16,6 +16,7 @@ from databases import Database
 from sqlalchemy import create_engine, and_
 
 from multiprocessing import cpu_count
+import aiomonitor
 import asyncio
 from asyncio import PriorityQueue, Queue
 
@@ -225,17 +226,26 @@ class PathView(HTTPMethodView):
                       "token": token},
                       task_priority))
             if len(batch) >= PATH_FIND_BATCH:
-                q_index = random.randint(0, len(app.task_queue)-1)
+                q_index = PathView._choose_queue_index()
                 await app.task_queue[q_index].put((random.randint(1, max_priority), batch))
 
                 count += len(batch)
-                logger.info(f"Added to queue tasks of {count} profiles, queue size: {app.task_queue[q_index].qsize()}")
+                logger.info(f"Added task to queue, count: {count} profiles, queue: {q_index}, queue size: {app.task_queue[q_index].qsize()}")
                 batch = []
         # Last batch remainder
         if len(batch):
-            q_index = random.randint(0, len(app.task_queue)-1)
+            q_index = PathView._choose_queue_index()
             await app.task_queue[q_index].put((random.randint(1, max_priority), batch))
-            logger.info(f"Added to queue tasks of {count} profiles, queue size: {app.task_queue[q_index].qsize()}")
+            logger.info(f"Added to queue tasks of {count} profiles, queue: {q_index}, queue size: {app.task_queue[q_index].qsize()}")
+
+    @staticmethod
+    def _choose_queue_index():
+        q_sizes = [q.qsize() for q in app.task_queue]
+        min_q_index = q_sizes.index(min(q_sizes))
+        logger.info(f"Choosing shortest queue among: {q_sizes}, chosen: {min_q_index}")
+        return min_q_index
+
+        #return random.randint(0, len(app.task_queue)-1)
 
     @staticmethod
     @bp_paths.post("/users")
@@ -520,7 +530,8 @@ def setup_workers(app, loop):
                                           sys.argv[1] if len(sys.argv) > 1 else 0))
     quantity = process_quantity if process_quantity else cpu_count()*2+1
 
-    app.task_queue = [PriorityQueue(loop=loop)] * quantity
+    app.task_queue = [PriorityQueue(loop=loop) for i in range(0, quantity)]
+
     app.user2user_result_queue = Queue(loop=loop)
 
     # One-time load personalities
@@ -533,6 +544,8 @@ def setup_workers(app, loop):
     app.add_task(ChatsSIO.user2user_result_listener())
     # Create concurrent task for cleaning expired paths
     app.add_task(path_cleaner(db_url, geni))
+    # Start monitor
+    app.monitor = aiomonitor.start_monitor(loop=loop)
 
 
 @app.listener('before_server_start')

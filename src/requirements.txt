@@ -10,3 +10,4 @@ sanic==20.6.3
 Sanic-Cors==0.10.0.post3
 sanic-openapi==0.6.2
 alembic==1.4.3
+aiomonitor==0.4.5

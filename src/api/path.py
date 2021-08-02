@@ -7,7 +7,7 @@ from sqlalchemy import and_, select, join, func, distinct, delete
 from databases import Database
 from asyncio import Queue, sleep as asyncio_sleep
 import datetime
-import random
+import traceback
 
 PENDING_TIMEOUT = int(os.environ.get('PENDING_TIMEOUT', 30))
 PATH_FIND_BATCH = int(os.environ.get('PATH_FIND_BATCH', 10))
@@ -260,7 +260,10 @@ async def path_finder_async(number, queue, user2user_result_queue, db_url, geni)
                 for task in pending_list:
                     if not task.data.get('pending_ts'):
                         task.data['pending_ts'] = datetime.datetime.now()
-                logger.warning(f"{log_prefix} Exception caught, ignoring the whole batch: {e}")
+                logger.warning(f"{log_prefix} Exception caught, ignoring the whole batch:")
+                traceback.print_exc(file=sys.stdout)
+                logger.warning(f"{log_prefix} End of Exception caught ====")
+
             # Enqueue pending list
             if pending_list:
                 await asyncio_sleep(0.5) # make a pause before inserting again pending tasks
