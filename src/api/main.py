@@ -17,6 +17,7 @@ from sqlalchemy import create_engine, and_
 
 from multiprocessing import cpu_count
 import aiomonitor
+from aiomonitor.utils import all_tasks
 import asyncio
 from asyncio import PriorityQueue, Queue
 
@@ -69,6 +70,8 @@ bh_data = BHData()
 bp_profiles = Utils.create_blueprint("profiles")
 bp_paths = Utils.create_blueprint("paths")
 bp_chats = Utils.create_blueprint("chats")
+bp_debug = Utils.create_blueprint("debug")
+
 
 class Pagination:
     offset = doc.Integer()
@@ -517,10 +520,30 @@ class ChatsSIO:
                                             room=chat_id)
 
 
+
+class DebugView(HTTPMethodView):
+    @doc.consumes(Token, location='headers')
+    @doc.summary("Return debug information")
+    async def get(self, request: Request):
+        if request.ip != '127.0.0.1':
+            abort(403)
+        d_queues = [
+            {"size": q.qsize()} for q in app.task_queue
+        ]
+        task_dicts = []
+        for task in all_tasks(app.loop):
+            task_dict = {"id": str(id(task)),
+                         "state": task._state,
+                         "task": str(task)}
+            task_dicts.append(task_dict)
+        return json({"ip" : request.ip, "queues": d_queues, "tasks": task_dicts})
+
 # Add blueprints to the app
 Utils.add_blueprint(app, bp_profiles, ProfileView)
 Utils.add_blueprint(app, bp_paths, PathView)
 Utils.add_blueprint(app, bp_chats, ChatView)
+Utils.add_blueprint(app, bp_debug, DebugView)
+
 
 @app.listener('after_server_start')
 def setup_workers(app, loop):
@@ -544,8 +567,7 @@ def setup_workers(app, loop):
     app.add_task(ChatsSIO.user2user_result_listener())
     # Create concurrent task for cleaning expired paths
     app.add_task(path_cleaner(db_url, geni))
-    # Start monitor
-    app.monitor = aiomonitor.start_monitor(loop=loop)
+
 
 
 @app.listener('before_server_start')
@@ -558,8 +580,8 @@ async def close_db(app, loop):
     
 if __name__ == "__main__":
     worker_quantity = int(os.environ.get('WORKER_QUANTITY',cpu_count()))
-
-    app.run( port=int(os.environ.get('PORT', 4200)),
+    APP_PORT = int(os.environ.get('PORT', 4200))
+    app.run( port=APP_PORT,
         host=os.environ.get('HOST', "127.0.0.1"),
         debug=False,
         workers=worker_quantity)
