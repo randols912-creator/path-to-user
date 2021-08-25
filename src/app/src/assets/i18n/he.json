@@ -47,6 +47,7 @@
   },
   "menu": {
     "locale": "English",
+    "tutorial": "מדריך למשתמש",
     "help": "עזרה",
     "about": "אודות",
     "logOut": "התנתקות מהחשבון"

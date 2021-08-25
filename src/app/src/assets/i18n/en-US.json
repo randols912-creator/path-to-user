@@ -47,6 +47,7 @@
   },
   "menu": {
     "locale": "עברית",
+    "tutorial": "Tutorial",
     "help": "Help",
     "about": "About",
     "logOut": "log out"

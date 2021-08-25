@@ -158,6 +158,10 @@ export class MapComponent implements OnInit {
   get labelText() {
     return this.relation?.value?.bh_location?.name[this.settings.getLocale()];
   }
+
+  get locale() {
+    return this.settings.getLocale();
+  }
 }
 
 interface Location {

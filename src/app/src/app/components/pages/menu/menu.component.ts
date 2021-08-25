@@ -34,4 +34,8 @@ export class MenuComponent implements OnInit {
   get aboutUrl() {
     return `/${ABOUT_PATH}`;
   }
+
+  get locale() {
+    return this.settings.getLocale();
+  }
 }
