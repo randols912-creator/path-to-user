@@ -51,7 +51,7 @@ export class RelationService {
         { count: totalPathsCount },
       ]) => {
         if (totalPathsCount < profilesCount) {
-          debugMessage('Source or target profiles are empty');
+          debugMessage('Reset / Source or target profiles are empty');
           this.triggerBackendWorkers();
         }
 
@@ -68,6 +68,24 @@ export class RelationService {
         this.status.next(Status.ERROR);
       }
     );
+  }
+
+  reset() {
+    this.relations = [];
+    this.uniqueIds.clear();
+    this.pathsCount = 0;
+    this.pathsCountTs = Date.now();
+    this.status.next(Status.INITIALIZING);
+
+
+    this.http.delete(FETCH_PATHS_URL, {}).subscribe(() => {
+      debugMessage('Reset connections - starting search again after a bit!');
+      setTimeout(
+        () => this.search(),
+        2*MILLIS_BETWEEN_API_CALLS
+      );
+      
+    }); 
   }
 
   private notReady(

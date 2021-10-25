@@ -1,11 +1,5 @@
 <app-title-bar [showMenu]="false" [showGoBack]="true"></app-title-bar>
 <div class="menu-container">
-  <!-- TODO hidden for now -->
-  <div *ngIf="false">
-    <button type="button" class="btn btn-link bigger-text">עברית</button>
-    <img src="assets/img/lineOfCircles.svg" class="circles-separator" />
-    <button type="button" class="btn btn-link bigger-text">About</button>
-  </div>
   <button
     (click)="switchLocaleHandler()"
     type="button"
@@ -36,6 +30,15 @@
   <a [routerLink]="[aboutUrl]" class="btn btn-link bigger-text" translate
     >menu.about</a
   >
+  <img src="assets/img/lineOfCircles.svg" class="circles-separator" *ngIf="isAuthenticated" />
+  <button
+    *ngIf="isAuthenticated"
+    (click)="resetConnections()"
+    [disabled]="isLoading"
+    type="button"
+    class="btn btn-link bigger-text"
+    translate
+  >menu.reset</button>
   <img src="assets/img/lineOfCircles.svg" class="circles-separator" />
   <button
     *ngIf="isAuthenticated"

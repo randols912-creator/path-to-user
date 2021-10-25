@@ -198,12 +198,37 @@ class PathView(HTTPMethodView):
     @staticmethod
     @bp_paths.post("/personalities")
     @doc.consumes(Token, location='headers')
+    @doc.consumes(doc.Boolean(name="reset", description="Whether reset connection cache"))
     @doc.summary("Initiate path search from current user to all personalities")
     async def post_search_personalities(request):
         token = await Token.validate(request.headers.get(TOKEN_PARAM))
+        do_reset = request.json.get('reset')
+        if do_reset:
+            await PathView._reset_connections(token)
+
         asyncio.create_task(PathView._post_search_personalities(token))
         logger.info(f"Started personalities paths search: {token}")
         return json({"status": "Started personalities paths search"})
+
+    @staticmethod
+    @bp_paths.delete("/personalities")
+    @doc.consumes(Token, location='headers')
+    @doc.summary("Delete paths from user to all personalities")
+    async def delete_search_personalities(request):
+        token = await Token.validate(request.headers.get(TOKEN_PARAM))
+        await PathView._reset_connections(token)
+        return json({"status": "Deleted personalities paths"})
+
+    @staticmethod
+    async def _reset_connections(token):
+        pm = ProfileManager(database, geni, token)
+        path_mgr = PathManager(database, geni, token)
+        my_profile = await pm.cache()
+        await path_mgr.clear_paths(my_profile['id'])
+        logger.info(f"Deleted personalities paths search for : {my_profile['id']}")
+
+
+
 
     @staticmethod 
     async def _post_search_personalities(token):

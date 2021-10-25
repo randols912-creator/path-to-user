@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { ABOUT_PATH, WELCOME_PATH } from 'src/app/app.constants';
+import { ABOUT_PATH, WELCOME_PATH, HOME_PATH } from 'src/app/app.constants';
 import { AuthService } from 'src/app/auth/auth.service';
 import { SettingsService } from 'src/app/services/settings.service';
+import { RelationService, Status as ServiceStatus } from 'src/app/services/relation.service';
 
 @Component({
   selector: 'app-menu',
@@ -10,13 +11,20 @@ import { SettingsService } from 'src/app/services/settings.service';
   styleUrls: ['./menu.component.css'],
 })
 export class MenuComponent implements OnInit {
+  isLoadingStatus: boolean;
+
   constructor(
     private auth: AuthService,
     private router: Router,
-    private settings: SettingsService
+    private settings: SettingsService,
+    private relationService: RelationService
   ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.relationService.status.subscribe((status) => {
+      this.isLoadingStatus = !(status == ServiceStatus.ERROR || status == ServiceStatus.READY)
+    });
+  }
 
   logoutHandler(): void {
     this.auth.logout();
@@ -25,6 +33,11 @@ export class MenuComponent implements OnInit {
 
   switchLocaleHandler(): void {
     this.settings.switchToNextLocale();
+  }
+
+  resetConnections(): void {
+    this.relationService.reset();
+    this.router.navigate([`/${HOME_PATH}`]);
   }
 
   get isAuthenticated() {
@@ -37,5 +50,9 @@ export class MenuComponent implements OnInit {
 
   get locale() {
     return this.settings.getLocale();
+  }
+
+  get isLoading() {
+    return this.isLoadingStatus;
   }
 }

@@ -50,7 +50,8 @@
     "tutorial": "Tutorial",
     "help": "Help",
     "about": "About",
-    "logOut": "log out"
+    "reset": "Reset connections",
+    "logOut": "Log out"
   },
   "about": {
     "app": {

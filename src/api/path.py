@@ -110,6 +110,12 @@ class PathManager:
         count = await self.database.fetch_one(query=query)
         return count[0]
 
+    async def clear_paths(self, source_id: str, user2user=False):
+        query = delete(paths_table).where(and_(paths_table.c.source_id == source_id,
+                                                paths_table.c.is_user2user == user2user))
+        return await self.database.execute(query=query)
+
+
     async def clear_expired_paths(self, user2user=False):
         if user2user:
             # Delete u2u paths without chats after 24 hours
