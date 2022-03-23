@@ -1,53 +1,70 @@
-<div class="title-bar">
-  <button
-    class="btn close-menu-icon"
-    *ngIf="showGoBack"
-    (click)="goBackHandler()"
-  >
-    <img src="assets/img/x.svg" alt="" />
-  </button>
-  <button
-    *ngIf="showGoToAllResultsButton"
-    (click)="goToAllResults()"
-    class="btn close-menu-icon"
-  >
-    <img src="assets/img/x.svg" alt="x" />
-  </button>
-  <button
-    *ngIf="showGoToAllResultsText"
-    (click)="goToAllResults()"
-    class="btn btn-lnk small-text all-results"
-    translate
-  >
-    titleBar.toAllResults
-  </button>
-  <a
-    *ngIf="showSettings"
-    [ngClass]="{ 'active-settings-action': settingsAction === 'sort' }"
-    [routerLink]="[settingsUrl, { action: 'sort' }]"
-  >
-    <img src="assets/img/sort.svg" alt="" />
-    <span class="small-text">Sort by</span>
-  </a>
-  <a
-    *ngIf="showSettings"
-    [ngClass]="{ 'active-settings-action': settingsAction === 'search' }"
-    [routerLink]="[settingsUrl, { action: 'search' }]"
-  >
-    <img src="assets/img/search.svg" alt="" />
-    <span class="small-text">Search</span>
-  </a>
-  <img *ngIf="showTitle"
-    src="assets/img/ANU-family.svg"
-    alt=""
-    class="title-logo"
-  />
-  <app-p2p-button *ngIf="showP2P" class="p2p"></app-p2p-button>
-  <button
-    *ngIf="showMenu"
-    class="btn open-menu-icon"
-    (click)="gotoMenuHandler()"
-  >
-    <img src="assets/img/menu.svg" alt="menu" />
-  </button>
+<div class="title-bar-box">
+  <div class="title-bar">
+    <div class="title-bar display" *ngIf="showGoToAllResultsButton">
+      <button *ngIf="showGoToAllResultsButton" (click)="goToAllResults()" class="btn close-menu-icon">
+        <img src="assets/img/x.svg" alt="x" />
+      </button>
+      <div class="three_block">
+        <div class="title_bar_text">
+  
+          <a class="filter_text" *ngIf="showSettings"
+            [ngClass]="{ 'active-settings-action': settingsAction === 'filter' }"
+            [routerLink]="[settingsUrl, { action: 'filter' }]">
+            <img src="assets/img/filter.svg" alt="" />&nbsp;&nbsp;
+            <span class="small-text">Filters</span>
+          </a>
+          <a class="shorting_text" *ngIf="showSettings"
+            [ngClass]="{ 'active-settings-action': settingsAction === 'sort' }"
+            [routerLink]="[settingsUrl, { action: 'sort' }]">
+            <img src="assets/img/sort.svg" alt="" />&nbsp;&nbsp;
+            <span class="small-text">Sorting</span>
+          </a>
+  
+        </div>
+        <div class="serchbar">
+          <a class="search_text" *ngIf="showSettings"
+            [ngClass]="{ 'active-settings-action': settingsAction === 'search' }"
+            [routerLink]="[settingsUrl, { action: 'search' }]">
+            <img src="assets/img/search.svg" alt="" />&nbsp;&nbsp;
+            <span class="small-text">Search</span>
+          </a>
+        </div>
+      </div>
+    </div>
+    <button class="btn close-menu-icon" *ngIf="showGoBack" (click)="goBackHandler()">
+      <img src="assets/img/x.svg" alt="" />
+    </button>
+    <button *ngIf="showGoToAllResultsText" (click)="goToAllResults()" class="btn btn-lnk small-text all-results"
+      translate>
+      titleBar.toAllResults
+    </button>
+  
+    <img *ngIf="showTitle" src="assets/img/ANU-family.svg" alt="" class="title-logo" />
+    <app-p2p-button *ngIf="showP2P" class="p2p"></app-p2p-button>
+    <button *ngIf="showMenu" class="btn open-menu-icon" (click)="gotoMenuHandler()">
+      <img src="assets/img/menu.svg" alt="menu" />
+    </button>
+  </div>
+  <hr class="hr_line" *ngIf="showMenu">
+  <div class="three_block" *ngIf="showMenu">
+    <div class="title_bar_text">
+      <a class="filter_text" *ngIf="showSettings" [ngClass]="{ 'active-settings-action': settingsAction === 'filter' }"
+        [routerLink]="[settingsUrl, { action: 'filter' }]">
+        <img src="assets/img/filter.svg" alt="" />&nbsp;&nbsp;
+        <span class="small-text">Filters</span>
+      </a>
+      <a class="shorting_text" *ngIf="showSettings" [ngClass]="{ 'active-settings-action': settingsAction === 'sort' }"
+        [routerLink]="[settingsUrl, { action: 'sort' }]">
+        <img src="assets/img/sort.svg" alt="" />&nbsp;&nbsp;
+        <span class="small-text">Sorting</span>
+      </a>
+    </div>
+    <div class="serchbar">
+      <a class="search_text" *ngIf="showSettings" [ngClass]="{ 'active-settings-action': settingsAction === 'search' }"
+        [routerLink]="[settingsUrl, { action: 'search' }]">
+        <img src="assets/img/search.svg" alt="" />&nbsp;&nbsp;
+        <span class="small-text">Search</span>
+      </a>
+    </div>
+  </div>
 </div>

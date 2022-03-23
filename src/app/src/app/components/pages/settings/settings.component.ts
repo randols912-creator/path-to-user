@@ -25,6 +25,7 @@ export class SettingsComponent implements OnInit {
 }
 
 export enum SettingsAction {
+  FILTER = 'filter',
   SORT = 'sort',
   SEARCH = 'search',
 }

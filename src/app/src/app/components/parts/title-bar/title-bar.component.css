@@ -2,10 +2,9 @@
   position: relative;
   height: 6.1vh;
   border: 1px solid #efefef;
-  display: flex;
+  /* display: flex; */
   align-items: center;
-  background: transparent linear-gradient(270deg, #ffffff 0%, #efefef 100%) 0%
-    0% no-repeat padding-box;
+  background: transparent linear-gradient(270deg, #ffffff 0%, #efefef 100%) 0% 0% no-repeat padding-box;
 }
 
 h4 {
@@ -30,7 +29,6 @@ h4 img {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-
 }
 
 button {
@@ -68,6 +66,57 @@ button:focus {
   height: 18px;
 }
 
+.title_bar_text {
+  display: flex;
+  padding-bottom: 3px;
+}
+hr.hr_line {
+  border-top: 1px dashed #c9c9c9;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.shorting_text,
+.search_text,
+.filter_text {
+  display: flex;
+  align-items: center;
+  margin: 0px 20px;
+  padding-right: 20px;
+}
+
+.shorting_text img {
+  max-width: 20px;
+}
+.filter_text img {
+  max-width: 20px;
+}
+.search_text img {
+  max-width: 20px;
+}
+.three_block {
+  display: flex;
+  justify-content: space-between;
+}
+.display {
+  display: flex;
+}
+.title-bar-box {
+  background: #fff 0% 0% no-repeat padding-box;
+  box-shadow: 0px 3px 3px #00000029;
+}
+
 .active-settings-action {
-  border-bottom: 3px solid #ff9e1e;
+  border: none;
+  border-bottom: none;
+  position: relative;
+}
+.active-settings-action:after {
+  content: "";
+  background: transparent linear-gradient(263deg, #ffdba7 0%, #ff9e1e 100%) 0% 0% no-repeat padding-box;
+  height: 3px;
+  width: 61px;
+  position: absolute;
+  bottom: 0;
+  top: 25px;
 }

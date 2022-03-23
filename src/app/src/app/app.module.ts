@@ -46,6 +46,10 @@ import { TitleBarComponent } from './components/parts/title-bar/title-bar.compon
 import { ToolbarComponent } from './components/parts/toolbar/toolbar.component';
 import { ModalRefDirective } from './directives/modal-ref.directive';
 import { RelationsSortByPipe } from './pipes/relations-sort-by.pipe';
+import { SearchComponent } from './components/pages/settings/search/search.component';
+import { FiltersComponent } from './components/pages/settings/filters/filters.component';
+import { AccordionModule } from 'ngx-bootstrap/accordion';
+import { FilterPipeModule } from 'ngx-filter-pipe';
 
 const INTERCEPTOR_PROVIDER: Provider = {
   provide: HTTP_INTERCEPTORS,
@@ -88,6 +92,8 @@ class JsonpInterceptorModule {}
     RelationsSortByPipe,
     SettingsComponent,
     SortComponent,
+    SearchComponent,
+    FiltersComponent,
     RelativesInfoModalComponent,
     ModalRefDirective,
     MapPinComponent,
@@ -103,6 +109,8 @@ class JsonpInterceptorModule {}
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    AccordionModule.forRoot(),
+    FilterPipeModule,
     AppRoutingModule,
     HttpClientModule,
     JsonpInterceptorModule, // Must be before the HttpClientJsonpModule to use interceptor

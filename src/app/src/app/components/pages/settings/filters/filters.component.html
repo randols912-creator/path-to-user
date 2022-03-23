@@ -1,0 +1,54 @@
+<accordion [closeOthers]="oneAtATime" class="custom_accordion">
+    <form class="filter-settings-form" [formGroup]="filterForm">
+        <div style="display: flex;">
+            <accordion-group heading="Sex">
+                <div class="display_flex_padding">
+                    <label for="filterOption{{ i }}" *ngFor="let option of male_femaleOptions; let i = index"
+                        class="filter-settings-option"><span [ngClass]="{ active: filterForm.value.filterOrder === i }"
+                            class="checkmark"></span>
+                        {{ option }}
+                        <input formControlName="filterOrder" type="radio" [value]="i" id="filterOption{{ i }}"
+                            (change)="onchange()" />
+                    </label>
+                </div>
+            </accordion-group>
+            <a class="clear_button">Clear</a>
+        </div>
+        <accordion-group heading="Years">
+            <div class="display_flex_padding">
+                <span class="span_input">form: </span><input type="text" class="filter_input"><span
+                    class="span_input span_to">to:</span><input type="text" class="filter_input">
+            </div>
+        </accordion-group>
+        <accordion-group heading="Birth country">
+            <div class="display_flex_padding">
+                <label for="filterOption{{ i }}" *ngFor="let option of male_femaleOptions; let i = index"
+                    class="filter-settings-option">
+                    <span class="checkmark"></span>
+                    {{ option }}
+                    <input formControlName="filterOrder" type="checkbox" [value]="i" id="filterOption{{ i }}" />
+                </label>
+            </div>
+        </accordion-group>
+        <accordion-group heading="Place at the museum">
+            <div class="display_flex_padding">
+                <label for="filterOption{{ i }}" *ngFor="let option of male_femaleOptions; let i = index"
+                    class="filter-settings-option"><span [ngClass]="{ active: filterForm.value.filterOrder === i }"
+                        class="checkmark"></span>
+                    {{ option }}
+                    <input formControlName="filterOrder" type="radio" [value]="i" id="filterOption{{ i }}" />
+                </label>
+            </div>
+        </accordion-group>
+        <accordion-group heading="Profession">
+            <div>
+                <div class="round" *ngFor="let option of profession; let i = index">
+                    <input type="checkbox" id="{{option.id}}" />{{option.lable}}
+                    <label for="{{option.id}}"></label>
+                </div>
+            </div>
+        </accordion-group>
+    </form>
+</accordion>
+<!-- <button class="finish-button" [disabled]="filterForm.value">Filter</button> -->
+<!-- <button class="finish-button">Filter</button> -->

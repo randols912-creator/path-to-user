@@ -30,3 +30,28 @@
     radial-gradient(closest-side at 27% 26%, #ffdba7 0%, #ff9e1e 100%) 0% 0%
     no-repeat padding-box;
 }
+
+.settings .finish-button {
+  padding: 0;
+  margin: 0;
+  border: none;
+  width: 100%;
+
+  position: absolute;
+  bottom: 0;
+  left: 0;
+
+  font: Bold 16px Open Sans Hebrew;
+  line-height: 32px;
+  letter-spacing: 0;
+
+  background-color: unset;
+  background: transparent linear-gradient(263deg, #ffdba7 0%, #ff9e1e 100%) 0% 0% no-repeat padding-box;
+  opacity: 1;
+}
+
+button:focus {
+  outline: 1px dotted;
+  outline: 5px auto -webkit-focus-ring-color;
+  outline: none;
+}
