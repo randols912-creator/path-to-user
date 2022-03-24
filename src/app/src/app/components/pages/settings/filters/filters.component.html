@@ -21,31 +21,28 @@
             </div>
         </accordion-group>
         <accordion-group heading="Birth country">
-            <div class="display_flex_padding">
-                <label for="filterOption{{ i }}" *ngFor="let option of male_femaleOptions; let i = index"
-                    class="filter-settings-option">
-                    <span class="checkmark"></span>
-                    {{ option }}
-                    <input formControlName="filterOrder" type="checkbox" [value]="i" id="filterOption{{ i }}" />
-                </label>
+            <div class="round_checkbox">
+                <div class="round" *ngFor="let country of birth_country; let i = index">
+                    <input type="checkbox" id="option{{ i }}" [value]="i"  formControlName="country" (change)="onchange1()" >{{country}}
+                    <label class="uncheck" for="option{{ i }}"></label>
+                </div>
             </div>
         </accordion-group>
         <accordion-group heading="Place at the museum">
-            <div class="display_flex_padding">
-                <label for="filterOption{{ i }}" *ngFor="let option of male_femaleOptions; let i = index"
-                    class="filter-settings-option"><span [ngClass]="{ active: filterForm.value.filterOrder === i }"
-                        class="checkmark"></span>
-                    {{ option }}
-                    <input formControlName="filterOrder" type="radio" [value]="i" id="filterOption{{ i }}" />
-                </label>
+            <div class="round_checkbox">
+                <div class="round" *ngFor="let museum of place_at_museum; let i = index">
+                    <input  type="checkbox" />{{museum}}
+                    <label class="uncheck" ></label>
+                </div>
             </div>
         </accordion-group>
         <accordion-group heading="Profession">
-            <div>
-                <div class="round" *ngFor="let option of profession; let i = index">
-                    <input type="checkbox" id="{{option.id}}" />{{option.lable}}
-                    <label for="{{option.id}}"></label>
-                </div>
+            <div class="round" *ngFor="let profession of profession">
+                <input type="checkbox" id="{{profession.id}}" >
+                <span class="bhf-theme"
+                    [ngStyle]="{'backgroundColor':categoryColor(profession.profession_name)}">{{profession.profession_name
+                    }}</span>
+                <label class="uncheck" for="{{profession.id}}"></label>
             </div>
         </accordion-group>
     </form>
