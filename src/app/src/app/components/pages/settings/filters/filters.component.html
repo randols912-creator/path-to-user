@@ -12,7 +12,7 @@
                     </label>
                 </div>
             </accordion-group>
-            <a class="clear_button">Clear</a>
+            <a *ngIf="ischeckedradio" class="clear_button" (click)="clear()">Clear</a>
         </div>
         <accordion-group heading="Years">
             <div class="display_flex_padding">
@@ -20,32 +20,49 @@
                     class="span_input span_to">to:</span><input type="text" class="filter_input">
             </div>
         </accordion-group>
-        <accordion-group heading="Birth country">
-            <div class="round_checkbox">
-                <div class="round" *ngFor="let country of birth_country; let i = index">
-                    <input type="checkbox" id="option{{ i }}" [value]="i"  formControlName="country" (change)="onchange1()" >{{country}}
-                    <label class="uncheck" for="option{{ i }}"></label>
+        <div style="display: flex;">
+            <accordion-group heading="Birth country">
+                <div class="round_checkbox">
+                    <div class="round" *ngFor="let country of birth_country; let i = index">
+                        <label><span [ngClass]="{'chwckbox':country.isChecked == true}" class="uncheck"></span>
+                            <input type="checkbox" id="" value="" formControlName="country" (change)="onchangecountry()"
+                                [(ngModel)]="country.isChecked">{{country.name}}
+                        </label>
+                    </div>
                 </div>
-            </div>
-        </accordion-group>
-        <accordion-group heading="Place at the museum">
-            <div class="round_checkbox">
-                <div class="round" *ngFor="let museum of place_at_museum; let i = index">
-                    <input  type="checkbox" />{{museum}}
-                    <label class="uncheck" ></label>
+            </accordion-group>
+            <a *ngIf="isCheckedcountry" class="clear_button"  (click)="clearcountry()">Clear</a>
+        </div>
+        <div style="display: flex;">
+            <accordion-group heading="Place at the museum">
+                <div class="round_checkbox">
+                    <div class="round" *ngFor="let museum_name of place_at_museum; let i = index">
+                        <label><span [ngClass]="{'chwckbox':museum_name.isChecked == true}" class="uncheck"></span>
+                            <input type="checkbox" id="" value="" formControlName="museum" (change)="onchangemuseum()"
+                                [(ngModel)]="museum_name.isChecked">{{museum_name.place_museum_name}}
+                        </label>
+                    </div>
                 </div>
-            </div>
-        </accordion-group>
-        <accordion-group heading="Profession">
-            <div class="round" *ngFor="let profession of profession">
-                <input type="checkbox" id="{{profession.id}}" >
-                <span class="bhf-theme"
-                    [ngStyle]="{'backgroundColor':categoryColor(profession.profession_name)}">{{profession.profession_name
-                    }}</span>
-                <label class="uncheck" for="{{profession.id}}"></label>
-            </div>
-        </accordion-group>
+            </accordion-group>
+            <a *ngIf="isCheckedmuseum" class="clear_button"  (click)="clear()">Clear</a>
+        </div>
+        <div style="display: flex;">
+            <accordion-group heading="Profession">
+                <div class="round_checkbox" *ngFor="let profession of professions; let i = index">
+                    <div class="round">
+                        <label><span [ngClass]="{'chwckbox':profession.isChecked == true}" class="uncheck"></span>
+                            <input type="checkbox" id="" value="" formControlName="profession_name"
+                                (change)="onchangeprofession()" [(ngModel)]="profession.isChecked">
+                            <span class="bhf-theme"
+                                [ngStyle]="{'backgroundColor':categoryColor(profession.profession_name)}">{{profession.profession_name
+                                }}</span>
+                        </label>
+                    </div>
+                </div>
+            </accordion-group>
+            <a *ngIf="isCheckrdprofession" class="clear_button"  (click)="clear()">Clear</a>
+        </div>
     </form>
 </accordion>
 <!-- <button class="finish-button" [disabled]="filterForm.value">Filter</button> -->
-<!-- <button class="finish-button">Filter</button> -->
+<button class="finish-button">Filter</button>
