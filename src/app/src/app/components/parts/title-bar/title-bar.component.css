@@ -60,6 +60,8 @@ button:focus {
 
 .btn.open-menu-icon {
   margin-left: auto;
+  position: absolute;
+  right: 0;
 }
 
 .btn.open-menu-icon img {

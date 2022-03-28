@@ -19,6 +19,7 @@ export class TitleBarComponent {
   @Input() showGoToAllResultsButton = false;
   @Input() showSettings = false;
   @Input() showP2P = false;
+  @Input() showMenuHome = false;
 
   @Input() settingsAction: SettingsAction;
 

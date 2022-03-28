@@ -1,6 +1,25 @@
-<div class="relations-list" #list>
-  <app-relation-card
-    [relation]="relation"
-    *ngFor="let relation of relations | relationsSortBy: sortOrder: limit"
-  ></app-relation-card>
+<div class="relations-list" *ngIf="relations.length" #list>
+  <app-relation-card [relation]="relation"
+    *ngFor="let relation of relations | paginate: config | relationsSortBy: sortOrder: limit">
+  </app-relation-card>
+  <div class="custom_image">
+    <img src="assets/img/home.png" alt="" class="title-logo" style="width: 18px; padding-top: 5px;"/>
+    <pagination-template #p="paginationApi" [id]="config.id" (pageChange)="config.currentPage = $event">
+      <div class="custom-pagination">
+        <div class="pagination-previous" [class.disabled]="p.isFirstPage()">
+          <span (click)="p.previous()">
+            < </span>
+        </div>
+        <div class="page-number" *ngFor="let page of p.pages" [class.current]="p.getCurrent() === page.value">
+          <span (click)="p.setCurrent(page.value)" *ngIf="p.getCurrent() !== page.value">{{ page.label }}</span>
+          <div *ngIf="p.getCurrent() === page.value" style="display: flex;">
+            <span>{{ page.label }}</span><span>of</span>
+          </div>
+        </div>
+        <div class="pagination-next" [class.disabled]="p.isLastPage()">
+          <span *ngIf="!p.isLastPage()" (click)="p.next()"> > </span>
+        </div>
+      </div>
+    </pagination-template>
+  </div>
 </div>
