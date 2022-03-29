@@ -1,3 +1,4 @@
+@import '../node_modules/@icon/themify-icons/themify-icons.css';
 html,
 body,
 app-root {
@@ -127,5 +128,10 @@ html * {
 
 .btn.btn-link:focus {
   box-shadow: none;
+  text-decoration: none;
+}
+
+a:hover {
+  color: none;
   text-decoration: none;
 }

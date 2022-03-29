@@ -6,6 +6,7 @@
     [showTitle]="false"
     [showMenu]="false"
   ></app-title-bar>
+  <app-filters *ngIf="action === 'filter'"></app-filters>
   <app-sort *ngIf="action === 'sort'"></app-sort>
-  <button class="finish-button" (click)="goToAllResults()">Finish</button>
+  <app-search *ngIf="action === 'search'"></app-search>
 </div>

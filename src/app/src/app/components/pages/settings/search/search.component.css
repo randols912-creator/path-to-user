@@ -1,0 +1,87 @@
+.serach-settings-form {
+    padding: 26px 10px;
+}
+
+.search-settings-option {
+    display: flex;
+    align-items: center;
+    margin-bottom: 28px;
+}
+
+.subtitle-text {
+    font: normal 14px Open Sans Hebrew;
+    letter-spacing: -0.14px;
+    color: #353535;
+}
+
+.serach_input {
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+    display: block;
+    width: 100%;
+    height: calc(1.5em + 0.75rem + 2px);
+    padding: 0px 0 0 18px;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border-bottom: 1px solid #ced4da;
+}
+.custome_search {
+    position: relative;
+}
+.custome_search label {
+    width: 100%;
+}
+.custome_search:after {
+    background-image: 'assets/img/search.svg';
+    font-family: "themify-icons";
+    position: absolute;
+    right: 3%;
+    top: 30%;
+}
+
+.custome_search :focus-visible {
+    outline: none;
+}
+
+.settings .finish-button {
+    padding: 0;
+    margin: 0;
+    border: none;
+    width: 100%;
+
+    position: absolute;
+    bottom: 0;
+    left: 0;
+
+    font: Bold 16px Open Sans Hebrew;
+    line-height: 32px;
+    letter-spacing: 0;
+
+    background-color: unset;
+    background: transparent linear-gradient(263deg, #ffdba7 0%, #ff9e1e 100%) 0% 0% no-repeat padding-box;
+    opacity: 1;
+}
+
+button:focus {
+    outline: 1px dotted;
+    outline: 5px auto -webkit-focus-ring-color;
+    outline: none;
+}
+
+.search_result {
+    padding: 0 0 0 27px;
+}
+.search_text{
+    display: flex;
+}
+.search_text img {
+    border-bottom: 1px solid #ced4da;
+    max-width: 30px;
+    padding: 0 8px 0 8px;
+}

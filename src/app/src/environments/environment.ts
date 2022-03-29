@@ -5,10 +5,10 @@
 import Environment from './IEnvironment';
 
 export const environment: Environment = {
-  production: false,
-  host: window.location.origin,
-  relationsServiceHost: '',
-  socketioUrl: `http://${window.location.hostname}:5050`,
+  production: true,
+  host: 'https://geni.anumuseum.org.il',
+  relationsServiceHost: 'https://geni.anumuseum.org.il',
+  socketioUrl: 'https://geni.anumuseum.org.il',
 };
 
 /*

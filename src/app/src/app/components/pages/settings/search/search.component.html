@@ -1,0 +1,18 @@
+<div class="settings">
+    <form class="serach-settings-form custome_search">
+        <label class="subtitle-text">
+            <span class="search_text">
+                <input class="serach_input" type="text" name="search" [(ngModel)]="userFilter.name" (click)="ckangecolor($event)">
+                <img class="input_img" src="assets/img/search.svg" alt="" id="img_serach"/>
+            </span>
+        </label>
+    </form>
+    <span *ngIf="userFilter.name">
+        <p *ngFor="let user of users | filterBy: userFilter" class="search_result">
+            {{ user.name }}
+        </p>
+        <p *ngIf="(users | filterBy: userFilter).length === 0" class="search_result">
+            No matching elements
+        </p>
+    </span>
+</div>
