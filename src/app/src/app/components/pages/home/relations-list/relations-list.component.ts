@@ -30,13 +30,13 @@ export class RelationsListComponent {
   limit = INITIAL_RELATIONS_LIMIT;
   p: number = 1;
   @Input('data') meals: string[] = [];
-
-    public config: PaginationInstance = {
-        id: 'custom',
-        itemsPerPage: 10,
-        currentPage: 1
-    };
-  constructor(private settingsService: SettingsService) {}
+  public config: PaginationInstance = {
+    id: 'custom',
+    itemsPerPage: 10,
+    currentPage: 1
+  };
+  total: number;
+  constructor(private settingsService: SettingsService) { }
 
   @HostListener('window:scroll', [])
   verticalScrollListener() {
@@ -46,6 +46,15 @@ export class RelationsListComponent {
   }
 
   get sortOrder(): RelationSortOrder {
+    this.total = Math.ceil((this.relations.length / 10))
     return this.settingsService.getSortOrder();
+  }
+
+  onPageChange(event) {
+    this.config.currentPage = event;
+  }
+
+  onPageFirst(){
+    this.config.currentPage = 1;
   }
 }
