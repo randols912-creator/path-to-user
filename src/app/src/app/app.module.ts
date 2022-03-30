@@ -51,6 +51,7 @@ import { FiltersComponent } from './components/pages/settings/filters/filters.co
 import { AccordionModule } from 'ngx-bootstrap/accordion';
 import { FilterPipeModule } from 'ngx-filter-pipe';
 import { NgxPaginationModule } from 'ngx-pagination';
+import { SearchPipePipe } from './pipes/search-pipe.pipe';
 
 const INTERCEPTOR_PROVIDER: Provider = {
   provide: HTTP_INTERCEPTORS,
@@ -105,7 +106,8 @@ class JsonpInterceptorModule {}
     P2pButtonComponent,
     P2pChatComponent,
     PredefinedMessagesComponent,
-    P2pMessageModalComponent
+    P2pMessageModalComponent,
+    SearchPipePipe
   ],
   imports: [
     BrowserModule,

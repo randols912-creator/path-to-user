@@ -72,3 +72,16 @@
     </div>
   </div>
 </div>
+<div class="title-bar" *ngIf="!showMenuHome">
+  <span>
+    <span *ngIf="!showGoBack">
+      <button class="btn open-menu-icon" (click)="gotoMenuHandler()">
+        <img src="assets/img/menu.svg" alt="menu" />
+      </button>
+    </span>
+    <button class="btn close-menu-icon" *ngIf="showGoBack" (click)="goBackHandler()">
+      <img src="assets/img/x.svg" alt="" />
+    </button>
+    <img *ngIf="showTitle" src="assets/img/ANU-family.svg" alt="" class="title-logo" />
+  </span>
+</div>
