@@ -5,8 +5,9 @@
     [showSettings]="true"
     [showTitle]="false"
     [showMenu]="false"
+    [showMenuHome]="true"
   ></app-title-bar>
   <app-filters *ngIf="action === 'filter'"></app-filters>
   <app-sort *ngIf="action === 'sort'"></app-sort>
-  <app-search *ngIf="action === 'search'"></app-search>
+  <app-search *ngIf="action === 'search'" [relations]="relations"></app-search>
 </div>

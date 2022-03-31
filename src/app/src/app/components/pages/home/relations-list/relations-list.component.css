@@ -1,3 +1,78 @@
 .relations-list {
   padding: 2vh 3vw;
 }
+
+.custom-pagination .page-number{
+  display: inline-block;
+  /* padding: 5px 12px; */
+  margin: 0px 4px;
+  border-radius: 25px;
+}
+
+.page-number.current{
+  background: #ffffff!important;
+}
+
+/* .page-number span{
+  display: block;
+  height: 28px;
+  font-size: 18px;
+  cursor: pointer;
+} */
+
+.pagination-previous,.pagination-next{
+  display: inline-block;
+  font-weight: bold;
+  color: #4b4b4b;
+}
+
+.custom-pagination {
+  position: absolute;
+  padding-top: 3px;
+  padding-left: 5px;
+}
+
+.custom_image {
+  display: flex;
+  padding-top: 8px;
+  padding-left: 36%;
+}
+
+.leftarrow::before{
+  content: "\e64a" !important;
+  display: inline-block;
+  margin-right: 0.5rem;
+  font-family: "themify-icons";
+  cursor: pointer;
+}
+
+.rightarrow::before{
+  content: "\e649" !important;
+  display: inline-block;
+  margin-left: 0.5rem;
+  font-family: "themify-icons";
+  cursor: pointer;
+}
+
+.cursor_default{
+  cursor: default !important;
+  color: #4b4b4b;
+}
+
+.button_img{
+  background-color: #ffffff;
+  border: none;
+}
+
+.button_img:focus-visible {
+  outline: transparent;
+}
+.button_img:focus {
+  outline: transparent;
+}
+.span_width_1{
+  width: 10px;
+}
+.span_width_of{
+  width: 20px;
+}

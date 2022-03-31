@@ -1,5 +1,5 @@
 .serach-settings-form {
-    padding: 26px 10px;
+    /* padding: 26px 10px; */
 }
 
 .search-settings-option {
@@ -32,10 +32,11 @@
     border-bottom: 1px solid #ced4da;
 }
 .custome_search {
-    position: relative;
+    /* position: relative; */
 }
 .custome_search label {
     width: 100%;
+    padding: 30px 13px 0 13px;
 }
 .custome_search:after {
     background-image: 'assets/img/search.svg';
@@ -75,13 +76,25 @@ button:focus {
 }
 
 .search_result {
-    padding: 0 0 0 27px;
+    padding: 0 0 0 30px;
 }
 .search_text{
     display: flex;
 }
 .search_text img {
     border-bottom: 1px solid #ced4da;
-    max-width: 30px;
-    padding: 0 8px 0 8px;
+    max-width: 34px;
+    padding: 0 8px 0 10px;
+}
+a {
+    font: normal 15px/20px Open Sans Hebrew;
+    letter-spacing: 0;
+    color: #000000;
+    text-decoration: none;
+}
+a:hover {
+    font: normal 15px/20px Open Sans Hebrew;
+    letter-spacing: 0;
+    color: #000000;
+    text-decoration: none;
 }

@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HOME_PATH } from 'src/app/app.constants';
+import Path from 'src/app/model/Path';
+import { RelationService } from 'src/app/services/relation.service';
 
 @Component({
   selector: 'app-settings',
@@ -10,7 +12,7 @@ import { HOME_PATH } from 'src/app/app.constants';
 export class SettingsComponent implements OnInit {
   action: SettingsAction;
 
-  constructor(private router: Router, private route: ActivatedRoute) {}
+  constructor(private router: Router, private route: ActivatedRoute,private relationService: RelationService) {}
 
   ngOnInit(): void {
     const self = this;
@@ -21,6 +23,11 @@ export class SettingsComponent implements OnInit {
 
   goToAllResults(): void {
     this.router.navigate([`/${HOME_PATH}`]);
+  }
+
+  get relations(): Array<Path> {
+    let results = this.relationService.getRelations();
+    return results
   }
 }
 
