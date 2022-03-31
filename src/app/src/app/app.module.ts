@@ -50,6 +50,7 @@ import { SearchComponent } from './components/pages/settings/search/search.compo
 import { FiltersComponent } from './components/pages/settings/filters/filters.component';
 import { AccordionModule } from 'ngx-bootstrap/accordion';
 import { FilterPipeModule } from 'ngx-filter-pipe';
+import { NgxPaginationModule } from 'ngx-pagination';
 
 const INTERCEPTOR_PROVIDER: Provider = {
   provide: HTTP_INTERCEPTORS,
@@ -126,6 +127,7 @@ class JsonpInterceptorModule {}
         deps: [HttpClient],
       },
     }),
+    NgxPaginationModule,
     // TODO don't hardcode socket url
     SocketIoModule.forRoot({
       url: env.socketioUrl,
