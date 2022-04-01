@@ -6,6 +6,7 @@ import {
   MAP_PATH,
   MENU_PATH,
   PROFILE_PATH,
+  PROFILE_POPUP_PATH,
   RELATION_PATH,
   SETTINGS_PATH,
   WELCOME_PATH,
@@ -15,6 +16,7 @@ import { AboutComponent } from './components/pages/about/about.component';
 import { HomeComponent } from './components/pages/home/home.component';
 import { MapComponent } from './components/pages/map/map.component';
 import { MenuComponent } from './components/pages/menu/menu.component';
+import { ProfilePopupComponent } from './components/pages/profile-popup/profile-popup.component';
 import { ProfileComponent } from './components/pages/profile/profile.component';
 import { RelationComponent } from './components/pages/relation/relation.component';
 import { SettingsComponent } from './components/pages/settings/settings.component';
@@ -34,6 +36,10 @@ const routes: Routes = [
   {
     path: ABOUT_PATH,
     component: AboutComponent,
+  },
+  {
+    path: PROFILE_POPUP_PATH,
+    component: ProfilePopupComponent,
   },
   {
     path: `${RELATION_PATH}/:id`,
