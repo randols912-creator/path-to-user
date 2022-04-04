@@ -1,69 +1,64 @@
-<app-title-bar [showMenu]="false" [showGoBack]="true"></app-title-bar>
-<accordion [closeOthers]="oneAtATime" class="custom_accordion">
-    <form class="profile-setting-model" [formGroup]="profileForm">
-        <div>
-            <accordion-group heading="Source" (click)="onchangeTarget()">
+<div class="settings">
+    <app-title-bar
+      [showGoToAllResultsButton]="true"
+      [showTitle]="false"
+      [showMenu]="false"
+      [showMenuHome]="true"
+    ></app-title-bar>
+    <accordion [closeOthers]="oneAtATime" class="custom_accordion">
+        <form class="profile-setting-model" [formGroup]="profileForm">
+            <div>
+                <accordion-group heading="Source">
+                    <div class="display_flex_padding">
+                        <label for="filterOption{{ i }}" *ngFor="let option of soruce; let i = index"
+                            class="profile-settings-option"><span
+                                [ngClass]="{ active: profileForm.value.profile === i }" class="checkmark"></span>
+                            {{ option }}
+                            <input formControlName="profile" type="radio" [value]="i" id="filterOption{{ i }}"
+                                (change)="onchange()" />
+                        </label>
+                    </div>
+                    <div class="display_profile_id" *ngIf="profileForm.value.profile === 1">
+                        <span class="span_input">Profile ID:</span>
+                        <input type="text" placeholder="enter profile id" class="profile_input">
+                    </div>
+                </accordion-group>
+            </div>
+            <accordion-group heading="Target">
                 <div class="display_flex_padding">
-                    <label for="profileRadio1" class="profile-settings-option"><span
-                            [ngClass]="{ active: profileForm.value.profile === 'my_profile' }" class="checkmark"></span>
-                        My Profile
-                        <input formControlName="profile" type="radio" value="my_profile" id="profileRadio1"
-                            (change)="onchange()">
+                    <label for="target{{ i }}" *ngFor="let option of target; let i = index"
+                        class="profile-settings-option"><span
+                            [ngClass]="{ active: profileForm.value.project_profile === i }" class="checkmark"></span>
+                        {{ option }}
+                        <input formControlName="project_profile" type="radio" [value]="i" id="target{{ i }}"
+                            (change)="onchangeTarget()" />
                     </label>
                 </div>
-                <div class="display_flex_padding">
-                    <label for="profileRadio2" class="profile-settings-option"><span
-                            [ngClass]="{ active: profileForm.value.profile === 'profile_id' }"
-                            class="checkmark"></span>Profile ID
-                        <input formControlName="profile" type="radio" value="profile_id" id="profileRadio2"
-                            (change)="onchange()"></label>
-                </div>
-                <div class="display_profile_id" *ngIf="profileForm.value.profile === 'profile_id'">
+                <div class="display_profile_id" *ngIf="profileForm.value.project_profile === 0">
                     <span class="span_input">Profile ID:</span>
                     <input type="text" placeholder="enter profile id" class="profile_input">
                 </div>
-            </accordion-group>
-        </div>
-        <accordion-group heading="Target">
-            <div class="display_flex_padding">
-                <label for="customRadio1" class="profile-settings-option"><span
-                        [ngClass]="{ active: profileForm.value.project_profile === 'profile' }"
-                        class="checkmark"></span>Profile
-                    <input formControlName="project_profile" type="radio" value="profile" id="customRadio1">
-                </label>
-            </div>
-            <div class="display_flex_padding">
-                <label for="customRadio2" class="profile-settings-option"><span
-                        [ngClass]="{ active: profileForm.value.project_profile === 'project' }"
-                        class="checkmark"></span>Project
-                    <input formControlName="project_profile" type="radio" value="project" id="customRadio2"
-                        (change)="onchangeTarget()">
-                </label>
-            </div>
-            <div class="display_profile_id" *ngIf="profileForm.value.project_profile === 'profile'">
-                <span class="span_input">Profile ID:</span>
-                <input type="text" placeholder="enter profile id" class="profile_input">
-            </div>
-            <div *ngIf="profileForm.value.project_profile === 'project'">
-                <div class="display_profile_id">
-                    <span class="span_input">Project ID:</span>
-                    <input type="text" placeholder="enter project id" class="profile_input">
-                </div>
-                <span class="or">or</span>
-                <div class="display_profile_id">
-                    <span class="span_input">Profile ID List</span>
-                </div>
-                <div class="display_flex_padding">
-                    <div class="round_checkbox">
-                        <div class="round" *ngFor="let id of profileId; let i = index">
-                            <label><span [ngClass]="{'chwckbox':id.checked == true}" class="uncheck"></span>
-                                <input type="checkbox" id="" value="" formControlName="profile_id_list"
-                                    (change)="onChangeCheckbox()" [(ngModel)]="id.checked">{{id.target_id}}
-                            </label>
+                <div *ngIf="profileForm.value.project_profile === 1">
+                    <div class="display_profile_id">
+                        <span class="span_input">Project ID:</span>
+                        <input type="text" placeholder="enter project id" class="profile_input">
+                    </div>
+                    <span class="or">or</span>
+                    <div class="display_profile_id">
+                        <span class="span_input">Profile ID List</span>
+                    </div>
+                    <div class="display_flex_padding">
+                        <div class="round_checkbox">
+                            <div class="round" *ngFor="let id of profileId; let i = index">
+                                <label><span [ngClass]="{'chwckbox':id.checked == true}" class="uncheck"></span>
+                                    <input type="checkbox" id="" value="" formControlName="profile_id_list"
+                                        (change)="onChangeCheckbox()" [(ngModel)]="id.checked">{{id.target_id}}
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </accordion-group>
-    </form>
-</accordion>
+            </accordion-group>
+        </form>
+    </accordion>
+</div>

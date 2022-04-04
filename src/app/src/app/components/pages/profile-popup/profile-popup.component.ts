@@ -15,6 +15,8 @@ export class ProfilePopupComponent implements OnInit {
   profileForm: FormGroup;
   oneAtATime = true;
   ischeckedradio: boolean = false;
+  soruce = ['My Profile', 'Profile ID'];
+  target = ['Profile', 'Project'];
   profileId: any[] = []
   selectedItemsList = [];
   checkboxvalue: any;
@@ -39,7 +41,7 @@ export class ProfilePopupComponent implements OnInit {
   }
 
   onchange() {
-    if (this.profileForm.value.profile == 'my_profile' || this.profileForm.value.profile == 'profile_id') {
+    if (this.profileForm.value.profile == 0 || this.profileForm.value.profile == 1) {
       this.ischeckedradio = true;
     } else {
       this.ischeckedradio = false;

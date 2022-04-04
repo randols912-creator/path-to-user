@@ -38,38 +38,8 @@
     background: transparent radial-gradient(closest-side at 27% 26%, #ffffff 0%, #cecece 100%) 0% 0% no-repeat
         padding-box;
 }
-.uncheck {
-    background: transparent radial-gradient(closest-side at 27% 26%, #ffffff 0%, #cecece 100%) 0% 0% no-repeat
-        padding-box;
-    border-radius: 50%;
-    cursor: pointer;
-    height: 11px;
-    left: 0;
-    position: absolute;
-    top: 8px;
-    width: 11px;
-    border-color: #ececec;
-}
-.chwckbox {
-    background: transparent radial-gradient(closest-side at 27% 26%, #ffdba7 0%, #ff9e1e 100%) 0% 0% no-repeat
-        padding-box;
-    border-radius: 50%;
-    cursor: pointer;
-    height: 11px;
-    left: 0;
-    position: absolute;
-    top: 8px;
-    width: 11px;
-    border-color: #ececec;
-}
 
-.profile-settings-option .uncheck {
-    margin-right: 10px;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    border-color: #ececec;
-    opacity: 1;
+.profile-settings-option .checkmark.active {
     background: transparent radial-gradient(closest-side at 27% 26%, #ffdba7 0%, #ff9e1e 100%) 0% 0% no-repeat
         padding-box;
 }

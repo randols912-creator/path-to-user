@@ -40,6 +40,7 @@ const routes: Routes = [
   {
     path: PROFILE_POPUP_PATH,
     component: ProfilePopupComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: `${RELATION_PATH}/:id`,
