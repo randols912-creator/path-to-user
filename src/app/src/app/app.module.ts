@@ -52,6 +52,7 @@ import { AccordionModule } from 'ngx-bootstrap/accordion';
 import { FilterPipeModule } from 'ngx-filter-pipe';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { SearchPipePipe } from './pipes/search-pipe.pipe';
+import { ProfilePopupComponent } from './components/pages/profile-popup/profile-popup.component';
 
 const INTERCEPTOR_PROVIDER: Provider = {
   provide: HTTP_INTERCEPTORS,
@@ -107,7 +108,8 @@ class JsonpInterceptorModule {}
     P2pChatComponent,
     PredefinedMessagesComponent,
     P2pMessageModalComponent,
-    SearchPipePipe
+    SearchPipePipe,
+    ProfilePopupComponent
   ],
   imports: [
     BrowserModule,

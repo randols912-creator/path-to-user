@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HOME_PATH, termsOfUseUrl, welcomePhotos } from 'src/app/app.constants';
+import { HOME_PATH, PROFILE_POPUP_PATH, termsOfUseUrl, welcomePhotos } from 'src/app/app.constants';
 import { AuthService } from 'src/app/auth/auth.service';
 import { ModalService } from 'src/app/services/modal.service';
 import { SettingsService } from 'src/app/services/settings.service';
@@ -50,7 +50,7 @@ export class WelcomeComponent implements OnInit, AfterViewInit {
      });
 
     if (this.authService.isAuthenticated) {
-      this.router.navigate([HOME_PATH]);
+      this.router.navigate([PROFILE_POPUP_PATH]);
     }
   }
 

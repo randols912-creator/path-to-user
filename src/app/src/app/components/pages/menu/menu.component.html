@@ -39,6 +39,16 @@
     class="btn btn-link bigger-text"
     translate
   >menu.reset</button>
+  <img src="assets/img/lineOfCircles.svg" class="circles-separator" *ngIf="isAuthenticated" />
+  <button
+    *ngIf="isAuthenticated"
+    (click)="profileMenuOpen()"
+    type="button"
+    class="btn btn-link bigger-text"
+    translate
+  >
+    menu.profile
+  </button>
   <img src="assets/img/lineOfCircles.svg" class="circles-separator" />
   <button
     *ngIf="isAuthenticated"

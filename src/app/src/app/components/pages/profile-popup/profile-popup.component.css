@@ -1,0 +1,213 @@
+.settings ::ng-deep .title-bar {
+    background: #fff 0% 0% no-repeat padding-box;
+    box-shadow: 0px 3px 3px #00000029;
+}
+.title-bar[_ngcontent-glk-c127] {
+    position: relative;
+    height: 6.1vh;
+    border: 1px solid #efefef;
+    align-items: center;
+    /* background: transparent linear-gradient(270deg, #ffffff 0%, #efefef 100%) 0% 0% no-repeat padding-box; */
+}
+.settings ::ng-deep .title-bar a:hover {
+    text-decoration: none;
+}
+
+.profile-setting-model {
+    padding: 26px 10px;
+}
+
+.profile-settings-option {
+    display: flex;
+    align-items: center;
+    padding: 0 20% 0 0;
+}
+
+.profile-settings-option input {
+    height: 0;
+    width: 0;
+}
+
+.profile-settings-option .checkmark {
+    margin-right: 10px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border-color: #ececec;
+    opacity: 1;
+    background: transparent radial-gradient(closest-side at 27% 26%, #ffffff 0%, #cecece 100%) 0% 0% no-repeat
+        padding-box;
+}
+
+.profile-settings-option .checkmark.active {
+    background: transparent radial-gradient(closest-side at 27% 26%, #ffdba7 0%, #ff9e1e 100%) 0% 0% no-repeat
+        padding-box;
+}
+
+.finish-button {
+    padding: 0;
+    margin: 0;
+    border: none;
+    width: 100%;
+
+    position: absolute;
+    bottom: 5px;
+    left: 0;
+
+    font: Bold 16px Open Sans Hebrew;
+    line-height: 32px;
+    letter-spacing: 0;
+
+    background-color: unset;
+    background: transparent linear-gradient(263deg, #ffdba7 0%, #ff9e1e 100%) 0% 0% no-repeat padding-box;
+    opacity: 1;
+}
+
+button:focus {
+    outline: 1px dotted;
+    outline: 5px auto -webkit-focus-ring-color;
+    outline: none;
+}
+
+.profile_input {
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+    display: block;
+    height: calc(1.5em + 0.75rem + 2px);
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border-bottom: 2px solid #ced4da;
+    height: 1%;
+    width: 50%;
+}
+
+.profile_input:focus-visible {
+    outline: none;
+}
+
+.display_flex_padding {
+    padding-left: 28px;
+    align-items: center;
+}
+.span_input {
+    padding: 0px 10px 0 0px;
+    color: #353535;
+    font: normal 16px Open Sans Hebrew;
+}
+
+.span_to {
+    padding-left: 13px;
+}
+.custom_accordion .card-header {
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 0;
+    background-color: white;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    border: none;
+}
+.custom_accordion .card {
+    border: none;
+    border-radius: none;
+}
+
+.custom_accordion .btn-link {
+    color: #353535;
+    font: normal 14px Open Sans Hebrew;
+    letter-spacing: 0;
+}
+
+.custom_accordion .btn-link:hover {
+    text-decoration: none;
+}
+
+.accordion-toggle[aria-expanded="true"]:before {
+    content: "\e64b";
+    font-family: "themify-icons";
+}
+
+.accordion-toggle[aria-expanded="false"]:before {
+    content: "\e649";
+    font-family: "themify-icons";
+}
+
+.custom_accordion .card-body {
+    flex: 1 1 auto;
+    min-height: 1px;
+    padding: 0 1.25rem 0 1.25rem;
+}
+
+.clear_button {
+    padding-top: 22px;
+    margin-left: 55%;
+    align-items: center;
+    color: #353535;
+    font: normal 14px Open Sans Hebrew;
+    text-decoration: underline;
+}
+
+.clear_button:hover {
+    text-decoration: underline;
+    color: #353535;
+    cursor: pointer;
+}
+
+.bhf-theme {
+    border-radius: 9px;
+    color: #535453;
+    padding: 0 5px;
+    height: 15px;
+}
+
+.round {
+    position: relative;
+    padding: 0 0 12px 7px;
+}
+
+.round input[type="checkbox"] {
+    visibility: hidden;
+}
+.uncheck {
+    background: transparent radial-gradient(closest-side at 27% 26%, #ffffff 0%, #cecece 100%) 0% 0% no-repeat
+        padding-box;
+    border-radius: 50%;
+    cursor: pointer;
+    height: 11px;
+    left: 0;
+    position: absolute;
+    top: 8px;
+    width: 11px;
+    border-color: #ececec;
+}
+
+.chwckbox {
+    background: transparent radial-gradient(closest-side at 27% 26%, #ffdba7 0%, #ff9e1e 100%) 0% 0% no-repeat
+        padding-box;
+    border-radius: 50%;
+    cursor: pointer;
+    height: 11px;
+    left: 0;
+    position: absolute;
+    top: 8px;
+    width: 11px;
+    border-color: #ececec;
+}
+
+.round_checkbox {
+    padding-left: 28px;
+}
+
+.display_profile_id{
+    padding-left: 47px;
+    align-items: center;
+    display: flex;
+    padding-bottom: 12px;
+}
+.or{
+ padding-left: 50%;
+}

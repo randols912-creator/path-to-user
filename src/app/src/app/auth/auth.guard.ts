@@ -6,7 +6,7 @@ import {
   UrlTree,
 } from '@angular/router';
 import { Observable } from 'rxjs';
-import { HOME_PATH, WELCOME_PATH } from '../app.constants';
+import { HOME_PATH, PROFILE_POPUP_PATH, WELCOME_PATH } from '../app.constants';
 import { AuthService } from './auth.service';
 
 @Injectable({
@@ -30,7 +30,7 @@ export class AuthGuard implements CanActivate {
     ) {
       const { access_token, expires_in } = next.queryParams;
       this.authService.storeTokenAndFetchUserDetails(access_token, expires_in);
-      return this.router.navigate([`/${HOME_PATH}`]);
+      return this.router.navigate([`/${PROFILE_POPUP_PATH}`]);
     }
 
     if (this.authService.isAuthenticated()) {

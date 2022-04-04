@@ -51,6 +51,7 @@
     "help": "Help",
     "about": "About",
     "reset": "Reset connections",
+    "profile":"Profile",
     "logOut": "Log out"
   },
   "about": {

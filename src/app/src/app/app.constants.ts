@@ -35,6 +35,7 @@ export const RELATION_PATH = 'relation';
 export const PROFILE_PATH = 'profile';
 export const SETTINGS_PATH = 'settings';
 export const MAP_PATH = 'map';
+export const PROFILE_POPUP_PATH = 'profile_popup'
 
 export const INITIAL_RELATIONS_LIMIT = 25;
 export const RELATION_SCROLL_THRESHOLD_PCT = 50;
