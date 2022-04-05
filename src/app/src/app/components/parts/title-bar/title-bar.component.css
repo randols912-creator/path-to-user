@@ -122,3 +122,8 @@ hr.hr_line {
   bottom: 0;
   top: 25px;
 }
+
+.serchbar {
+  position: absolute;
+  right: 0;
+}

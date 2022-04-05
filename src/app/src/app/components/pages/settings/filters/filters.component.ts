@@ -1,6 +1,7 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, Input, OnInit, ViewEncapsulation } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { faSlash } from '@fortawesome/free-solid-svg-icons';
+import Path from 'src/app/model/Path';
 import { getColor, Theme } from 'src/app/model/Theme';
 import { SettingsService } from 'src/app/services/settings.service';
 // import { AccordionModule } from 'ngx-bootstrap/accordion';
@@ -13,6 +14,7 @@ import { SettingsService } from 'src/app/services/settings.service';
 })
 export class FiltersComponent implements OnInit {
 
+  @Input() relations: Array<Path>;
   filterForm: FormGroup;
   oneAtATime = true;
   male_femaleOptions = ['Male', 'Female',];
@@ -23,53 +25,27 @@ export class FiltersComponent implements OnInit {
   isCheckedmuseum: boolean = false;
   isCheckrdprofession: boolean = false;
   selectedprofessionsList = [];
-  birth_country = [
-    { name: 'Afghanistan', isChecked: false },
-    { name: 'Albania', isChecked: false },
-    { name: 'Algeria', isChecked: false },
-    { name: 'Angola', isChecked: false },
-    { name: 'Argentina', isChecked: false },
-    { name: 'Armenia', isChecked: false },
-    { name: 'Australia', isChecked: false },
-    { name: 'Austria', isChecked: false },
-    { name: 'Azerbaijan', isChecked: false },
-    { name: 'Belarus', isChecked: false },
-    { name: 'Belgium', isChecked: false },
-    { name: 'Belize', isChecked: false },
-    { name: 'Brazil', isChecked: false },
-    { name: 'Bulgaria', isChecked: false },
-    { name: 'Canada', isChecked: false }];
-
+  relationsData: any[] = [];
   place_at_museum = [
     { place_museum_name: 'Ground floor', isChecked: false },
     { place_museum_name: 'first floor', isChecked: false },
     { place_museum_name: 'Second floor', isChecked: false },
     { place_museum_name: 'Third floor', isChecked: false }];
 
-  professions = [
-    { isChecked: false, profession_name: 'Humanities & Religion' },
-    { isChecked: false, profession_name: 'Science' },
-    { isChecked: false, profession_name: 'Diplomacy' },
-    { isChecked: false, profession_name: 'Law' },
-    { isChecked: false, profession_name: 'Economics' },
-    { isChecked: false, profession_name: 'The Holocaust' },
-    { isChecked: false, profession_name: 'Press & Media' },
-    { isChecked: false, profession_name: 'Military' },
-    { isChecked: false, profession_name: 'Literature & Poetry' },
-    { isChecked: false, profession_name: 'Plastic Art' },
-    { isChecked: false, profession_name: 'Classical Music' },
-    { isChecked: false, profession_name: 'Popular Music' },
-    { isChecked: false, profession_name: 'Architecture' },
-    { isChecked: false, profession_name: 'Theatre' },
-    { isChecked: false, profession_name: 'Cinema & Television' },
-    { isChecked: false, profession_name: 'Photography & Comics' },
-    { isChecked: false, profession_name: 'Humor' },
-    { isChecked: false, profession_name: 'Sports' },
-    { isChecked: false, profession_name: 'Other' }];
   country: any;
   museum: any;
-  profession_name: any;
-
+  professionname: any;
+  selectedLenght: any;
+  female: number;
+  male: number;
+  proData: any[] = [];
+  countryData: any[] = [];
+  arryvaluePro: any[];
+  arryvaluecountry: any
+  first: any;
+  second: number;
+  third: number;
+  ground: number;
   constructor(private settingsService: SettingsService) { }
 
   ngOnInit(): void {
@@ -106,9 +82,64 @@ export class FiltersComponent implements OnInit {
     this.ischeckedradio = false;
   }
 
+  onChangeAccordion(event) {
+    this.relationsData = this.relations
+    if (event.target.outerText === "Sex") {
+      this.male = this.relationsData.filter((item: any) => {
+        return item.target_profile.gender === 'male'
+      }).length
+      this.female = this.relationsData.filter((item: any) => {
+        return item.target_profile.gender === 'female'
+      }).length
+    }
+    if (event.target.outerText === "Birth country") {
+      const newData = this.countryData
+      for (let i = 0; i < newData.length; i++) {
+        newData[i].checkedcountry = false;
+      }
+      this.arryvaluecountry = newData
+    }
+
+    if (event.target.outerText === "Place at the museum") {
+      this.ground = this.relationsData.filter((item: any) => {
+        return item.bh_floor === 0
+      }).length
+
+      this.first = this.relationsData.filter((item: any) => {
+        return item.bh_floor === 1
+      }).length
+
+      this.second = this.relationsData.filter((item: any) => {
+        return item.bh_floor === 2
+      }).length
+
+      this.third = this.relationsData.filter((item: any) => {
+        return item.bh_floor === 3
+      }).length
+    }
+
+    if (event.target.outerText === "Profession") {
+      let result = this.relationsData.reduce((res, pro) => {
+        if (!res[pro.bh_theme]) {
+          res[pro.bh_theme] = pro;
+        } else if (Number(res[pro.bh_theme].cost) < Number(pro.cost)) {
+          res[pro.bh_theme] = pro;
+        }
+        return res;
+      }, {});
+      this.proData = Object.values(result)
+      const newData = this.proData
+      for (let i = 0; i < newData.length; i++) {
+        newData[i].checkedpro = false;
+      }
+      this.arryvaluePro = newData
+    }
+    this.fetchSelectedItems();
+  }
+
   onchangecountry() {
     this.fetchSelectedItems();
-    this.country = this.birth_country.filter((item) => item.isChecked)
+    this.country = this.countryData.filter((item) => item.checkedcountry)
     if (this.country.length > 0) {
       this.isCheckedcountry = true;
     } else {
@@ -116,9 +147,11 @@ export class FiltersComponent implements OnInit {
     }
   }
 
-  clearcountry(){
-    this.fetchSelectedItems();
-
+  clearcountry() {
+    for (let i = 0; i < this.country.length; i++) {
+      this.country[i].checkedcountry = false
+    }
+    this.isCheckedcountry = false;
   }
 
   onchangemuseum() {
@@ -131,14 +164,27 @@ export class FiltersComponent implements OnInit {
     }
   }
 
+  clearmuseum() {
+    for (let i = 0; i < this.museum.length; i++) {
+      this.museum[i].isChecked = false
+    }
+    this.isCheckedcountry = false;
+  }
   onchangeprofession() {
     this.fetchSelectedItems();
-    this.profession_name = this.professions.filter((item) => item.isChecked);
-    if (this.profession_name.length > 0) {
+    this.professionname = this.arryvaluePro.filter((item) => item.checkedpro);
+    if (this.professionname.length > 0) {
       this.isCheckrdprofession = true;
     } else {
       this.isCheckrdprofession = false;
     }
+  }
+
+  clearprofession() {
+    for (let i = 0; i < this.professionname.length; i++) {
+      this.professionname[i].checkedpro = false
+    }
+    this.isCheckrdprofession = false;
   }
 
   categoryColor(category: Theme): string {
@@ -147,17 +193,16 @@ export class FiltersComponent implements OnInit {
 
   fetchSelectedItems() {
     if (this.filterForm.value.country) {
-      this.selectedItemsList = this.birth_country.filter((value, index) => {
-        console.log(value.isChecked)
-        return value.isChecked
+      this.selectedItemsList = this.countryData.filter((value, index) => {
+        return value.checkedcountry
       });
     } else if (this.filterForm.value.museum) {
       this.selectedmuseumList = this.place_at_museum.filter((value, index) => {
         return value.isChecked
       });
-    } else if (this.filterForm.value.profession_name) {
-      this.selectedprofessionsList = this.professions.filter((value, index) => {
-        return value.isChecked
+    } else if (this.filterForm.value.professionname) {
+      this.selectedprofessionsList = this.arryvaluePro.filter((value, index) => {
+        return value.checkedpro
       });
     }
   }

@@ -1,12 +1,13 @@
 <accordion [closeOthers]="oneAtATime" class="custom_accordion">
     <form class="filter-settings-form" [formGroup]="filterForm">
         <div style="display: flex;">
-            <accordion-group heading="Sex">
+            <accordion-group heading="Sex" (click)="onChangeAccordion($event)">
                 <div class="display_flex_padding">
                     <label for="filterOption{{ i }}" *ngFor="let option of male_femaleOptions; let i = index"
                         class="filter-settings-option"><span [ngClass]="{ active: filterForm.value.filterOrder === i }"
                             class="checkmark"></span>
-                        {{ option }}
+                        {{ option }}<span *ngIf="option === 'Male'">({{male}})</span><span
+                            *ngIf="option === 'Female'">({{female}})</span>
                         <input formControlName="filterOrder" type="radio" [value]="i" id="filterOption{{ i }}"
                             (change)="onchange()" />
                     </label>
@@ -14,53 +15,58 @@
             </accordion-group>
             <a *ngIf="ischeckedradio" class="clear_button" (click)="clear()">Clear</a>
         </div>
-        <accordion-group heading="Years">
+        <accordion-group heading="Years" (click)="onChangeAccordion($event)">
             <div class="display_flex_padding">
                 <span class="span_input">form: </span><input type="text" class="filter_input"><span
                     class="span_input span_to">to:</span><input type="text" class="filter_input">
             </div>
         </accordion-group>
         <div style="display: flex;">
-            <accordion-group heading="Birth country">
+            <accordion-group heading="Birth country" (click)="onChangeAccordion($event)">
                 <div class="round_checkbox">
-                    <div class="round" *ngFor="let country of birth_country; let i = index">
-                        <label><span [ngClass]="{'chwckbox':country.isChecked == true}" class="uncheck"></span>
+                    <div class="round" *ngFor="let country of countryData; let i = index">
+                        <label><span [ngClass]="{'chwckbox':country.checkedcountry == true}" class="uncheck"></span>
                             <input type="checkbox" id="" value="" formControlName="country" (change)="onchangecountry()"
-                                [(ngModel)]="country.isChecked">{{country.name}}
+                                [(ngModel)]="country.checkedcountry">{{country.target_profile.birth.location.country}}
                         </label>
                     </div>
                 </div>
             </accordion-group>
-            <a *ngIf="isCheckedcountry" class="clear_button"  (click)="clearcountry()">Clear</a>
+            <a *ngIf="isCheckedcountry" class="clear_button" (click)="clearcountry()">Clear</a>
         </div>
         <div style="display: flex;">
-            <accordion-group heading="Place at the museum">
+            <accordion-group heading="Place at the museum" (click)="onChangeAccordion($event)">
                 <div class="round_checkbox">
                     <div class="round" *ngFor="let museum_name of place_at_museum; let i = index">
                         <label><span [ngClass]="{'chwckbox':museum_name.isChecked == true}" class="uncheck"></span>
                             <input type="checkbox" id="" value="" formControlName="museum" (change)="onchangemuseum()"
                                 [(ngModel)]="museum_name.isChecked">{{museum_name.place_museum_name}}
+                            <span *ngIf="museum_name.place_museum_name === 'Ground floor'">({{ground}})</span>
+                            <span *ngIf="museum_name.place_museum_name === 'first floor'">({{first}})</span>
+                            <span *ngIf="museum_name.place_museum_name === 'Second floor'">({{second}})</span>
+                            <span *ngIf="museum_name.place_museum_name === 'Third floor'">({{third}})</span>
                         </label>
                     </div>
                 </div>
             </accordion-group>
-            <a *ngIf="isCheckedmuseum" class="clear_button"  (click)="clear()">Clear</a>
+            <a *ngIf="isCheckedmuseum" class="clear_button" (click)="clearmuseum()">Clear</a>
         </div>
         <div style="display: flex;">
-            <accordion-group heading="Profession">
-                <div class="round_checkbox" *ngFor="let profession of professions; let i = index">
+            <accordion-group heading="Profession" (click)="onChangeAccordion($event)">
+                <div class="round_checkbox" *ngFor="let profession of proData; let i = index">
                     <div class="round">
-                        <label><span [ngClass]="{'chwckbox':profession.isChecked == true}" class="uncheck"></span>
+                        <label><span [ngClass]="{'chwckbox':profession.checkedpro == true}" class="uncheck"></span>
                             <input type="checkbox" id="" value="" formControlName="profession_name"
-                                (change)="onchangeprofession()" [(ngModel)]="profession.isChecked">
+                                (change)="onchangeprofession()" [(ngModel)]="profession.checkedpro">
                             <span class="bhf-theme"
-                                [ngStyle]="{'backgroundColor':categoryColor(profession.profession_name)}">{{profession.profession_name
-                                }}</span>
+                                [ngStyle]="{'backgroundColor':categoryColor(profession.bh_theme)}">{{profession.bh_theme}}
+                                <span>({{profession.bh_theme.length}})</span>
+                            </span>
                         </label>
                     </div>
                 </div>
             </accordion-group>
-            <a *ngIf="isCheckrdprofession" class="clear_button"  (click)="clear()">Clear</a>
+            <a *ngIf="isCheckrdprofession" class="clear_button" (click)="clearprofession()">Clear</a>
         </div>
     </form>
 </accordion>

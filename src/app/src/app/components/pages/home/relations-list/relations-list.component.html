@@ -1,7 +1,14 @@
 <div class="relations-list" *ngIf="relations.length" #list>
-  <app-relation-card [relation]="relation"
-    *ngFor="let relation of relations | paginate: config | relationsSortBy: sortOrder: limit">
-  </app-relation-card>
+  <!-- <input type="button" (click)="sortData(order)" class="my-icon1"> -->
+  <span *ngIf="flag">
+    <app-relation-card [relation]="relation" *ngFor="let relation of sortting | paginate: config">
+    </app-relation-card>
+  </span>
+  <span *ngIf="!flag">
+    <app-relation-card [relation]="relation"
+      *ngFor="let relation of relations | paginate: config | relationsSortBy: sortOrder: limit">
+    </app-relation-card>
+  </span>
   <div class="custom_image">
     <button (click)="onPageFirst()" class="button_img">
       <!-- <img src="assets/img/home.png" alt="" class="title-logo" style="width: 18px"/> -->
@@ -24,7 +31,7 @@
           <div style="display: flex;">
             <span class="cursor_default span_width_1">{{ p.getCurrent() }}</span>
             <span class="cursor_default span_width_of">of </span>
-            <span class="cursor_default">{{ total }}</span>
+            <span class="cursor_default span_width_of">{{ total }}</span>
           </div>
         </div>
         <div class="pagination-next" [class.disabled]="p.isLastPage()">

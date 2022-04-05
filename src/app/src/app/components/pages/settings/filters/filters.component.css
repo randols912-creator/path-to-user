@@ -20,6 +20,7 @@
     border-radius: 50%;
     border-color: #ececec;
     opacity: 1;
+    cursor: pointer;
     background: transparent radial-gradient(closest-side at 27% 26%, #ffffff 0%, #cecece 100%) 0% 0% no-repeat
         padding-box;
 }
@@ -127,11 +128,13 @@ button:focus {
 
 .clear_button {
     padding-top: 22px;
-    margin-left: 55%;
     align-items: center;
     color: #353535;
-    font: normal 14px Open Sans Hebrew;
+    font: normal 13px Open Sans Hebrew;
     text-decoration: underline;
+    margin-left: auto;
+    position: absolute;
+    right: 18px;
 }
 
 .clear_button:hover {
@@ -183,4 +186,8 @@ button:focus {
 
 .round_checkbox {
     padding-left: 28px;
+}
+
+.settings .disableButton{
+    background: transparent linear-gradient(270deg, #efefef 0%, #efefef 100%) 0% 0% no-repeat padding-box;
 }

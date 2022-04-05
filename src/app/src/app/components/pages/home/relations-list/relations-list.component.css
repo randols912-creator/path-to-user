@@ -71,8 +71,19 @@
   outline: transparent;
 }
 .span_width_1{
-  width: 10px;
+  width: 100%;
 }
 .span_width_of{
-  width: 20px;
+  width: 100%;
+  padding-left: 5px;
+}
+
+.my-icon1:before{
+  content: "\e648";
+  font-family: "themify-icons";
+}
+
+.my-icon2:before{
+  content: "\e64b";
+  font-family: "themify-icons";
 }
