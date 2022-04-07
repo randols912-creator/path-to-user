@@ -46,6 +46,8 @@ export class FiltersComponent implements OnInit {
   second: number;
   third: number;
   ground: number;
+  birth: any[] = [];
+  dataof: any;
   constructor(private settingsService: SettingsService) { }
 
   ngOnInit(): void {
@@ -93,6 +95,20 @@ export class FiltersComponent implements OnInit {
       }).length
     }
     if (event.target.outerText === "Birth country") {
+      for (let i = 0; i < this.relationsData.length; i++) {
+        this.dataof = this.relationsData[i].target_profile.birth?.location
+        this.birth.push(this.dataof)
+      }
+      this.dataof = this.birth
+      let result = this.dataof?.reduce((res, pro) => {
+        if (!res[pro?.country]) {
+          res[pro?.country] = pro;
+        } else if (Number(res[pro?.country].cost) < Number(pro?.cost)) {
+          res[pro?.country] = pro;
+        }
+        return res;
+      }, {});
+      this.countryData = Object.values(result)
       const newData = this.countryData
       for (let i = 0; i < newData.length; i++) {
         newData[i].checkedcountry = false;

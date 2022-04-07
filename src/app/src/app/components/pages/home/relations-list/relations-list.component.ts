@@ -24,11 +24,13 @@ import { PaginationInstance } from 'ngx-pagination'
   encapsulation: ViewEncapsulation.None
 })
 export class RelationsListComponent {
+
+
+
   @Input() relations: Array<Path>;
   @ViewChild('list') listRef: ElementRef;
 
   limit = INITIAL_RELATIONS_LIMIT;
-  p: number = 1;
   @Input('data') meals: string[] = [];
   public config: PaginationInstance = {
     id: 'custom',
@@ -40,6 +42,7 @@ export class RelationsListComponent {
   sortting: any[] = [];
   flag:boolean = false;
   public sortValue = JSON.parse(localStorage.getItem('app-settings'))
+  pageSize: any;
   constructor(private settingsService: SettingsService) { }
 
   @HostListener('window:scroll', [])
@@ -58,11 +61,13 @@ export class RelationsListComponent {
     this.config.currentPage = event;
   }
 
-  onPageFirst() {
-    this.config.currentPage = 1;
+  onchange(event) {
+    this.pageSize = event.target.value;
+   
   }
+  
 
-  sortData(order) {
+  sortData() {
     this.flag = true;
     if (this.sortValue.sort == 0) {
       if (this.order) {
@@ -72,7 +77,7 @@ export class RelationsListComponent {
         this.sortting = this.relations.sort((i, j) => (i.target_profile.last_name > j.target_profile.last_name ? 1 : -1));
       }
       this.order = !this.order;
-    }else if (this.sortValue.sort == 1) {
+    } else if (this.sortValue.sort == 1) {
       if (this.order) {
         this.sortting = this.relations.sort((i, j) => (i.target_profile.last_name > j.target_profile.last_name ? -1 : 1));
       }
@@ -80,23 +85,23 @@ export class RelationsListComponent {
         this.sortting = this.relations.sort((i, j) => (i.target_profile.last_name > j.target_profile.last_name ? 1 : -1));
       }
       this.order = !this.order;
-    }else if (this.sortValue.sort === 2) {
+    } else if (this.sortValue.sort === 2) {
       if (this.order) {
-        this.sortting = this.relations.sort((i, j) => i.target_profile.birth.date.year - j.target_profile.birth.date.year);
+        this.sortting = this.relations.sort((i, j) => i.target_profile.birth?.date?.year - j.target_profile.birth?.date?.year);
       }
       else {
-        this.sortting = this.relations.sort((i, j) => j.target_profile.birth.date.year - i.target_profile.birth.date.year);
+        this.sortting = this.relations.sort((i, j) => j.target_profile.birth?.date?.year - i.target_profile.birth?.date?.year);
       }
       this.order = !this.order;
-    }else if (this.sortValue.sort === 3) {
+    } else if (this.sortValue.sort === 3) {
       if (this.order) {
-        this.sortting = this.relations.sort((i, j) => i.target_profile.death.date.year - j.target_profile.death.date.year);
+        this.sortting = this.relations.sort((i, j) => i.target_profile.death?.date?.year - j.target_profile.death?.date?.year);
       }
       else {
-        this.sortting = this.relations.sort((i, j) => j.target_profile.death.date.year - i.target_profile.death.date.year);
+        this.sortting = this.relations.sort((i, j) => j.target_profile.death?.date?.year - i.target_profile.death?.date?.year);
       }
       this.order = !this.order;
-    }else if (this.sortValue.sort === 4) {
+    } else if (this.sortValue.sort === 4) {
       if (this.order) {
         this.sortting = this.relations.sort((i, j) => i.step_count - j.step_count);
       }
