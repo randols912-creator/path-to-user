@@ -14,6 +14,12 @@ const compareByProfileName = (a: Path, b: Path): number =>
 const compareByStepCount = (a: Path, b: Path): number =>
   a.step_count > b.step_count ? 1 : -1;
 
+const compareByBirthDate = (a: Path, b: Path): number =>
+  a.target_profile.birth?.date?.year > b.target_profile.birth?.date?.year ? 1 : -1;
+
+const compareByDeathDate = (a: Path, b: Path): number =>
+  a.target_profile.death?.date?.year > b.target_profile.death?.date?.year ? 1 : -1;
+
 @Pipe({
   name: 'relationsSortBy',
   pure: false,
@@ -35,6 +41,32 @@ export class RelationsSortByPipe implements PipeTransform {
         return [
           ...relations.sort((a: Path, b: Path) => compareByProfileName(a, b)),
         ];
+      case 2:
+        return [
+          ...relations
+            .filter((r) => r.target_profile.birth?.date?.year > 0)
+            .sort((a: Path, b: Path) =>
+              a.target_profile.birth?.date?.year === b.target_profile.birth?.date?.year
+                ? compareByBirthDate(a, b)
+                : compareByBirthDate(a, b)
+            ),
+          ...relations
+            .filter((r) => r.target_profile.birth?.date?.year === 0)
+            .sort((a: Path, b: Path) => compareByBirthDate(a, b)),
+        ].slice(0, limit);
+      case 3:
+        return [
+          ...relations
+            .filter((r) => r.target_profile.death?.date?.year > 0)
+            .sort((a: Path, b: Path) =>
+              a.target_profile.death?.date?.year === b.target_profile.death?.date?.year
+                ? compareByDeathDate(a, b)
+                : compareByDeathDate(a, b)
+            ),
+          ...relations
+            .filter((r) => r.target_profile.death?.date?.year === 0)
+            .sort((a: Path, b: Path) => compareByDeathDate(a, b)),
+        ].slice(0, limit);
       default:
         return [
           ...relations

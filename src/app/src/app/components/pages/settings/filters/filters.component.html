@@ -71,5 +71,7 @@
         </div>
     </form>
 </accordion>
-<!-- <button class="finish-button" [disabled]="filterForm.value">Filter</button> -->
-<button class="finish-button">Filter</button>
+<button class="finish-button" *ngIf="selectedLenght === 0">Filter</button>
+<button class="finish-button_btn" *ngIf="selectedLenght !== 0" (click)="goToAllResults()">
+    <span class="selected_lenght" *ngIf="selectedLenght">{{selectedLenght}} chosen</span>
+    Filter<a *ngIf="selectedLenght" class="clear_button_all" (click)="clearAll()">Clear all</a></button>

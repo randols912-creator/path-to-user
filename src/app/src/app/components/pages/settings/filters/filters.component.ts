@@ -1,6 +1,8 @@
 import { Component, Input, OnInit, ViewEncapsulation } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { Router } from '@angular/router';
 import { faSlash } from '@fortawesome/free-solid-svg-icons';
+import { HOME_PATH } from 'src/app/app.constants';
 import Path from 'src/app/model/Path';
 import { getColor, Theme } from 'src/app/model/Theme';
 import { SettingsService } from 'src/app/services/settings.service';
@@ -35,7 +37,7 @@ export class FiltersComponent implements OnInit {
   country: any;
   museum: any;
   professionname: any;
-  selectedLenght: any;
+  selectedLenght = 0;
   female: number;
   male: number;
   proData: any[] = [];
@@ -48,7 +50,7 @@ export class FiltersComponent implements OnInit {
   ground: number;
   birth: any[] = [];
   dataof: any;
-  constructor(private settingsService: SettingsService) { }
+  constructor(private settingsService: SettingsService, private router: Router) { }
 
   ngOnInit(): void {
     this.filterForm = new FormGroup({
@@ -71,17 +73,25 @@ export class FiltersComponent implements OnInit {
     })
   }
 
+
+  goToAllResults() {
+    if (this.selectedLenght > 0) {
+      this.router.navigate([`/${HOME_PATH}`]);
+    }
+  }
   onchange() {
     if (this.filterForm.value.filterOrder == 0 || this.filterForm.value.filterOrder == 1) {
       this.ischeckedradio = true;
     } else {
       this.ischeckedradio = false;
     }
+    this.selectedLenght = 1;
   }
 
   clear() {
     this.filterForm.value.filterOrder = '';
     this.ischeckedradio = false;
+    this.selectedLenght = 0;
   }
 
   onChangeAccordion(event) {
@@ -161,6 +171,7 @@ export class FiltersComponent implements OnInit {
     } else {
       this.isCheckedcountry = false;
     }
+    this.selectedLenght = this.country.length
   }
 
   clearcountry() {
@@ -168,6 +179,7 @@ export class FiltersComponent implements OnInit {
       this.country[i].checkedcountry = false
     }
     this.isCheckedcountry = false;
+    this.selectedLenght = 0
   }
 
   onchangemuseum() {
@@ -178,13 +190,15 @@ export class FiltersComponent implements OnInit {
     } else {
       this.isCheckedmuseum = false;
     }
+    this.selectedLenght = this.museum.length
   }
 
   clearmuseum() {
     for (let i = 0; i < this.museum.length; i++) {
       this.museum[i].isChecked = false
     }
-    this.isCheckedcountry = false;
+    this.isCheckedmuseum = false;
+    this.selectedLenght = 0
   }
   onchangeprofession() {
     this.fetchSelectedItems();
@@ -194,12 +208,23 @@ export class FiltersComponent implements OnInit {
     } else {
       this.isCheckrdprofession = false;
     }
+    this.selectedLenght = this.professionname.length
   }
 
   clearprofession() {
     for (let i = 0; i < this.professionname.length; i++) {
       this.professionname[i].checkedpro = false
     }
+    this.isCheckrdprofession = false;
+    this.selectedLenght = 0
+  }
+
+  clearAll() {
+    this.selectedLenght = 0;
+    this.filterForm.value.filterOrder = '';
+    this.ischeckedradio = false;
+    this.isCheckedcountry = false;
+    this.isCheckedmuseum = false;
     this.isCheckrdprofession = false;
   }
 

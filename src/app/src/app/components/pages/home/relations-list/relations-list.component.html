@@ -1,14 +1,7 @@
 <div class="relations-list" *ngIf="relations.length" #list>
-  <!-- <input type="button" (click)="sortData()" [ngClass]="{'disableButton':sortValue.sort === false}"> -->
-  <span *ngIf="flag">
-    <app-relation-card [relation]="relation" *ngFor="let relation of sortting | paginate: config">
+  <app-relation-card [relation]="relation"
+      *ngFor="let relation of relations | relationsSortBy: sortOrder: limit | paginate: config ">
     </app-relation-card>
-  </span>
-  <span *ngIf="!flag">
-    <app-relation-card [relation]="relation"
-      *ngFor="let relation of relations | paginate: config | relationsSortBy: sortOrder: limit">
-    </app-relation-card>
-  </span>
   <div class="custom_image">
     <pagination-template #p="paginationApi" [id]="config.id" (pageChange)="onPageChange($event)" [maxSize]="total" >
       <div class="custom-pagination">

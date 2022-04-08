@@ -20,7 +20,6 @@
     border-radius: 50%;
     border-color: #ececec;
     opacity: 1;
-    cursor: pointer;
     background: transparent radial-gradient(closest-side at 27% 26%, #ffffff 0%, #cecece 100%) 0% 0% no-repeat
         padding-box;
 }
@@ -44,9 +43,36 @@
     line-height: 32px;
     letter-spacing: 0;
 
-    background-color: unset;
-    background: transparent linear-gradient(263deg, #ffdba7 0%, #ff9e1e 100%) 0% 0% no-repeat padding-box;
+    background-color: #efefef;
     opacity: 1;
+    color: #aba5a5;
+}
+.settings .finish-button_btn {
+    padding: 0;
+    margin: 0;
+    border: none;
+    width: 100%;
+
+    position: absolute;
+    bottom: 5px;
+    left: 0;
+
+    font: Bold 16px Open Sans Hebrew;
+    line-height: 32px;
+    letter-spacing: 0;
+
+    background: transparent linear-gradient(263deg, #ffdba7 0%, #ff9e1e 100%) 0% 0% no-repeat padding-box;;
+    opacity: 1;
+}
+.settings .disableButton {
+    background: transparent linear-gradient(263deg, #ffdba7 0%, #ff9e1e 100%) 0% 0% no-repeat padding-box;;
+}
+.selected_lenght{
+    position:absolute;
+    left: 36px;
+    font: normal 14px Open Sans Hebrew;
+    line-height: 32px;
+    letter-spacing: 0;
 }
 
 button:focus {
@@ -137,12 +163,28 @@ button:focus {
     right: 18px;
 }
 
+.clear_button_all{
+    padding-top: 6px;
+    align-items: center;
+    color: #353535;
+    font: normal 13px Open Sans Hebrew;
+    text-decoration: underline;
+    margin-left: auto;
+    position: absolute;
+    right: 18px;
+}
+
 .clear_button:hover {
     text-decoration: underline;
     color: #353535;
     cursor: pointer;
 }
 
+.clear_button_all:hover{
+    text-decoration: underline;
+    color: #353535;
+    cursor: pointer;
+}
 .bhf-theme {
     border-radius: 9px;
     color: #535453;
@@ -186,8 +228,4 @@ button:focus {
 
 .round_checkbox {
     padding-left: 28px;
-}
-
-.settings .disableButton{
-    background: transparent linear-gradient(270deg, #efefef 0%, #efefef 100%) 0% 0% no-repeat padding-box;
 }
