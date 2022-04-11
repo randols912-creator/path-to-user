@@ -3,7 +3,7 @@
       *ngFor="let relation of relations | relationsSortBy: sortOrder: limit | paginate: config ">
     </app-relation-card>
   <div class="custom_image">
-    <pagination-template #p="paginationApi" [id]="config.id" (pageChange)="onPageChange($event)" [maxSize]="total" >
+    <pagination-template #p="paginationApi" class="pagination-temp" [id]="config.id" (pageChange)="onPageChange($event)" [maxSize]="total" >
       <div class="custom-pagination">
         <div class="pagination-previous">
           <span (click)="p.previous()" class="leftarrow">

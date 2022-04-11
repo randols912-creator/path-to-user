@@ -1,5 +1,7 @@
 .relations-list {
   padding: 2vh 3vw;
+  max-height: calc(100vh - 155px);
+  overflow-y: scroll;
 }
 
 .custom-pagination .page-number{
@@ -49,10 +51,15 @@
 
 .custom_image {
   display: flex;
-  padding-top: 13px;
-  padding-left: 36%;
+  padding: 13px 31% 0 31%;
+  position: absolute;
+  bottom: 0;
 }
 
+.pagination-temp{
+  position: fixed;
+  bottom: 15px
+}
 .leftarrow::before{
   content: "\e64a" !important;
   display: inline-block;
