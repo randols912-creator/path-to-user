@@ -72,6 +72,9 @@ button:focus {
   display: flex;
   padding-bottom: 3px;
 }
+.titlebar_box{
+  position: relative;
+}
 hr.hr_line {
   border-top: 1px dashed #c9c9c9;
   margin-top: 0.5rem;
@@ -86,7 +89,24 @@ hr.hr_line {
   margin: 0px 20px;
   padding-right: 20px;
 }
-
+.filter-icon i{
+  border-radius: 100%;
+  position: absolute;
+  background-color: #ff9e1e;
+  padding: 0px 4px 1px 3px;
+  font-size: 8px;
+  margin: 2px;
+  top: 0;
+  font-weight: bold;
+  color: #fff;
+}
+.dot-icon i{
+  width: 6px;
+  height: 6px;
+  border-radius: 100%;
+  position: absolute;
+  background-color: #ff9e1e;
+}
 .shorting_text img {
   max-width: 20px;
 }

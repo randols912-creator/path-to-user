@@ -43,7 +43,7 @@ export class FiltersComponent implements OnInit {
   proData: any[] = [];
   countryData: any[] = [];
   arryvaluePro: any[];
-  arryvaluecountry: any
+  arryvaluecountry: any[];
   first: any;
   second: number;
   third: number;
@@ -86,6 +86,7 @@ export class FiltersComponent implements OnInit {
       this.ischeckedradio = false;
     }
     this.selectedLenght = 1;
+    localStorage.setItem("sex",JSON.stringify(this.filterForm.value.filterOrder))
   }
 
   clear() {
@@ -105,16 +106,11 @@ export class FiltersComponent implements OnInit {
       }).length
     }
     if (event.target.outerText === "Birth country") {
-      for (let i = 0; i < this.relationsData.length; i++) {
-        this.dataof = this.relationsData[i].target_profile.birth?.location
-        this.birth.push(this.dataof)
-      }
-      this.dataof = this.birth
-      let result = this.dataof?.reduce((res, pro) => {
-        if (!res[pro?.country]) {
-          res[pro?.country] = pro;
-        } else if (Number(res[pro?.country].cost) < Number(pro?.cost)) {
-          res[pro?.country] = pro;
+      let result = this.relationsData.reduce((res, pro) => {
+        if (!res[pro.target_profile.birth?.location?.country]) {
+          res[pro.target_profile.birth?.location?.country] = pro;
+        } else if (Number(res[pro.target_profile.birth?.location?.country].cost) < Number(pro?.cost)) {
+          res[pro.target_profile.birth?.location?.country] = pro;
         }
         return res;
       }, {});
@@ -154,24 +150,26 @@ export class FiltersComponent implements OnInit {
         return res;
       }, {});
       this.proData = Object.values(result)
-      const newData = this.proData
-      for (let i = 0; i < newData.length; i++) {
-        newData[i].checkedpro = false;
+      const newDatapro = this.proData
+      for (let i = 0; i < newDatapro.length; i++) {
+        newDatapro[i].checkedpro = false;
       }
-      this.arryvaluePro = newData
+      this.arryvaluePro = newDatapro
     }
     this.fetchSelectedItems();
   }
 
   onchangecountry() {
     this.fetchSelectedItems();
-    this.country = this.countryData.filter((item) => item.checkedcountry)
+    this.country = this.arryvaluecountry.filter((item) => item.checkedcountry)
+    this.relations = this.arryvaluecountry
     if (this.country.length > 0) {
       this.isCheckedcountry = true;
     } else {
       this.isCheckedcountry = false;
     }
     this.selectedLenght = this.country.length
+    localStorage.setItem("country",JSON.stringify(this.selectedLenght))
   }
 
   clearcountry() {
@@ -203,6 +201,7 @@ export class FiltersComponent implements OnInit {
   onchangeprofession() {
     this.fetchSelectedItems();
     this.professionname = this.arryvaluePro.filter((item) => item.checkedpro);
+    this.relations = this.arryvaluePro
     if (this.professionname.length > 0) {
       this.isCheckrdprofession = true;
     } else {

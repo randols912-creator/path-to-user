@@ -27,8 +27,8 @@
                     <div class="round" *ngFor="let obj of countryData; let i = index">
                         <label><span [ngClass]="{'chwckbox':obj.checkedcountry == true}" class="uncheck"></span>
                             <input type="checkbox" id="" value="" formControlName="country" (change)="onchangecountry()"
-                                [(ngModel)]="obj.checkedcountry">{{obj?.country}}
-                            <span *ngIf="obj.country">({{obj?.country.length}})</span>
+                                [(ngModel)]="obj.checkedcountry">{{obj?.target_profile.birth?.location?.country}}
+                            <span *ngIf="obj?.target_profile.birth?.location?.country">({{obj?.target_profile.birth?.location?.country.length}})</span>
                         </label>
                     </div>
                 </div>
@@ -74,4 +74,4 @@
 <button class="finish-button" *ngIf="selectedLenght === 0">Filter</button>
 <button class="finish-button_btn" *ngIf="selectedLenght !== 0" (click)="goToAllResults()">
     <span class="selected_lenght" *ngIf="selectedLenght">{{selectedLenght}} chosen</span>
-    Filter<a *ngIf="selectedLenght" class="clear_button_all" (click)="clearAll()">Clear all</a></button>
+    Filter<a *ngIf="selectedLenght" class="clear_button_all" >Clear all</a></button>

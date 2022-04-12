@@ -3,6 +3,15 @@
       *ngFor="let relation of relations | relationsSortBy: sortOrder: limit | paginate: config ">
     </app-relation-card>
   <div class="custom_image">
+    <button (click)="onPageFirst()" class="button_img">
+      <svg class="SVGInline-svg" id="S_NavHome_S_22" viewBox="0 0 22 22" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" x="0px" y="0px" width="22px" height="22px">
+        <g id="Background">
+          <path d="M 11.7168 3.1748 C 11.3276 2.7646 10.7573 2.7246 10.3477 3.1147 L 3.0073 10.1748 C 2.5977 10.5947 2.5977 11.2749 3.0176 11.6846 C 3.2173 11.875 3.4775 11.9844 3.7476 11.9844 L 5.0073 12.0254 L 5.0073 17.4844 C 5.0073 17.7852 5.2373 18.0254 5.5376 18.0254 L 9.0073 18.0254 L 9.0073 12.0254 L 13.0078 12.0254 L 13.0078 18.0254 L 16.4873 18.0254 C 16.7773 18.0254 17.0078 17.7852 17.0078 17.4941 L 17.0078 12.0254 L 18.2578 12.0254 C 18.8379 12.0547 19.3281 11.6055 19.3574 11.0249 C 19.377 10.7246 19.2578 10.4248 19.0371 10.2148 L 11.7168 3.1748 Z" fill="#707070"></path>
+        </g>
+        <g id="Layer%201">
+        </g>
+      </svg>
+    </button>
     <pagination-template #p="paginationApi" class="pagination-temp" [id]="config.id" (pageChange)="onPageChange($event)" [maxSize]="total" >
       <div class="custom-pagination">
         <div class="pagination-previous">

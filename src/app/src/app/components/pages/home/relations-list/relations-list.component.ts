@@ -49,7 +49,7 @@ export class RelationsListComponent {
   }
 
   get sortOrder(): RelationSortOrder {
-    this.total = Math.ceil((this.relations.length / 10))
+    this.total = Math.ceil((this.relations.length / this.config.itemsPerPage))
     return this.settingsService.getSortOrder();
   }
 
@@ -59,5 +59,9 @@ export class RelationsListComponent {
 
   onchange(event) {
     this.pageSize = event.target.value;
+  }
+
+  onPageFirst(){
+    this.config.currentPage = 1;
   }
 }

@@ -1,7 +1,7 @@
 import { Location } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Router } from '@angular/router';
-import { HOME_PATH, MENU_PATH, SETTINGS_PATH } from 'src/app/app.constants';
+import { APP_SETTINGE_STORAGE_KEY, HOME_PATH, MENU_PATH, SETTINGS_PATH } from 'src/app/app.constants';
 import { ModalService } from 'src/app/services/modal.service';
 import { SettingsAction } from '../../pages/settings/settings.component';
 import { P2pModalComponent } from '../p2p-modal/p2p-modal.component';
@@ -21,6 +21,7 @@ export class TitleBarComponent {
   @Input() showP2P = false;
   @Input() showMenuHome = false;
 
+  public sort = JSON.parse(localStorage.getItem(APP_SETTINGE_STORAGE_KEY))
   @Input() settingsAction: SettingsAction;
 
   @Output() toggleMenu: EventEmitter<void> = new EventEmitter<void>();
