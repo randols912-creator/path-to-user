@@ -253,7 +253,7 @@ class PathView(HTTPMethodView):
         count = 0
         async for personality, profiles_count in profile_iterator(target_id, iterate=True):
             # Enqueue tasks for finding paths to all personalities
-            max_priority = int(profiles_count / PATH_FIND_BATCH)
+            max_priority = max(2, int(profiles_count / PATH_FIND_BATCH))
             src,tgt = source_profile['id'],personality['id']
             if await path_mgr.get(src, tgt):
                 logger.debug(f"Personality path {src} -> {tgt} already exists - skipping")
