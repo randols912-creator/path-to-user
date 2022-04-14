@@ -116,30 +116,18 @@ class PathManager:
         return await self.database.execute(query=query)
 
 
-    async def clear_expired_paths(self, user2user=False):
-        if user2user:
-            # Delete u2u paths without chats after 24 hours
-            await self._clear_expired_paths(24, True, paths_table.c.chat_id == None)
-            # Delete u2u paths wit chats after a week
-            await self._clear_expired_paths(24*7, True, paths_table.c.chat_id != None)
-        else:
-            # Delete u2p paths after 3 days
-            await self._clear_expired_paths(24*3, False)
+    async def clear_expired_paths(self):
+        # Delete u2p paths after 3 days
+        await self._clear_expired_paths(24*3, False)
 
 
-    async def _clear_expired_paths(self, expired_hours, user2user, has_chat_cond=True):
+    async def _clear_expired_paths(self, expired_hours, user2user):
 
         expired_ts = datetime.datetime.now() - datetime.timedelta(hours=expired_hours)
         query = delete(paths_table).where(and_(paths_table.c.updated_on < expired_ts,
-                                                paths_table.c.is_user2user == user2user,
-                                                has_chat_cond))
+                                                paths_table.c.is_user2user == user2user))
         return await self.database.execute(query=query)
 
-    async def update_chat(self, source_id, target_id, chat_id):
-        values = {"chat_id": chat_id}
-        query = paths_table.update().where(and_(paths_table.c.source_id == source_id,
-                                                paths_table.c.target_id == target_id)).values(values)
-        await self.database.execute(query)
 
     async def _save_profile(self, profile):
         query = profiles_table.select().where(profiles_table.c.id==profile['id'])
@@ -293,8 +281,7 @@ async def path_cleaner(db_url, geni):
         while True:
             logger.info("Clear expired paths")
             pm = PathManager(database, geni, None)
-            await pm.clear_expired_paths(False)
-            await pm.clear_expired_paths(True)
+            await pm.clear_expired_paths()
 
             await asyncio_sleep(60*60)  # clean once an hour
 
