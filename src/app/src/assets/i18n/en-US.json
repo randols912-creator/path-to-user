@@ -9,7 +9,8 @@
     "found": "We found {{value}} people connected to you",
     "relationCard": {
       "num": "Connection Number:"
-    }
+    },
+    "genealogical":"With each of the people here, you have genealogical connections by clicking on the results"
   },
   "relation": {
     "whos": {

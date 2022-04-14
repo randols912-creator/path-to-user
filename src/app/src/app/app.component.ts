@@ -16,6 +16,8 @@ import { P2pService } from './services/p2p.service';
 })
 export class AppComponent implements AfterViewInit {
   @ViewChild(ModalRefDirective) modalRef: ModalRefDirective;
+  agent = window.navigator.userAgent.toLowerCase();
+  public innerWidth: any;
 
   constructor(
     private auth: AuthService,
@@ -48,5 +50,19 @@ export class AppComponent implements AfterViewInit {
 
   get isModalOpen() {
     return this.modalService.isModalOpen();
+  }
+
+  get isMobile() {
+    this.innerWidth = window.innerWidth;
+    if(this.innerWidth < 1024){
+      if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
+        return true
+      }
+      else{
+        return false
+      }
+    }else if(this.innerWidth > 1024){
+      return false
+    }
   }
 }

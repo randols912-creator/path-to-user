@@ -53,6 +53,7 @@ import { FilterPipeModule } from 'ngx-filter-pipe';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { SearchPipePipe } from './pipes/search-pipe.pipe';
 import { ProfilePopupComponent } from './components/pages/profile-popup/profile-popup.component';
+import { TitleBarDesktopComponent } from './components/parts/title-bar-desktop/title-bar-desktop.component';
 
 const INTERCEPTOR_PROVIDER: Provider = {
   provide: HTTP_INTERCEPTORS,
@@ -109,7 +110,8 @@ class JsonpInterceptorModule {}
     PredefinedMessagesComponent,
     P2pMessageModalComponent,
     SearchPipePipe,
-    ProfilePopupComponent
+    ProfilePopupComponent,
+    TitleBarDesktopComponent
   ],
   imports: [
     BrowserModule,

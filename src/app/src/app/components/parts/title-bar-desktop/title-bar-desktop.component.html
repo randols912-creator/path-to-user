@@ -1,0 +1,69 @@
+<div *ngIf="showMenuHome">
+    <div class="title-bar">
+        <button class="btn close-menu-icon" *ngIf="showGoBack" (click)="goBackHandler()">
+            <img src="assets/img/x.svg" alt="" />
+        </button>
+        <button *ngIf="showGoToAllResultsText" (click)="goToAllResults()" class="btn btn-lnk small-text all-results"
+            translate>
+            titleBar.toAllResults
+        </button>
+
+        <img *ngIf="showTitle" src="assets/img/ANU-family.svg" alt="" class="title-logo" />
+    </div>
+
+    <div *ngIf="showMenu">
+        <div class="note_block text-center">
+            <span translate>home.genealogical</span>
+        </div>
+        <div class="menu_block d-flex">
+            <div class="result_block">
+                <a href="#">
+                    <span><b>We have found 200 Result</b></span>
+                </a>
+            </div>
+            <div class="birth_block">
+                <span>Filters:</span>
+                <div class="dropdown">
+                    <a (mouseenter)="onChange()">
+                        <span>Birth Country</span>
+                    </a>
+                    <div class="dropdown-content dropdown-menu-tip-nw">
+                        <div class="drop_list">
+                            <div *ngFor="let obj of conutryselcted; let i = index">
+                                <label><span>
+                                        <input type="checkbox" id="" value="" [(ngModel)]="obj.checkrd"
+                                        (change)="onchangecountry()">{{obj.country}}
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <a href="#">
+                    <span>Connection Number</span>
+                </a>
+                <a href="#">
+                    <span>Date</span>
+                </a>
+            </div>
+            <div class="#">
+                <span>Short By::</span>
+                <span>Filter</span>
+            </div>
+        </div>
+        <hr class="hr_line" *ngIf="showMenu">
+    </div>
+</div>
+<div class="title-bar" *ngIf="!showMenuHome">
+    <span>
+        <span *ngIf="!showGoBack">
+            <button class="btn open-menu-icon" (click)="gotoMenuHandler()">
+                <img src="assets/img/menu.svg" alt="menu" />
+            </button>
+        </span>
+        <button class="btn close-menu-icon" *ngIf="showGoBack" (click)="goBackHandler()">
+            <img src="assets/img/x.svg" alt="" />
+        </button>
+        <img *ngIf="showTitle" src="assets/img/ANU-family.svg" alt="" class="title-logo" />
+    </span>
+</div>
