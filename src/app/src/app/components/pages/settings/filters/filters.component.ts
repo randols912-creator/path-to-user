@@ -73,7 +73,6 @@ export class FiltersComponent implements OnInit {
     })
   }
 
-
   goToAllResults() {
     if (this.selectedLenght > 0) {
       this.router.navigate([`/${HOME_PATH}`]);
@@ -86,7 +85,6 @@ export class FiltersComponent implements OnInit {
       this.ischeckedradio = false;
     }
     this.selectedLenght = 1;
-    localStorage.setItem("sex",JSON.stringify(this.filterForm.value.filterOrder))
   }
 
   clear() {
@@ -169,7 +167,6 @@ export class FiltersComponent implements OnInit {
       this.isCheckedcountry = false;
     }
     this.selectedLenght = this.country.length
-    localStorage.setItem("country",JSON.stringify(this.selectedLenght))
   }
 
   clearcountry() {

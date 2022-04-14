@@ -22,6 +22,7 @@
     opacity: 1;
     background: transparent radial-gradient(closest-side at 27% 26%, #ffffff 0%, #cecece 100%) 0% 0% no-repeat
         padding-box;
+    cursor: pointer;
 }
 
 .filter-settings-option .checkmark.active {
