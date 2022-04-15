@@ -54,6 +54,8 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { SearchPipePipe } from './pipes/search-pipe.pipe';
 import { ProfilePopupComponent } from './components/pages/profile-popup/profile-popup.component';
 import { TitleBarDesktopComponent } from './components/parts/title-bar-desktop/title-bar-desktop.component';
+import { RelationsListDesktopComponent } from './components/pages/home/relations-list-desktop/relations-list-desktop.component';
+import { RelationsCardDesktopComponent } from './components/pages/home/relations-list-desktop/relations-card-desktop/relations-card-desktop.component';
 
 const INTERCEPTOR_PROVIDER: Provider = {
   provide: HTTP_INTERCEPTORS,
@@ -111,7 +113,9 @@ class JsonpInterceptorModule {}
     P2pMessageModalComponent,
     SearchPipePipe,
     ProfilePopupComponent,
-    TitleBarDesktopComponent
+    TitleBarDesktopComponent,
+    RelationsListDesktopComponent, 
+    RelationsCardDesktopComponent
   ],
   imports: [
     BrowserModule,

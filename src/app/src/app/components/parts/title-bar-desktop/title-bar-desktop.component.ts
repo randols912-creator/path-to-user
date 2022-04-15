@@ -1,7 +1,8 @@
 import { Location } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Router } from '@angular/router';
-import { APP_SETTINGE_STORAGE_KEY, HOME_PATH, MENU_PATH, SETTINGS_PATH } from 'src/app/app.constants';
+import { ABOUT_PATH, APP_SETTINGE_STORAGE_KEY, HOME_PATH, MENU_PATH, SETTINGS_PATH, WELCOME_PATH } from 'src/app/app.constants';
+import { AuthService } from 'src/app/auth/auth.service';
 import Path from 'src/app/model/Path';
 import { ModalService } from 'src/app/services/modal.service';
 import { RelationService } from 'src/app/services/relation.service';
@@ -27,17 +28,17 @@ export class TitleBarDesktopComponent {
   countryData: any[] = [];
   conutryselcted:any[]=[];
   selectedItemsList = [];
-  country: any;
+  
   public sort = JSON.parse(localStorage.getItem(APP_SETTINGE_STORAGE_KEY))
   @Input() settingsAction: SettingsAction;
 
   @Output() toggleMenu: EventEmitter<void> = new EventEmitter<void>();
-  arryvaluecountry: any[];
 
   constructor(
     private location: Location,
     private router: Router,
-    private relationService: RelationService
+    private relationService: RelationService,
+    private auth: AuthService,
   ) {}
 
   get settingsUrl() {
@@ -63,6 +64,22 @@ export class TitleBarDesktopComponent {
   get relations(): Array<Path> {
     return this.relationService.getRelations();
   }
+
+  get isAuthenticated() {
+    return this.auth.isAuthenticated();
+  }
+
+  get resultln(){
+    return this.relations.length
+  }
+  get aboutUrl() {
+    return `/${ABOUT_PATH}`;
+  }
+
+  logoutHandler(): void {
+    this.auth.logout();
+    this.router.navigate([`/${WELCOME_PATH}`]);
+  }
   
   onChange(){
     this.relationsData = this.relations
@@ -75,25 +92,13 @@ export class TitleBarDesktopComponent {
       return res;
     }, {});
     this.countryData = Object.values(result)
-    // console.log(this.countryData)
     this.countryData.map(item =>{
       this.conutryselcted.push({country: item.target_profile.birth?.location?.country,checkrd:false})
     })
+
     this.fetchSelectedItems();
   }
 
-  onchangecountry(){
-    this.fetchSelectedItems();
-    this.country = this.conutryselcted.filter((item) => item.checkrd)
-    this.arryvaluecountry = []
-    this.conutryselcted.map(item => {
-      if(item.checkrd == true)
-      {
-        this.arryvaluecountry.push(item.country)
-      }
-    })
-    localStorage.setItem
-  }
   fetchSelectedItems(){
     this.selectedItemsList = this.countryData.filter((value, index) => {
       return value.checkrd

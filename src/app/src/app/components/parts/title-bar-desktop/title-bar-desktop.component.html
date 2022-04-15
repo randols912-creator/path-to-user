@@ -7,10 +7,15 @@
             translate>
             titleBar.toAllResults
         </button>
-
+        <img class="profile-img" src="https://photos.geni.com/p13/61/2c/25/8e/5344484e587353a9/me_large.jpg" />
+        <h3>Alexander Raginsky</h3>
         <img *ngIf="showTitle" src="assets/img/ANU-family.svg" alt="" class="title-logo" />
+            <a [routerLink]="[aboutUrl]" class="btn btn-link bigger-text about-link" translate>menu.about</a>
+            <button *ngIf="isAuthenticated"
+            (click)="logoutHandler()" type="button" class="btn btn-link bigger-text logout-btn" >
+                logo&nbsp;BH
+            </button>
     </div>
-
     <div *ngIf="showMenu">
         <div class="note_block text-center">
             <span translate>home.genealogical</span>
@@ -18,7 +23,7 @@
         <div class="menu_block d-flex">
             <div class="result_block">
                 <a href="#">
-                    <span><b>We have found 200 Result</b></span>
+                    <span><b>We have found {{ resultln }} Result</b></span>
                 </a>
             </div>
             <div class="birth_block">
@@ -30,9 +35,11 @@
                     <div class="dropdown-content dropdown-menu-tip-nw">
                         <div class="drop_list">
                             <div *ngFor="let obj of conutryselcted; let i = index">
-                                <label><span>
-                                        <input type="checkbox" id="" value="" [(ngModel)]="obj.checkrd"
-                                        (change)="onchangecountry()">{{obj.country}}
+                                <label>
+                                    <span class="round">
+                                        <input type="checkbox" id="" value="" [(ngModel)]="obj.checkrd">
+                                        &nbsp;{{obj.country}}
+                                        <span class="checkbox-span"></span>
                                     </span>
                                 </label>
                             </div>
@@ -46,9 +53,17 @@
                     <span>Date</span>
                 </a>
             </div>
-            <div class="#">
-                <span>Short By::</span>
-                <span>Filter</span>
+            <div class="header-filter">
+
+                <div class="form-group">
+                    <label for="sel1">Short&nbsp;By:</label>
+                    <select class="form-control" id="sel1">
+                        <option>First Name</option>
+                        <!-- <option>2</option>
+                        <option>3</option>
+                        <option>4</option> -->
+                    </select>
+                </div>
             </div>
         </div>
         <hr class="hr_line" *ngIf="showMenu">

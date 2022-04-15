@@ -1,0 +1,34 @@
+<div class="relation-card" #relationCard>
+  <div class="person-box">
+    <div class="photo-section">
+      <a [routerLink]="[relationPath, relation.target_id]" [state]="{ id: relation.target_id }">
+        <img class="person-img" src="{{
+                    relationImgUlr
+                      ? relationImgUlr
+                      : 'assets/img/gender-' + gender + '.svg'
+                  }}" alt="Photo" [ngClass]="[
+                    'gender-' + gender,
+                    !relationImgUlr ? 'no-profile-photo' : 'profile-photo'
+                  ]" />
+      </a>
+    </div>
+    <div class="person-detail">
+      <h3>
+        <div #fullname class="fullname">
+          <a [routerLink]="[relationPath, relation.target_id]" [state]="{ id: relation.target_id }">{{
+            localizedFullname }}</a>
+        </div>
+      </h3>
+      <p *ngIf="nickName === ''">&nbsp;</p>
+      <p *ngIf="nickName !== ''">{{nickName}}</p>
+      <p>{{ livingDates }}</p>
+      <p>Person details: Person (born {{formatedDate}})
+        <!-- was an American playwright and screenwriter. He has written numerous Broadway plays, including Brighton Beach Memoirs, Biloxi Blues, and The Odd Couple. He won the 199 -->
+      </p>
+    </div>
+  </div>
+  <div class="connection-no">
+    <span class="small-text" translate>home.relationCard.num</span>
+    <span class="small-regular-text">{{ this.relation.step_count }}</span>
+  </div>
+</div>
