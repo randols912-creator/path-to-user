@@ -11,13 +11,15 @@
             [ngClass]="{ 'active-settings-action': settingsAction === 'filter' }"
             [routerLink]="[settingsUrl, { action: 'filter' }]">
             <img src="assets/img/filter.svg" alt="" />&nbsp;&nbsp;
-            <span class="small-text">Filters</span>
+            <!-- <span class="small-text">Filters</span> -->
+            <span class="small-text" [ngClass]="{ 'filter-icon': getAppliedFilterCount()}">Filters<i *ngIf="getAppliedFilterCount()">{{getAppliedFilterCount()}}</i></span>
           </a>
           <a class="shorting_text" *ngIf="showSettings"
             [ngClass]="{ 'active-settings-action': settingsAction === 'sort' }"
             [routerLink]="[settingsUrl, { action: 'sort' }]">
             <img src="assets/img/sort.svg" alt="" />&nbsp;&nbsp;
-            <span class="small-text">Sorting</span>
+            <!-- <span class="small-text">Sorting</span> -->
+            <span class="small-text dot-icon">Sorting<i *ngIf="sort.sort !== false"></i></span>
           </a>
   
         </div>
@@ -54,7 +56,8 @@
         <a class="filter_text" *ngIf="showSettings" [ngClass]="{ 'active-settings-action': settingsAction === 'filter' }"
           [routerLink]="[settingsUrl, { action: 'filter' }]">
           <img src="assets/img/filter.svg" alt="" />&nbsp;&nbsp;
-          <span class="small-text">Filters</span>
+          <!-- <span class="small-text">Filters</span> -->
+          <span class="small-text" [ngClass]="{ 'filter-icon': getAppliedFilterCount()}">Filters<i *ngIf="getAppliedFilterCount()">{{getAppliedFilterCount()}}</i></span>
         </a>
         <a class="shorting_text" *ngIf="showSettings" [ngClass]="{ 'active-settings-action': settingsAction === 'sort' }"
           [routerLink]="[settingsUrl, { action: 'sort' }]">

@@ -55,7 +55,14 @@ export class FiltersComponent implements OnInit, OnChanges {
   currentRelationLength = 0
 
   testRadio = false;
-  filters : any = {}
+  filters : any = {
+    gender: '',
+    country : [],
+    museum : [],
+    profession : [],
+    fromYear : '',
+    toYear: '',
+  }
   constructor(private settingsService: SettingsService, private router: Router, private fb : FormBuilder) { }
 
   ngOnInit(): void {
@@ -71,11 +78,11 @@ export class FiltersComponent implements OnInit, OnChanges {
       toYear: new FormControl(this.filters?.toYear ? this.filters?.toYear : '')
     });
     
-    if(this.filters && this.filters?.museum.length) {
+    if(this.filters && this.filters?.museum?.length) {
       for(var i= 0; i < this.place_at_museum.length; i++) {
         let alreadyChecked = false;
-        if(this.filters.museum.length) {
-          let exist = this.filters.museum.find((museum) => museum === this.place_at_museum[i].value)
+        if(this.filters?.museum?.length) {
+          let exist = this.filters?.museum.find((museum) => museum === this.place_at_museum[i].value)
           if(exist >= 0) {
             alreadyChecked = true;
           }
@@ -99,8 +106,8 @@ export class FiltersComponent implements OnInit, OnChanges {
     for (const property in result) {
       let countryExist = this.countryData.find((country) => country.countryName === property);
       let alreadyChecked = false;
-      if(this.filters.country.length) {
-        let exist = this.filters.country.find((country) => country === property)
+      if(this.filters?.country?.length) {
+        let exist = this.filters?.country.find((country) => country === property)
         if(exist) {
           alreadyChecked = true;
         }
@@ -125,8 +132,8 @@ export class FiltersComponent implements OnInit, OnChanges {
     for (const property in themes) {
       let themeExist = this.proData.find((theme) => theme.bh_theme === property);
       let alreadyChecked = false;
-      if(this.filters.profession.length) {
-        let exist = this.filters.profession.find((profession) => profession === property)
+      if(this.filters?.profession?.length) {
+        let exist = this.filters?.profession.find((profession) => profession === property)
         if(exist) {
           alreadyChecked = true;
         }
@@ -141,18 +148,18 @@ export class FiltersComponent implements OnInit, OnChanges {
   }
 
   goToAllResults() {
-    let selectedCountrys = this.countryData.filter((country) => country.checkedcountry === true).map((obj) => {return obj.countryName});
-    let selectedMuseumFloor = this.place_at_museum.filter((museum) => museum.isChecked === true).map((obj) => {return obj.value});
-    let selectedProfession = this.proData.filter((profession) => profession.checkedpro === true).map((obj) => { return obj.bh_theme});
-    let filter = {
-      gender : this.filterForm.value.gender,
-      country : selectedCountrys,
-      museum : selectedMuseumFloor,
-      profession : selectedProfession,
-      fromYear : this.filterForm.value.fromYear,
-      toYear: this.filterForm.value.toYear,
-    }
-    this.settingsService.setFilterOrder(filter);
+    // let selectedCountrys = this.countryData.filter((country) => country.checkedcountry === true).map((obj) => {return obj.countryName});
+    // let selectedMuseumFloor = this.place_at_museum.filter((museum) => museum.isChecked === true).map((obj) => {return obj.value});
+    // let selectedProfession = this.proData.filter((profession) => profession.checkedpro === true).map((obj) => { return obj.bh_theme});
+    // let filter = {
+    //   gender : this.filterForm.value.gender,
+    //   country : selectedCountrys,
+    //   museum : selectedMuseumFloor,
+    //   profession : selectedProfession,
+    //   fromYear : this.filterForm.value.fromYear,
+    //   toYear: this.filterForm.value.toYear,
+    // }
+    this.settingsService.setFilterOrder(this.filters);
     this.router.navigate([`/${HOME_PATH}`]);
   }
   onchange() {
@@ -170,61 +177,89 @@ export class FiltersComponent implements OnInit, OnChanges {
     this.selectedLenght = 0;
   }
 
-  onchangecountry(event, i) {
+  onchangecountry(event, i, name) {
     this.countryData.forEach((element, index) => {
       if(index === i) {
         element['checkedcountry'] = event.target.checked
         this.countryData[index] = element;
       }
     })
+
+    if(event.target.checked) {
+      this.filters.country.push(name)
+    } else {
+      let index = this.filters.country.indexOf(name)
+      if(index > -1) {
+        this.filters.country.splice(index, 1);
+      }
+    }
   }
 
-  clearcountry() {
-    // for (let i = 0; i < this.country.length; i++) {
-    //   this.country[i]['checkedcountry'] = false
-    // }
-    // this.isCheckedcountry = false;
-    // this.selectedLenght = 0
+  clearCountry() {
+    for (let i = 0; i < this.countryData.length; i++) {
+      this.countryData[i]['checkedcountry'] = false
+    }
   }
 
-  onchangemuseum(event, i) {
+  onchangemuseum(event, i, name) {
     this.place_at_museum.forEach((element, index) => {
       if(index === i) {
         element['isChecked'] = event.target.checked
         this.place_at_museum[index] = element;
       }
     })
+
+    if(event.target.checked) {
+      this.filters.museum.push(name)
+    } else {
+      let index = this.filters.museum.indexOf(name)
+      if(index > -1) {
+        this.filters.museum.splice(index, 1);
+      }
+    }
   }
 
-  clearmuseum() {
-    for (let i = 0; i < this.museum.length; i++) {
-      this.museum[i].isChecked = false
+  clearMuseum() {
+    for (let i = 0; i <this.place_at_museum.length; i++) {
+     this.place_at_museum[i].isChecked = false
     }
-    this.isCheckedmuseum = false;
-    this.selectedLenght = 0
   }
-  onchangeprofession(event, i) {
+  onchangeprofession(event, i, name) {
     this.proData.forEach((element, index) => {
       if(index === i) {
         element['checkedpro'] = event.target.checked
         this.proData[index] = element;
       }
     })
+
+    if(event.target.checked) {
+      this.filters.profession.push(name)
+    } else {
+      let index = this.filters.profession.indexOf(name)
+      if(index > -1) {
+        this.filters.profession.splice(index, 1);
+      }
+    }
+  }
+
+  clearProfession() {
+    for (let i = 0; i < this.proData.length; i++) {
+      this.proData[i].checkedpro = false;
+    }
   }
 
   changeGender(gender) {
+    this.filters.gender = gender
     this.filterForm.patchValue({
       gender: gender
     })
   }
 
-  clearprofession() {
-    for (let i = 0; i < this.professionname.length; i++) {
-      this.professionname[i].checkedpro = false
-    }
-    this.isCheckrdprofession = false;
-    this.selectedLenght = 0
+  changeYear(event, field) {
+    this.filters[field] = event.target.value
   }
+
+  
 
   clearAll() {
     this.selectedLenght = 0;
@@ -258,5 +293,29 @@ export class FiltersComponent implements OnInit, OnChanges {
   clearFilter(key, value) {
     this.filters[key] = value
     this.settingsService.setFilterOrder(this.filters);
+
+    if(key === 'gender' || key === 'fromYear' || key === 'toYear') {
+      this.filterForm.patchValue({
+        gender: ''
+      })
+    }
+
+    if(key === 'fromYear' || key === 'toYear') {
+      this.filterForm.patchValue({
+        fromYear: '',
+        toYear: ''
+      })
+    }
+
+    if(key === '') {
+      this.clearMuseum();
+    }
+
+    if(key === '') {
+      this.clearProfession();
+    }
+    
+
+
   }
 }

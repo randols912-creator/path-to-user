@@ -33,8 +33,8 @@
         <div style="display: flex;">
             <accordion-group heading="Years">
                 <div class="display_flex_padding">
-                    <span class="span_input">Form: </span><input type="number" class="filter_input" formControlName="fromYear"><span
-                        class="span_input span_to">To:</span><input type="number" class="filter_input" formControlName="toYear">
+                    <span class="span_input">Form: </span><input type="number" class="filter_input" formControlName="fromYear" (change)="changeYear($event, 'fromYear')"><span
+                        class="span_input span_to">To:</span><input type="number" class="filter_input" formControlName="toYear" (change)="changeYear($event, 'toYear')">
                 </div>
             </accordion-group>
             <a *ngIf="filters?.fromYear && filters?.toYear" class="clear_button" (click)="clearFilter('fromYear', '');clearFilter('toYear', '')">Clear</a>
@@ -64,7 +64,7 @@
                             <input type="checkbox" 
                             name="{{i}}"
                             [checked]="obj.checkedcountry"
-                            (change)="onchangecountry($event, i)"/>
+                            (change)="onchangecountry($event, i, obj?.countryName)"/>
                             {{obj?.countryName}}
                             <span class="checkbox-span"></span>
                         </span>
@@ -103,7 +103,7 @@
                         <label >
                             <span class="round-country">
                                 <input type="checkbox" [checked]="museum_name.isChecked == true" 
-                                (change)="onchangemuseum($event, i)"/>
+                                (change)="onchangemuseum($event, i, museum_name.place_museum_name)"/>
                                 {{museum_name.place_museum_name}}
                                 <span class="checkbox-span"></span>
                             </span>
@@ -145,7 +145,7 @@
                         <label >
                             <span class="round-country">
                                 <input type="checkbox" [checked]="profession.checkedpro == true" 
-                            (change)="onchangeprofession($event, i)"/>
+                            (change)="onchangeprofession($event, i, profession.bh_theme)"/>
                             <span class="checkbox-span"></span>
                             <span class="bhf-theme"
                                     [ngStyle]="{'backgroundColor':categoryColor(profession.bh_theme)}">{{profession.bh_theme}}

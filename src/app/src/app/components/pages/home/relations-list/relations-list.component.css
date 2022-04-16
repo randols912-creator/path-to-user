@@ -51,9 +51,6 @@
 .select_blck:focus-visible{
  outline: none;
 }
-option.option_blck {
-  background-color: #ededed;
-}
 
 .custom_image {
   padding: 15px 0 0px;
