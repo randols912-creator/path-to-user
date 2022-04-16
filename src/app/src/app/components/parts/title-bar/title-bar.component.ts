@@ -3,6 +3,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { APP_SETTINGE_STORAGE_KEY, HOME_PATH, MENU_PATH, SETTINGS_PATH } from 'src/app/app.constants';
 import { ModalService } from 'src/app/services/modal.service';
+import { SettingsService } from 'src/app/services/settings.service';
 import { SettingsAction } from '../../pages/settings/settings.component';
 import { P2pModalComponent } from '../p2p-modal/p2p-modal.component';
 
@@ -28,7 +29,8 @@ export class TitleBarComponent {
 
   constructor(
     private location: Location,
-    private router: Router
+    private router: Router,
+    private settingsService: SettingsService
   ) {}
 
   get settingsUrl() {
@@ -49,5 +51,32 @@ export class TitleBarComponent {
 
   goToAllResults(): void {
     this.router.navigate([`/${HOME_PATH}`]);
+  }
+
+  getAppliedFilterCount() {
+    let count = 0;
+    let filters = this.settingsService.getFilterOrder();
+
+    if(filters?.gender) {
+      count += 1
+    }
+
+    if(filters?.fromYear && filters?.toYear) {
+      count += 1
+    }
+
+    if(filters?.country?.length) {
+      count += 1
+    }
+
+    if(filters?.museum?.length) {
+      count += 1
+    }
+
+    if(filters?.profession_name?.length) {
+      count += 1
+    }
+
+    return count
   }
 }

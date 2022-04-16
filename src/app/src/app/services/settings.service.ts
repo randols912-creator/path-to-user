@@ -24,7 +24,14 @@ export class SettingsService {
     this.settings = { sort: RelationSortOrder.DEFAULT,
                       locale: Locale.EN,
                       p2p: true,
-                      filter:{} };
+                      filter: {
+                        gender:'',
+                        fromYear: '',
+                        toYear: '',
+                        country: [],
+                        museum: [],
+                        profession: []
+                      } };
     this.saveSettings();
   }
 
@@ -100,4 +107,13 @@ export interface Settings {
   locale: Locale;
   p2p: boolean;
   filter: any;
+}
+
+export interface Filters {
+  gender: string;
+  fromYear: number;
+  toYear: number;
+  country: Array<string>;
+  museum: Array<number>;
+  profession: Array<string>;
 }

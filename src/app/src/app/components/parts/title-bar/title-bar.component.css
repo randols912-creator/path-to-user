@@ -96,7 +96,7 @@ hr.hr_line {
   padding: 0px 4px 1px 3px;
   font-size: 8px;
   margin: 2px;
-  top: 0;
+  /* top: 0; */
   font-weight: bold;
   color: #fff;
 }
