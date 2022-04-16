@@ -46,6 +46,7 @@ import { TitleBarComponent } from './components/parts/title-bar/title-bar.compon
 import { ToolbarComponent } from './components/parts/toolbar/toolbar.component';
 import { ModalRefDirective } from './directives/modal-ref.directive';
 import { RelationsSortByPipe } from './pipes/relations-sort-by.pipe';
+import { RelationsFilterByPipe } from './pipes/relations-filter.pipe';
 import { SearchComponent } from './components/pages/settings/search/search.component';
 import { FiltersComponent } from './components/pages/settings/filters/filters.component';
 import { AccordionModule } from 'ngx-bootstrap/accordion';
@@ -96,6 +97,7 @@ class JsonpInterceptorModule {}
     ProfileComponent,
     SpinnerComponent,
     RelationsSortByPipe,
+    RelationsFilterByPipe,
     SettingsComponent,
     SortComponent,
     SearchComponent,

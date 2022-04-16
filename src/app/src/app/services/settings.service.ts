@@ -23,7 +23,8 @@ export class SettingsService {
   private initSettings() {
     this.settings = { sort: RelationSortOrder.DEFAULT,
                       locale: Locale.EN,
-                      p2p: true };
+                      p2p: true,
+                      filter:{} };
     this.saveSettings();
   }
 
@@ -44,6 +45,15 @@ export class SettingsService {
 
   setSortOrder(orderKey: RelationSortOrder) {
     this.settings.sort = orderKey;
+    this.saveSettings();
+  }
+
+  getFilterOrder() {
+    return this.settings.filter;
+  }
+
+  setFilterOrder(filter) {
+    this.settings.filter = filter;
     this.saveSettings();
   }
 
@@ -89,4 +99,5 @@ export interface Settings {
   sort: number;
   locale: Locale;
   p2p: boolean;
+  filter: any;
 }

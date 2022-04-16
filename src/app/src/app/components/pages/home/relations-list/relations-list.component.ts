@@ -3,7 +3,6 @@ import {
   ElementRef,
   HostListener,
   Input,
-
   ViewChild,
   ViewEncapsulation
 } from '@angular/core';
@@ -52,6 +51,10 @@ export class RelationsListComponent {
   get sortOrder(): RelationSortOrder {
     this.total = Math.ceil((this.relations.length / this.config.itemsPerPage))
     return this.settingsService.getSortOrder();
+  }
+
+  get filterOrder() {
+    return this.settingsService.getFilterOrder();
   }
 
   onPageChange(event) {
