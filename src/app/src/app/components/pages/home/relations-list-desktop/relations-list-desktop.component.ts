@@ -52,6 +52,9 @@ export class RelationsListDesktopComponent {
     return this.settingsService.getSortOrder();
   }
 
+  get filterOrder() {
+    return this.settingsService.getFilterOrder();
+  }
   onPageChange(event) {
     this.config.currentPage = event;
   }

@@ -1,14 +1,7 @@
 <div *ngIf="showMenuHome">
     <div class="title-bar">
-        <button class="btn close-menu-icon" *ngIf="showGoBack" (click)="goBackHandler()">
-            <img src="assets/img/x.svg" alt="" />
-        </button>
-        <button *ngIf="showGoToAllResultsText" (click)="goToAllResults()" class="btn btn-lnk small-text all-results"
-            translate>
-            titleBar.toAllResults
-        </button>
-        <img class="profile-img" src="https://photos.geni.com/p13/61/2c/25/8e/5344484e587353a9/me_large.jpg" />
-        <h3>Alexander Raginsky</h3>
+        <img class="profile-img" *ngIf="user" src="{{user.photo_urls.large}}" />
+        <h3 *ngIf="user">{{user.name}}</h3>
         <img *ngIf="showTitle" src="assets/img/ANU-family.svg" alt="" class="title-logo" />
             <a [routerLink]="[aboutUrl]" class="btn btn-link bigger-text about-link" translate>menu.about</a>
             <button *ngIf="isAuthenticated"
@@ -21,9 +14,10 @@
             <span translate>home.genealogical</span>
         </div>
         <div class="menu_block d-flex">
+        <form [formGroup]="homePageForm">
             <div class="result_block">
                 <a href="#">
-                    <span><b>We have found {{ resultln }} Result</b></span>
+                    <span><b>We have found {{ relations.length }} Result</b></span>
                 </a>
             </div>
             <div class="birth_block">
@@ -32,13 +26,16 @@
                     <a (mouseenter)="onChange()">
                         <span>Birth Country</span>
                     </a>
-                    <div class="dropdown-content dropdown-menu-tip-nw">
+                    <div class="dropdown-content dropdown-menu-tip-nw" *ngIf="countryData.length > 0">
                         <div class="drop_list">
-                            <div *ngFor="let obj of conutryselcted; let i = index">
+                            <div *ngFor="let obj of countryData; let i = index">
                                 <label>
                                     <span class="round">
-                                        <input type="checkbox" id="" value="" [(ngModel)]="obj.checkrd">
-                                        &nbsp;{{obj.country}}
+                                        <input type="checkbox" 
+                                        name="{{i}}"
+                                        [checked]="obj.checkedcountry"
+                                        (change)="onchangecountry($event, i, obj?.countryName)"/>
+                                        {{obj?.countryName}}
                                         <span class="checkbox-span"></span>
                                     </span>
                                 </label>
@@ -59,26 +56,11 @@
                     <label for="sel1">Short&nbsp;By:</label>
                     <select class="form-control" id="sel1">
                         <option>First Name</option>
-                        <!-- <option>2</option>
-                        <option>3</option>
-                        <option>4</option> -->
                     </select>
                 </div>
             </div>
+        </form>
         </div>
         <hr class="hr_line" *ngIf="showMenu">
     </div>
-</div>
-<div class="title-bar" *ngIf="!showMenuHome">
-    <span>
-        <span *ngIf="!showGoBack">
-            <button class="btn open-menu-icon" (click)="gotoMenuHandler()">
-                <img src="assets/img/menu.svg" alt="menu" />
-            </button>
-        </span>
-        <button class="btn close-menu-icon" *ngIf="showGoBack" (click)="goBackHandler()">
-            <img src="assets/img/x.svg" alt="" />
-        </button>
-        <img *ngIf="showTitle" src="assets/img/ANU-family.svg" alt="" class="title-logo" />
-    </span>
 </div>
