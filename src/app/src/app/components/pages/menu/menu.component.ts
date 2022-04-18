@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { ABOUT_PATH, WELCOME_PATH, HOME_PATH } from 'src/app/app.constants';
+import { ABOUT_PATH, WELCOME_PATH, HOME_PATH, PROFILE_POPUP_PATH } from 'src/app/app.constants';
 import { AuthService } from 'src/app/auth/auth.service';
 import { SettingsService } from 'src/app/services/settings.service';
 import { RelationService, Status as ServiceStatus } from 'src/app/services/relation.service';
@@ -54,5 +54,9 @@ export class MenuComponent implements OnInit {
 
   get isLoading() {
     return this.isLoadingStatus;
+  }
+
+  profileMenuOpen(){
+    this.router.navigate([`/${PROFILE_POPUP_PATH}`]);
   }
 }
