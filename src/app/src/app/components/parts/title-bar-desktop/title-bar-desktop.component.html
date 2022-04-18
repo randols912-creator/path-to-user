@@ -5,11 +5,11 @@
         <img *ngIf="showTitle" src="assets/img/ANU-family.svg" alt="" class="title-logo" />
             <a [routerLink]="[aboutUrl]" class="btn btn-link bigger-text about-link" translate>menu.about</a>
             <button *ngIf="isAuthenticated"
-            (click)="logoutHandler()" type="button" class="btn btn-link bigger-text logout-btn" >
+             type="button" class="btn btn-link bigger-text logout-btn" >
                 logo&nbsp;BH
             </button>
     </div>
-    <div *ngIf="showMenu">
+    <div *ngIf="showMenu" class="marginset">
         <div class="note_block text-center">
             <span translate>home.genealogical</span>
         </div>
@@ -43,19 +43,45 @@
                         </div>
                     </div>
                 </div>
-                <a href="#">
-                    <span>Connection Number</span>
-                </a>
+                <div class="dropdown">
+                    <a (mouseenter)="onChangestep()">
+                        <span>Connection Number</span>
+                    </a>
+                    <div class="dropdown-content connection-number dropdown-menu-tip-nw" *ngIf="countryData.length > 0">
+                        <div class="drop_list">
+                            <div *ngFor="let obj of stepcountData; let i = index">
+                                <label>
+                                    <span class="round">
+                                        <input type="checkbox" 
+                                        name="{{i}}"
+                                        [checked]="obj.checkedStep"
+                                        />
+                                        {{obj?.step_count}}
+                                        <span class="checkbox-span"></span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <a href="#">
                     <span>Date</span>
                 </a>
             </div>
             <div class="header-filter">
-
+                <span class="custom-ser">
+                    <div class="form-group">
+                        <label for="search" class="sort-lable" style="padding-right: 6px;" >Search:</label>
+                        <input type="text" class="serach_input" formControlName ="searchText" (keyup)="searchRelation()">
+                        <!-- <img class="input_img" src="assets/img/search.svg" alt="" id="img_serach" /> -->
+                    </div>
+                </span>
+            </div>
+            <div class="header-filter">
                 <div class="form-group">
-                    <label for="sel1">Short&nbsp;By:</label>
-                    <select class="form-control" id="sel1">
-                        <option>First Name</option>
+                    <label for="sel1" class="sort-lable">Sort&nbsp;By:</label>
+                    <select class="form-control" id="sel1" formControlName="sortOrder">
+                        <option *ngFor="let option of sortOrderOptions; let i = index" [value]="i" >{{ option }}</option>
                     </select>
                 </div>
             </div>

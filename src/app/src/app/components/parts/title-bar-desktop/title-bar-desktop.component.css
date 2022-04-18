@@ -18,7 +18,7 @@
 
 .title-logo {
     position: absolute;
-    width: 11%;
+    width: 10%;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
@@ -52,16 +52,21 @@ hr.hr_line {
 
 .menu_block form{
     justify-content: space-between;
-    padding: 8px 0 0 0;
-    align-items: end;
+    padding: 16px 0 0 0;
     display: flex;
     width: 100%;
+    align-items: center;
 }
-
+.sort-lable{
+    margin-bottom: 0;
+}
 .result_block a span {
     color: #000;
 }
 
+.birth_block {
+    margin: 0 0 0 3vw;
+}
 .birth_block span {
     font-size: 12px;
     padding: 1px 15px 0 0;
@@ -89,7 +94,7 @@ hr.hr_line {
     border: 1px solid #ddd;
     font-size: 12px;
     top: 36px;
-    left: -36px;
+    left: -24px;
     padding: 7px;
     z-index: 1;
 }
@@ -176,6 +181,7 @@ hr.hr_line {
     height: unset;
     border: unset;
     font-size: 14px;
+    padding: 4px 0.75rem;
 }
 .header-filter select:focus {
     outline: unset;
@@ -185,6 +191,7 @@ hr.hr_line {
     width: 40px;
     height: 40px;
     border-radius: 50%;
+    margin: 0 0 0 8vw;
 }
 .about-link {
     z-index: 101;
@@ -195,7 +202,7 @@ hr.hr_line {
     transform: translate(-50%, -50%);
     color: #353535;
     font-weight: 700;
-    margin-bottom: 0;
+    margin: 0 -8vw;
 }
 .about-link:hover{
     text-decoration: unset;
@@ -209,7 +216,7 @@ hr.hr_line {
     background-color: #9A9A9A;
     color: #353535;
     font-weight: 700;
-    margin-bottom: 0;
+    margin: 0 -8vw;
     font-size: 18px;
     height: 40px;
     padding: 0 20px;
@@ -218,8 +225,32 @@ hr.hr_line {
 .logout-btn:hover {
     text-decoration: unset;
 }
+.dropdown-content.connection-number {
+    left: 10px;
+}
+.serach_input {
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+    margin-bottom: 4px;
+    display: block;
+    width: 100%;
+    padding: 0px 0 0 8px;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border-bottom: 1px solid #ced4da;
+}
+
 @media (max-width: 991px){
     .logout-btn {
         left: 97%;
     }
+}
+.marginset{
+    margin: 0 9.5vw 0 9vw;
 }

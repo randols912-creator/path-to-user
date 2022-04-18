@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ABOUT_PATH, APP_SETTINGE_STORAGE_KEY, HOME_PATH, MENU_PATH, SETTINGS_PATH, WELCOME_PATH } from 'src/app/app.constants';
@@ -30,15 +30,28 @@ export class TitleBarDesktopComponent implements OnInit {
   @Input() showMenuHome = false;
   relationsData: any[] = [];
   countryData: any[] = [];
-  conutryselcted: any[] = [];
-  selectedItemsList = [];
-  filters: any = {}
+  stepcountData: any[] = [];
+  user_name: any[] = [];
+  filters: any = {};
+  connection_num: any = {};
+  sorting: any;
+  // serachData:any = {};
+  serachData : any = {
+    serach : ''
+  }
 
   public sort = JSON.parse(localStorage.getItem(APP_SETTINGE_STORAGE_KEY))
   @Input() settingsAction: SettingsAction;
 
   @Output() toggleMenu: EventEmitter<void> = new EventEmitter<void>();
 
+  sortOrderOptions = [
+    'First Name',
+    'Last Name',
+    'Birth Date',
+    'Death Date',
+    'Number of connections',
+  ];
   constructor(
     private location: Location,
     private router: Router,
@@ -51,55 +64,15 @@ export class TitleBarDesktopComponent implements OnInit {
     this.filters = this.settingsService.getFilterOrder();
     this.homePageForm = new FormGroup({
       country: new FormControl([]),
+      sortOrder: new FormControl(this.settingsService.getSortOrder()),
+      searchText: new FormControl([])
+    });
+    this.homePageForm.valueChanges.subscribe((value) => {
+      this.settingsService.setSortOrder(Number(this.homePageForm.value.sortOrder));
     });
   }
 
-
-  get settingsUrl() {
-    return `/${SETTINGS_PATH}`;
-  }
-
-  goBackHandler(): void {
-    if (window.history.length > 2) {
-      this.location.back();
-    } else {
-      this.goToAllResults();
-    }
-  }
-
-  gotoMenuHandler(): void {
-    this.router.navigate([`/${MENU_PATH}`]);
-  }
-
-  goToAllResults(): void {
-    this.router.navigate([`/${HOME_PATH}`]);
-  }
-
-  get user(): Profile {
-    return this.auth.user;
-  }
-  
-  get relations(): Array<Path> {
-    return this.relationService.getRelations();
-  }
-
-  get isAuthenticated() {
-    return this.auth.isAuthenticated();
-  }
-
-  get resultln() {
-    return this.relations.length
-  }
-  get aboutUrl() {
-    return `/${ABOUT_PATH}`;
-  }
-
-  logoutHandler(): void {
-    this.auth.logout();
-    this.router.navigate([`/${WELCOME_PATH}`]);
-  }
-
-  onChange() {
+  onChange(): void {
     this.relationsData = this.relations
     let result = this.relationsData.reduce((res, pro) => {
       if (!res[pro.target_profile.birth?.location?.country]) {
@@ -126,23 +99,112 @@ export class TitleBarDesktopComponent implements OnInit {
       }
     }
   }
+  onChangestep() {
+    let resultcount = this.relationsData.reduce((res, pro) => {
+      if (!res[pro.step_count]) {
+        res[pro.step_count] = pro;
+      } else if (Number(res[pro.step_count].cost) < Number(pro.cost)) {
+        res[pro.step_count] = pro;
+      }
+      return res;
+    }, {});
 
-  onchangecountry(event, i,name) {
+    for (const property in resultcount) {
+      let stepExits = this.stepcountData.find((step) => step.stepcount === property);
+      let alreadyStepChecked = false;
+      if (this.connection_num?.step_count?.length > 0) {
+        let stepexit = this.connection_num.step_count.find((step_count) => step_count === property)
+        if (stepexit) {
+          alreadyStepChecked = true;
+        }
+      }
+
+      if (!stepExits) {
+        this.stepcountData.push({
+          step_count: property,
+          checkedStep: alreadyStepChecked
+        })
+      }
+    }
+  }
+
+
+  get settingsUrl() {
+    return `/${SETTINGS_PATH}`;
+  }
+
+  goBackHandler(): void {
+    if (window.history.length > 2) {
+      this.location.back();
+    } else {
+      this.goToAllResults();
+    }
+  }
+
+  gotoMenuHandler(): void {
+    this.router.navigate([`/${MENU_PATH}`]);
+  }
+
+  goToAllResults(): void {
+    this.router.navigate([`/${HOME_PATH}`]);
+  }
+
+  get user(): Profile {
+    return this.auth.user;
+  }
+
+  get relations(): Array<Path> {
+    return this.relationService.getRelations();
+  }
+
+  get isAuthenticated() {
+    return this.auth.isAuthenticated();
+  }
+
+  get resultln() {
+    return this.relations.length
+  }
+  get aboutUrl() {
+    return `/${ABOUT_PATH}`;
+  }
+
+  logoutHandler(): void {
+    this.auth.logout();
+    this.router.navigate([`/${WELCOME_PATH}`]);
+  }
+
+  onchangecountry(event, i, name) {
     this.countryData.forEach((element, index) => {
-      if(index === i) {
+      if (index === i) {
         element['checkedcountry'] = event.target.checked
         this.countryData[index] = element;
       }
     })
 
-    if(event.target.checked) {
+    if (event.target.checked) {
       this.filters.country.push(name)
     } else {
       let index = this.filters.country.indexOf(name)
-      if(index > -1) {
+      if (index > -1) {
         this.filters.country.splice(index, 1);
       }
     }
     this.settingsService.setFilterOrder(this.filters);
   }
+
+  searchRelation() {
+    console.log(this.homePageForm.value.searchText)
+    let searchResult = this.homePageForm.value.searchTex
+    for(const property in searchResult){
+      let serchExist = this.user_name.find((country) => country.serachName === property);
+      if (!serchExist) {
+        this.serachData.push({
+          serachName: property,
+        })
+      }
+      console.log(this.user_name)
+      this.settingsService.setSerachOrder(this.serachData);
+    }
+  }
+
 }

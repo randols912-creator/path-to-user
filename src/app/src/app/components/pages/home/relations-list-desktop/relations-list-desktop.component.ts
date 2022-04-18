@@ -55,6 +55,10 @@ export class RelationsListDesktopComponent {
   get filterOrder() {
     return this.settingsService.getFilterOrder();
   }
+
+  get serachOrder() {
+    return this.settingsService.getSerachOrder();
+  }
   onPageChange(event) {
     this.config.currentPage = event;
   }

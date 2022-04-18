@@ -24,6 +24,9 @@ export class SettingsService {
     this.settings = { sort: RelationSortOrder.DEFAULT,
                       locale: Locale.EN,
                       p2p: true,
+                      serachlist: {
+                        serach:''
+                      },
                       filter: {
                         gender:'',
                         fromYear: '',
@@ -61,6 +64,15 @@ export class SettingsService {
 
   setFilterOrder(filter) {
     this.settings.filter = filter;
+    this.saveSettings();
+  }
+
+  getSerachOrder() {
+    return this.settings.serachlist;
+  }
+
+  setSerachOrder(serach) {
+    this.settings.serachlist = serach;
     this.saveSettings();
   }
 
@@ -107,6 +119,7 @@ export interface Settings {
   locale: Locale;
   p2p: boolean;
   filter: any;
+  serachlist: any;
 }
 
 export interface Filters {
@@ -116,4 +129,8 @@ export interface Filters {
   country: Array<string>;
   museum: Array<number>;
   profession: Array<string>;
+}
+
+export interface serachData {
+  serach: string;
 }
