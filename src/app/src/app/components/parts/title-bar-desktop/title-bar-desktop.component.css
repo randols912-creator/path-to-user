@@ -156,17 +156,17 @@ hr.hr_line {
     width: 10px;
 }
 
-.round input[type="checkbox"] {
+.round input[type="checkbox"], .round input[type="radio"] {
     visibility: hidden;
     margin-right: 5px;
 }
 
-.round input[type="checkbox"]:checked+.checkbox-span {
+.round input[type="checkbox"]:checked+.checkbox-span, .round input[type="radio"]:checked+.checkbox-span {
     background-color: #fff;
     border-color: #ccc;
 }
 
-.round input[type="checkbox"]:checked+.checkbox-span:after {
+.round input[type="checkbox"]:checked+.checkbox-span:after, .round input[type="radio"]:checked+.checkbox-span:after {
     opacity: 1;
 }
 .header-filter .form-group {
@@ -226,7 +226,10 @@ hr.hr_line {
     text-decoration: unset;
 }
 .dropdown-content.connection-number {
-    left: 10px;
+    left: 4px;
+}
+.dropdown-content.profession {
+    left:-36px;
 }
 .serach_input {
     border-top: none;
@@ -250,6 +253,55 @@ hr.hr_line {
     left: -56px;
     min-width: 121px;
     max-height: 78px;
+}
+.search-desktop, .cust-input {
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+    display: block;
+    width: 100%;
+    font-weight: 400;
+    line-height: 0;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border-bottom: 1px solid #ced4da;
+    margin-top: -18px;
+    font-size: 14px;
+}
+.to-span span{
+    padding-left: 10px !important;
+}
+.cust-input {
+    width: 58%;
+}
+.cust-drop div {
+    padding: 8px 0;
+}
+.cust-drop .form-group {
+    display: flex;
+}
+.cust-drop .form-group span {
+    padding: 0;
+}
+.dropdown-content.year{
+    left: -51px;
+}
+.header-filter.header-filter-desk {
+    line-height: unset;
+}
+.search-desktop:focus-visible  {
+    outline: unset;
+}
+.header-filter.header-filter-desk label {
+    font-size: 14px;
+}
+.bhp-theme {
+    border-radius: 9px;
+    color: #535453;
+    padding: 0 5px;
+    height: 15px;
 }
 @media (max-width: 991px){
     .logout-btn {

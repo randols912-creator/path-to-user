@@ -3,120 +3,149 @@
         <img class="profile-img" *ngIf="user" src="{{user.photo_urls.large}}" />
         <h3 *ngIf="user">{{user.name}}</h3>
         <img *ngIf="showTitle" src="assets/img/ANU-family.svg" alt="" class="title-logo" />
-            <a [routerLink]="[aboutUrl]" class="btn btn-link bigger-text about-link" translate>menu.about</a>
-            <button *ngIf="isAuthenticated"
-             type="button" class="btn btn-link bigger-text logout-btn" >
-                logo&nbsp;BH
-            </button>
+        <a [routerLink]="[aboutUrl]" class="btn btn-link bigger-text about-link" translate>menu.about</a>
+        <button *ngIf="isAuthenticated" type="button" class="btn btn-link bigger-text logout-btn">
+            logo&nbsp;BH
+        </button>
     </div>
     <div *ngIf="showMenu" class="marginset">
         <div class="note_block text-center">
             <span translate>home.genealogical</span>
         </div>
         <div class="menu_block d-flex">
-        <form [formGroup]="homePageForm">
-            <div class="result_block">
-                <a href="#">
-                    <span><b>We have found {{ relations.length }} Result</b></span>
-                </a>
-            </div>
-            <div class="birth_block">
-                <span>Filters:</span>
-                <div class="dropdown">
-                    <a>
-                        <span>Sex</span>
+            <form [formGroup]="homePageForm">
+                <div class="result_block">
+                    <a href="#">
+                        <span><b>We have found {{ relations.length }} Result</b></span>
                     </a>
-                    <div class="dropdown-content dropdown-menu-tip-nw gender">
-                        <div class="drop_list">
-                            <label>
-                                <span class="round">
-                                    <input type="radio" [checked]="homePageForm.value.gender == 'male'" (change)="changeGender('male')">&nbsp; &nbsp;Male
-                                    <span class="checkbox-span"></span>
-                                </span>
-                            </label>
-                            <label>
-                                <span class="round">
-                                    <input type="radio" [checked]="homePageForm.value.gender == 'female'" (change)="changeGender('female')">&nbsp; &nbsp;Female
-                                    <span class="checkbox-span"></span>
-                                </span>
-                            </label>
-                        </div>
-                    </div>
                 </div>
-                <div class="dropdown">
-                    <a>
-                        <span>Years</span>
-                    </a>
-                    <div class="dropdown-content dropdown-menu-tip-nw">
-                        <div class="drop_list">
-                            <div class="">
-                                <span class="">Form: </span><input type="number" class="" formControlName="fromYear" (keyup)="changeYear($event, 'fromYear')"><span
-                                    class=" ">To:</span><input type="number" class="" formControlName="toYear" (keyup)="changeYear($event, 'toYear')">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="dropdown">
-                    <a (mouseenter)="onChange()">
-                        <span>Birth Country</span>
-                    </a>
-                    <div class="dropdown-content dropdown-menu-tip-nw" *ngIf="countryData.length > 0">
-                        <div class="drop_list">
-                            <div *ngFor="let obj of countryData; let i = index">
+                <div class="birth_block">
+                    <span>Filters:</span>
+                    <div class="dropdown">
+                        <a>
+                            <span>Sex</span>
+                        </a>
+                        <div class="dropdown-content dropdown-menu-tip-nw gender">
+                            <div class="drop_list">
                                 <label>
                                     <span class="round">
-                                        <input type="checkbox" 
-                                        name="{{i}}"
-                                        [checked]="obj.checkedcountry"
-                                        (change)="onchangecountry($event, i, obj?.countryName)"/>
-                                        {{obj?.countryName}}
+                                        <input type="radio" name="optradio"
+                                            [checked]="homePageForm.value.gender == 'male'"
+                                            (change)="changeGender('male')">&nbsp; &nbsp;Male
+                                        <span class="checkbox-span"></span>
+                                    </span>
+                                </label>
+                                <label>
+                                    <span class="round">
+                                        <input type="radio" name="optradio"
+                                            [checked]="homePageForm.value.gender == 'female'"
+                                            (change)="changeGender('female')">&nbsp; &nbsp;Female
                                         <span class="checkbox-span"></span>
                                     </span>
                                 </label>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="dropdown">
-                    <a (mouseenter)="onChangestep()">
-                        <span>Place at the museum</span>
-                    </a>
-                    <div class="dropdown-content connection-number dropdown-menu-tip-nw">
-                        <div class="drop_list">
-                            <!-- <div *ngFor="let museum_name of place_at_museum; let i = index">
-                                <label>
-                                    <span class="round">
-                                        <input type="checkbox" [checked]="museum_name.isChecked == true" 
-                                        (change)="onchangemuseum($event, i, museum_name.place_museum_name)"/>
-                                        {{museum_name.place_museum_name}}
-                                <span class="checkbox-span"></span>
-                                    </span>
-                                </label>
-                            </div> -->
+                    <div class="dropdown">
+                        <a>
+                            <span>Years</span>
+                        </a>
+                        <div class="dropdown-content year dropdown-menu-tip-nw">
+                            <div class="drop_list">
+
+                                <div class="cust-drop ">
+                                    <div class="form-group"><span class="">Form: </span><input type="number"
+                                            class="cust-input" formControlName="fromYear"
+                                            (change)="changeYear($event, 'fromYear')"></div>
+                                    <div class="form-group to-span"><span class=" ">To:</span><input type="number"
+                                            class="cust-input" formControlName="toYear"
+                                            (change)="changeYear($event, 'toYear')"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <a (mouseenter)="onChange()">
+                            <span>Birth Country</span>
+                        </a>
+                        <div class="dropdown-content dropdown-menu-tip-nw" *ngIf="countryData.length > 0">
+                            <div class="drop_list">
+                                <div *ngFor="let obj of countryData; let i = index">
+                                    <label>
+                                        <span class="round">
+                                            <input type="checkbox" name="{{i}}" [checked]="obj.checkedcountry"
+                                                (change)="onchangecountry($event, i, obj?.countryName)" />
+                                            {{obj?.countryName}}
+                                            <span class="checkbox-span"></span>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <a>
+                            <span>Place at the museum</span>
+                        </a>
+                        <div class="dropdown-content connection-number dropdown-menu-tip-nw">
+                            <div class="drop_list">
+                                <div *ngFor="let museum_name of place_at_museum; let i = index">
+                                    <label>
+                                        <span class="round">
+                                            <input type="checkbox" [checked]="museum_name.isChecked == true"
+                                                (change)="onchangemuseum($event, i, museum_name.value)" />
+                                            {{museum_name.place_museum_name}}
+                                            <span class="checkbox-span"></span>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <a (mouseenter)="onChange()">
+                            <span>Profession</span>
+                        </a>
+                        <div class="dropdown-content profession dropdown-menu-tip-nw" *ngIf="proData.length > 0">
+                            <div class="drop_list">
+                                <div *ngFor="let profession of proData; let i = index">
+                                    <label>
+                                        <span class="round">
+                                            <input type="checkbox" [checked]="profession.checkedpro == true"
+                                                (change)="onchangeprofession($event, i, profession.bh_theme)" />
+                                            <span class="checkbox-span"></span>
+                                            <span class="bhp-theme"
+                                                [ngStyle]="{'backgroundColor':categoryColor(profession.bh_theme)}">{{profession.bh_theme}}
+                                            </span>
+                                            <span class="checkbox-span"></span>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <a href="#">
-                    <span>Date</span>
-                </a>
-            </div>
-            <div class="header-filter">
-                <span class="custom-ser">
+                <div class="header-filter header-filter-desk">
+
                     <div class="form-group">
-                        <label for="search" class="sort-lable" style="padding-right: 6px;" >Search:</label>
-                        <!-- <input type="text" class="serach_input" formControlName ="searchText" (keyup)="searchRelation()"> -->
+                        <label for="search" class="sort-lable" style="padding-right: 6px;">Search:</label>
+                        <input type="text" class="search-desktop" formControlName="searchText"
+                            (keyup)="chnageserch($event)">
                     </div>
-                </span>
-            </div>
-            <div class="header-filter">
-                <div class="form-group">
-                    <label for="sel1" class="sort-lable">Sort&nbsp;By:</label>
-                    <select class="form-control" id="sel1" formControlName="sortOrder">
-                        <option *ngFor="let option of sortOrderOptions; let i = index" [value]="i" >{{ option }}</option>
-                    </select>
+
                 </div>
-            </div>
-        </form>
+                <div class="header-filter">
+                    <div class="form-group">
+                        <label for="sel1" class="sort-lable">Sort&nbsp;By:</label>
+                        <select class="form-control" id="sel1" formControlName="sortOrder">
+                            <option *ngFor="let option of sortOrderOptions; let i = index" [value]="i">
+                                {{ option }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+
         </div>
         <hr class="hr_line" *ngIf="showMenu">
     </div>

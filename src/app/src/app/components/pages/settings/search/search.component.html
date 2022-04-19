@@ -9,7 +9,7 @@
         </label>
     </span>
     <div>
-        <p *ngFor="let user of users_name | searchPipe : searchText : 'target_profile':'display_name'" class="search_result">
+        <p *ngFor="let user of users_name | searchPipe: serachOrder" class="search_result">
             <a [routerLink]="['/relation/', user.target_id]">{{ user.target_profile.display_name }}</a>
         </p>
     </div>

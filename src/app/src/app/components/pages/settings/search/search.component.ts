@@ -14,12 +14,15 @@ export class SearchComponent implements OnInit {
 
   users_name: any[] = [];
   searchText: string;
-  constructor(private settings: SettingsService) {
+  constructor(private settingsService: SettingsService) {
   }
 
   ngOnInit(): void {
   }
 
+  get serachOrder() {
+    return this.settingsService.getSerachOrder();
+  }
   ckangecolor(event: any) {
     document.getElementById('img_serach').style.background = 'transparent linear-gradient(263deg, #ffdba7 0%, #ff9e1e 100%) 0% 0% no-repeat padding-box'
   }

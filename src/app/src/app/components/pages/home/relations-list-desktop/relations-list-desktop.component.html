@@ -1,6 +1,6 @@
 <div class="relations-list cust-row" *ngIf="relations.length" #list>
   <app-relations-card-desktop [relation]="relation" class="cust-col"
-    *ngFor="let relation of relations | relationsFilterBy: filterOrder: limit | relationsSortBy: sortOrder: limit | paginate: config ">
+    *ngFor="let relation of relations | relationsFilterBy: filterOrder: limit | relationsSortBy: sortOrder: limit | searchPipe: serachOrder | paginate: config ">
   </app-relations-card-desktop>
 </div>
 <div class="custom_image-wrapper" *ngIf="relations.length">

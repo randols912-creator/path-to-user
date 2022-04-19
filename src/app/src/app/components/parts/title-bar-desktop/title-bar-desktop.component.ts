@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ABOUT_PATH, APP_SETTINGE_STORAGE_KEY, HOME_PATH, MENU_PATH, SETTINGS_PATH, WELCOME_PATH } from 'src/app/app.constants';
@@ -11,7 +11,7 @@ import { RelationService } from 'src/app/services/relation.service';
 import { SettingsService } from 'src/app/services/settings.service';
 import { SettingsAction } from '../../pages/settings/settings.component';
 import { P2pModalComponent } from '../p2p-modal/p2p-modal.component';
-
+import { getColor, Theme } from 'src/app/model/Theme';
 @Component({
   selector: 'app-title-bar-desktop',
   templateUrl: './title-bar-desktop.component.html',
@@ -32,19 +32,18 @@ export class TitleBarDesktopComponent implements OnInit {
   countryData: any[] = [];
   stepcountData: any[] = [];
   user_name: any[] = [];
-  filters : any = {
+  filters: any = {
     gender: '',
-    country : [],
-    museum : [],
-    profession : [],
-    fromYear : '',
+    country: [],
+    museum: [],
+    profession: [],
+    fromYear: '',
     toYear: '',
   }
-  connection_num: any = {};
+  proData: any = [];
   sorting: any;
-  serachData : any = {
-    serach : ''
-  }
+  serachData: any;
+  
 
   public sort = JSON.parse(localStorage.getItem(APP_SETTINGE_STORAGE_KEY))
   @Input() settingsAction: SettingsAction;
@@ -61,7 +60,7 @@ export class TitleBarDesktopComponent implements OnInit {
 
   place_at_museum = [
     { place_museum_name: 'Ground floor', isChecked: false, value: 0 },
-    { place_museum_name: 'first floor', isChecked: false, value: 1 },
+    { place_museum_name: 'First floor', isChecked: false, value: 1 },
     { place_museum_name: 'Second floor', isChecked: false, value: 2 },
     { place_museum_name: 'Third floor', isChecked: false, value: 3 }];
   constructor(
@@ -74,6 +73,7 @@ export class TitleBarDesktopComponent implements OnInit {
   ngOnInit(): void {
     this.countryData = [];
     this.filters = this.settingsService.getFilterOrder();
+    this.serachData = this.settingsService.getSerachOrder();
     this.homePageForm = new FormGroup({
       gender: new FormControl(this.filters?.gender ? this.filters?.gender : ''),
       country: new FormControl([]),
@@ -82,17 +82,18 @@ export class TitleBarDesktopComponent implements OnInit {
       fromYear: new FormControl(this.filters?.fromYear ? this.filters?.fromYear : ''),
       toYear: new FormControl(this.filters?.toYear ? this.filters?.toYear : ''),
       sortOrder: new FormControl(this.settingsService.getSortOrder()),
+      searchText: new FormControl(this.serachData ? this.serachData : '')
     });
     this.homePageForm.valueChanges.subscribe((value) => {
       this.settingsService.setSortOrder(Number(this.homePageForm.value.sortOrder));
     });
 
-    if(this.filters && this.filters?.museum?.length) {
-      for(var i= 0; i < this.place_at_museum.length; i++) {
+    if (this.filters && this.filters?.museum?.length) {
+      for (var i = 0; i < this.place_at_museum.length; i++) {
         let alreadyChecked = false;
-        if(this.filters?.museum?.length) {
+        if (this.filters?.museum?.length) {
           let exist = this.filters?.museum.find((museum) => museum === this.place_at_museum[i].value)
-          if(exist >= 0) {
+          if (exist >= 0) {
             alreadyChecked = true;
           }
         }
@@ -127,35 +128,34 @@ export class TitleBarDesktopComponent implements OnInit {
         })
       }
     }
-  }
-  onChangestep() {
-    let resultcount = this.relationsData.reduce((res, pro) => {
-      if (!res[pro.step_count]) {
-        res[pro.step_count] = pro;
-      } else if (Number(res[pro.step_count].cost) < Number(pro.cost)) {
-        res[pro.step_count] = pro;
+
+    let themes = this.relationsData.reduce((res, pro) => {
+      if (!res[pro.bh_theme]) {
+        res[pro.bh_theme] = pro;
+      } else if (Number(res[pro.bh_theme].cost) < Number(pro.cost)) {
+        res[pro.bh_theme] = pro;
       }
       return res;
     }, {});
 
-    for (const property in resultcount) {
-      let stepExits = this.stepcountData.find((step) => step.stepcount === property);
-      let alreadyStepChecked = false;
-      if (this.connection_num?.step_count?.length > 0) {
-        let stepexit = this.connection_num.step_count.find((step_count) => step_count === property)
-        if (stepexit) {
-          alreadyStepChecked = true;
+    for (const property in themes) {
+      let themeExist = this.proData.find((theme) => theme.bh_theme === property);
+      let alreadyChecked = false;
+      if(this.filters?.profession?.length) {
+        let exist = this.filters?.profession.find((profession) => profession === property)
+        if(exist) {
+          alreadyChecked = true;
         }
       }
-      if (!stepExits) {
-        this.stepcountData.push({
-          step_count: property,
-          checkedStep: alreadyStepChecked
+      if(!themeExist) {
+        this.proData.push({
+          bh_theme : property,
+          checkedpro : alreadyChecked
         })
       }
     }
-  }
 
+  }
 
   get settingsUrl() {
     return `/${SETTINGS_PATH}`;
@@ -220,21 +220,6 @@ export class TitleBarDesktopComponent implements OnInit {
     this.settingsService.setFilterOrder(this.filters);
   }
 
-  searchRelation() {
-    console.log(this.homePageForm.value.searchText)
-    let searchResult = this.homePageForm.value.searchTex
-    for(const property in searchResult){
-      let serchExist = this.user_name.find((country) => country.serachName === property);
-      if (!serchExist) {
-        this.serachData.push({
-          serachName: property,
-        })
-      }
-      console.log(this.user_name)
-      this.settingsService.setSerachOrder(this.serachData);
-    }
-  }
-
   changeGender(gender) {
     this.filters.gender = gender
     this.homePageForm.patchValue({
@@ -247,23 +232,49 @@ export class TitleBarDesktopComponent implements OnInit {
     this.filters[field] = event.target.value
   }
 
+  chnageserch(event) {
+    this.serachData = event.target.value;
+    this.settingsService.setSerachOrder(this.serachData);
+  }
+
   onchangemuseum(event, i, name) {
     this.place_at_museum.forEach((element, index) => {
-      if(index === i) {
+      if (index === i) {
         element['isChecked'] = event.target.checked
         this.place_at_museum[index] = element;
       }
     })
-    console.log(this.place_at_museum)
 
-    if(event.target.checked) {
+    if (event.target.checked) {
       this.filters.museum.push(name)
     } else {
       let index = this.filters.museum.indexOf(name)
-      if(index > -1) {
+      if (index > -1) {
         this.filters.museum.splice(index, 1);
       }
     }
     this.settingsService.setFilterOrder(this.filters);
+  }
+
+  onchangeprofession(event, i, name) {
+    this.proData.forEach((element, index) => {
+      if(index === i) {
+        element['checkedpro'] = event.target.checked
+        this.proData[index] = element;
+      }
+    })
+
+    if(event.target.checked) {
+      this.filters.profession.push(name)
+    } else {
+      let index = this.filters.profession.indexOf(name)
+      if(index > -1) {
+        this.filters.profession.splice(index, 1);
+      }
+    }
+  }
+
+  categoryColor(category: Theme): string {
+    return getColor(category);
   }
 }
