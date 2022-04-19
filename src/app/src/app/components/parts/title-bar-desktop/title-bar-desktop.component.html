@@ -23,6 +23,40 @@
             <div class="birth_block">
                 <span>Filters:</span>
                 <div class="dropdown">
+                    <a>
+                        <span>Sex</span>
+                    </a>
+                    <div class="dropdown-content dropdown-menu-tip-nw gender">
+                        <div class="drop_list">
+                            <label>
+                                <span class="round">
+                                    <input type="radio" [checked]="homePageForm.value.gender == 'male'" (change)="changeGender('male')">&nbsp; &nbsp;Male
+                                    <span class="checkbox-span"></span>
+                                </span>
+                            </label>
+                            <label>
+                                <span class="round">
+                                    <input type="radio" [checked]="homePageForm.value.gender == 'female'" (change)="changeGender('female')">&nbsp; &nbsp;Female
+                                    <span class="checkbox-span"></span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="dropdown">
+                    <a>
+                        <span>Years</span>
+                    </a>
+                    <div class="dropdown-content dropdown-menu-tip-nw">
+                        <div class="drop_list">
+                            <div class="">
+                                <span class="">Form: </span><input type="number" class="" formControlName="fromYear" (keyup)="changeYear($event, 'fromYear')"><span
+                                    class=" ">To:</span><input type="number" class="" formControlName="toYear" (keyup)="changeYear($event, 'toYear')">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="dropdown">
                     <a (mouseenter)="onChange()">
                         <span>Birth Country</span>
                     </a>
@@ -45,22 +79,20 @@
                 </div>
                 <div class="dropdown">
                     <a (mouseenter)="onChangestep()">
-                        <span>Connection Number</span>
+                        <span>Place at the museum</span>
                     </a>
-                    <div class="dropdown-content connection-number dropdown-menu-tip-nw" *ngIf="countryData.length > 0">
+                    <div class="dropdown-content connection-number dropdown-menu-tip-nw">
                         <div class="drop_list">
-                            <div *ngFor="let obj of stepcountData; let i = index">
+                            <!-- <div *ngFor="let museum_name of place_at_museum; let i = index">
                                 <label>
                                     <span class="round">
-                                        <input type="checkbox" 
-                                        name="{{i}}"
-                                        [checked]="obj.checkedStep"
-                                        />
-                                        {{obj?.step_count}}
-                                        <span class="checkbox-span"></span>
+                                        <input type="checkbox" [checked]="museum_name.isChecked == true" 
+                                        (change)="onchangemuseum($event, i, museum_name.place_museum_name)"/>
+                                        {{museum_name.place_museum_name}}
+                                <span class="checkbox-span"></span>
                                     </span>
                                 </label>
-                            </div>
+                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -72,8 +104,7 @@
                 <span class="custom-ser">
                     <div class="form-group">
                         <label for="search" class="sort-lable" style="padding-right: 6px;" >Search:</label>
-                        <input type="text" class="serach_input" formControlName ="searchText" (keyup)="searchRelation()">
-                        <!-- <img class="input_img" src="assets/img/search.svg" alt="" id="img_serach" /> -->
+                        <!-- <input type="text" class="serach_input" formControlName ="searchText" (keyup)="searchRelation()"> -->
                     </div>
                 </span>
             </div>

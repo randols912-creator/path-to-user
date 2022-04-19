@@ -32,10 +32,16 @@ export class TitleBarDesktopComponent implements OnInit {
   countryData: any[] = [];
   stepcountData: any[] = [];
   user_name: any[] = [];
-  filters: any = {};
+  filters : any = {
+    gender: '',
+    country : [],
+    museum : [],
+    profession : [],
+    fromYear : '',
+    toYear: '',
+  }
   connection_num: any = {};
   sorting: any;
-  // serachData:any = {};
   serachData : any = {
     serach : ''
   }
@@ -52,6 +58,12 @@ export class TitleBarDesktopComponent implements OnInit {
     'Death Date',
     'Number of connections',
   ];
+
+  place_at_museum = [
+    { place_museum_name: 'Ground floor', isChecked: false, value: 0 },
+    { place_museum_name: 'first floor', isChecked: false, value: 1 },
+    { place_museum_name: 'Second floor', isChecked: false, value: 2 },
+    { place_museum_name: 'Third floor', isChecked: false, value: 3 }];
   constructor(
     private location: Location,
     private router: Router,
@@ -63,13 +75,30 @@ export class TitleBarDesktopComponent implements OnInit {
     this.countryData = [];
     this.filters = this.settingsService.getFilterOrder();
     this.homePageForm = new FormGroup({
+      gender: new FormControl(this.filters?.gender ? this.filters?.gender : ''),
       country: new FormControl([]),
+      museum: new FormControl([]),
+      profession_name: new FormControl([]),
+      fromYear: new FormControl(this.filters?.fromYear ? this.filters?.fromYear : ''),
+      toYear: new FormControl(this.filters?.toYear ? this.filters?.toYear : ''),
       sortOrder: new FormControl(this.settingsService.getSortOrder()),
-      searchText: new FormControl([])
     });
     this.homePageForm.valueChanges.subscribe((value) => {
       this.settingsService.setSortOrder(Number(this.homePageForm.value.sortOrder));
     });
+
+    if(this.filters && this.filters?.museum?.length) {
+      for(var i= 0; i < this.place_at_museum.length; i++) {
+        let alreadyChecked = false;
+        if(this.filters?.museum?.length) {
+          let exist = this.filters?.museum.find((museum) => museum === this.place_at_museum[i].value)
+          if(exist >= 0) {
+            alreadyChecked = true;
+          }
+        }
+        this.place_at_museum[i].isChecked = alreadyChecked
+      }
+    }
   }
 
   onChange(): void {
@@ -118,7 +147,6 @@ export class TitleBarDesktopComponent implements OnInit {
           alreadyStepChecked = true;
         }
       }
-
       if (!stepExits) {
         this.stepcountData.push({
           step_count: property,
@@ -207,4 +235,35 @@ export class TitleBarDesktopComponent implements OnInit {
     }
   }
 
+  changeGender(gender) {
+    this.filters.gender = gender
+    this.homePageForm.patchValue({
+      gender: gender
+    })
+    this.settingsService.setFilterOrder(this.filters);
+  }
+
+  changeYear(event, field) {
+    this.filters[field] = event.target.value
+  }
+
+  onchangemuseum(event, i, name) {
+    this.place_at_museum.forEach((element, index) => {
+      if(index === i) {
+        element['isChecked'] = event.target.checked
+        this.place_at_museum[index] = element;
+      }
+    })
+    console.log(this.place_at_museum)
+
+    if(event.target.checked) {
+      this.filters.museum.push(name)
+    } else {
+      let index = this.filters.museum.indexOf(name)
+      if(index > -1) {
+        this.filters.museum.splice(index, 1);
+      }
+    }
+    this.settingsService.setFilterOrder(this.filters);
+  }
 }

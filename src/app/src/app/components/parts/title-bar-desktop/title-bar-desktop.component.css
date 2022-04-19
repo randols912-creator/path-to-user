@@ -73,7 +73,7 @@ hr.hr_line {
 }
 
 .birth_block a span {
-    font-size: 16px;
+    font-size: 14px;
     color: #000;
 }
 
@@ -246,6 +246,11 @@ hr.hr_line {
     border-bottom: 1px solid #ced4da;
 }
 
+.dropdown-content.gender {
+    left: -56px;
+    min-width: 121px;
+    max-height: 78px;
+}
 @media (max-width: 991px){
     .logout-btn {
         left: 97%;
