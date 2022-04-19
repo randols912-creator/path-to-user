@@ -2,6 +2,7 @@ import { Component, Input, OnChanges, OnInit, ViewEncapsulation } from '@angular
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { faSlash } from '@fortawesome/free-solid-svg-icons';
+import { filter } from 'rxjs/operators';
 import { HOME_PATH } from 'src/app/app.constants';
 import Path from 'src/app/model/Path';
 import { getColor, Theme } from 'src/app/model/Theme';
@@ -40,7 +41,7 @@ export class FiltersComponent implements OnInit, OnChanges {
   selectedLenght = 0;
   female: number;
   male: number;
-  proData: any[] = [];
+  proData: any = [];
   countryData = [];
   arryvaluePro: any[];
   arryvaluecountry: any[];
@@ -93,6 +94,7 @@ export class FiltersComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges() {
+    this.filters = this.settingsService.getFilterOrder();
     this.relationsData = this.relations
     let result = this.relationsData.reduce((res, pro) => {
       if (!res[pro.target_profile.birth?.location?.country]) {
@@ -307,11 +309,15 @@ export class FiltersComponent implements OnInit, OnChanges {
       })
     }
 
-    if(key === '') {
+    if(key === 'country') {
+      this.clearCountry();
+    }
+
+    if(key === 'museum') {
       this.clearMuseum();
     }
 
-    if(key === '') {
+    if(key === 'profession') {
       this.clearProfession();
     }
     

@@ -73,7 +73,7 @@ export class TitleBarComponent {
       count += 1
     }
 
-    if(filters?.profession_name?.length) {
+    if(filters?.profession?.length) {
       count += 1
     }
 
