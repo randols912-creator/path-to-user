@@ -272,6 +272,7 @@ export class TitleBarDesktopComponent implements OnInit {
         this.filters.profession.splice(index, 1);
       }
     }
+    this.settingsService.setFilterOrder(this.filters);
   }
 
   categoryColor(category: Theme): string {
