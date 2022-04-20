@@ -43,7 +43,12 @@ export class TitleBarDesktopComponent implements OnInit {
   proData: any = [];
   sorting: any;
   serachData: any;
-  
+  first: any;
+  second: number;
+  third: number;
+  ground: number;
+  female: number;
+  male: number;
 
   public sort = JSON.parse(localStorage.getItem(APP_SETTINGE_STORAGE_KEY))
   @Input() settingsAction: SettingsAction;
@@ -51,8 +56,8 @@ export class TitleBarDesktopComponent implements OnInit {
   @Output() toggleMenu: EventEmitter<void> = new EventEmitter<void>();
 
   sortOrderOptions = [
-    'First Name',
-    'Last Name',
+    'Alphabetical order: First Name',
+    'Alphabetical order: Last Name',
     'Birth Date',
     'Death Date',
     'Number of connections',
@@ -155,26 +160,30 @@ export class TitleBarDesktopComponent implements OnInit {
       }
     }
 
-  }
+    this.ground = this.relationsData.filter((item: any) => {
+      return item.bh_floor === 0
+    }).length
 
-  get settingsUrl() {
-    return `/${SETTINGS_PATH}`;
-  }
+    this.first = this.relationsData.filter((item: any) => {
+      return item.bh_floor === 1
+    }).length
 
-  goBackHandler(): void {
-    if (window.history.length > 2) {
-      this.location.back();
-    } else {
-      this.goToAllResults();
-    }
-  }
+    this.second = this.relationsData.filter((item: any) => {
+      return item.bh_floor === 2
+    }).length
 
-  gotoMenuHandler(): void {
-    this.router.navigate([`/${MENU_PATH}`]);
-  }
+    this.third = this.relationsData.filter((item: any) => {
+      return item.bh_floor === 3
+    }).length
 
-  goToAllResults(): void {
-    this.router.navigate([`/${HOME_PATH}`]);
+    this.male = this.relationsData.filter((item: any) => {
+      return item.target_profile.gender === 'male'
+    }).length
+
+    this.female = this.relationsData.filter((item: any) => {
+      return item.target_profile.gender === 'female'
+    }).length
+
   }
 
   get user(): Profile {
@@ -258,21 +267,32 @@ export class TitleBarDesktopComponent implements OnInit {
 
   onchangeprofession(event, i, name) {
     this.proData.forEach((element, index) => {
-      if(index === i) {
+      if (index === i) {
         element['checkedpro'] = event.target.checked
         this.proData[index] = element;
       }
     })
 
-    if(event.target.checked) {
+    if (event.target.checked) {
       this.filters.profession.push(name)
     } else {
       let index = this.filters.profession.indexOf(name)
-      if(index > -1) {
+      if (index > -1) {
         this.filters.profession.splice(index, 1);
       }
     }
     this.settingsService.setFilterOrder(this.filters);
+  }
+
+  clearFilter(key, value) {
+    this.filters[key] = value
+    this.settingsService.setFilterOrder(this.filters);
+
+    if (key === 'gender') {
+      this.homePageForm.patchValue({
+        gender: ''
+      })
+    }
   }
 
   categoryColor(category: Theme): string {

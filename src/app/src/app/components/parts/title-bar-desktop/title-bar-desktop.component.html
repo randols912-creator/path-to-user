@@ -22,16 +22,17 @@
                 <div class="birth_block">
                     <span>Filters:</span>
                     <div class="dropdown">
-                        <a>
+                        <a (mouseenter)="onChange()">
                             <span>Sex</span>
                         </a>
                         <div class="dropdown-content dropdown-menu-tip-nw gender">
                             <div class="drop_list">
+                                <a *ngIf="filters?.gender" class="clear-text" (click)="clearFilter('gender', '')">Clear</a>
                                 <label>
                                     <span class="round">
                                         <input type="radio" name="optradio"
                                             [checked]="homePageForm.value.gender == 'male'"
-                                            (change)="changeGender('male')">&nbsp; &nbsp;Male
+                                            (change)="changeGender('male')">&nbsp; &nbsp;Male ({{male}})
                                         <span class="checkbox-span"></span>
                                     </span>
                                 </label>
@@ -39,7 +40,7 @@
                                     <span class="round">
                                         <input type="radio" name="optradio"
                                             [checked]="homePageForm.value.gender == 'female'"
-                                            (change)="changeGender('female')">&nbsp; &nbsp;Female
+                                            (change)="changeGender('female')">&nbsp; &nbsp;Female ({{female}})
                                         <span class="checkbox-span"></span>
                                     </span>
                                 </label>
@@ -75,7 +76,7 @@
                                         <span class="round">
                                             <input type="checkbox" name="{{i}}" [checked]="obj.checkedcountry"
                                                 (change)="onchangecountry($event, i, obj?.countryName)" />
-                                            {{obj?.countryName}}
+                                            {{obj?.countryName}}({{obj?.countryName.length}})
                                             <span class="checkbox-span"></span>
                                         </span>
                                     </label>
@@ -84,7 +85,7 @@
                         </div>
                     </div>
                     <div class="dropdown">
-                        <a>
+                        <a (mouseenter)="onChange()">
                             <span>Place at the museum</span>
                         </a>
                         <div class="dropdown-content connection-number dropdown-menu-tip-nw">
@@ -96,6 +97,10 @@
                                                 (change)="onchangemuseum($event, i, museum_name.value)" />
                                             {{museum_name.place_museum_name}}
                                             <span class="checkbox-span"></span>
+                                            <span *ngIf="museum_name.place_museum_name === 'Ground floor'">({{ground}})</span>
+                                            <span *ngIf="museum_name.place_museum_name === 'First floor'">({{first}})</span>
+                                            <span *ngIf="museum_name.place_museum_name === 'Second floor'">({{second}})</span>
+                                            <span *ngIf="museum_name.place_museum_name === 'Third floor'">({{third}})</span>
                                         </span>
                                     </label>
                                 </div>
@@ -116,8 +121,8 @@
                                             <span class="checkbox-span"></span>
                                             <span class="bhp-theme"
                                                 [ngStyle]="{'backgroundColor':categoryColor(profession.bh_theme)}">{{profession.bh_theme}}
+                                                <span>({{profession.bh_theme.length}})</span>
                                             </span>
-                                            <!-- <span class="checkbox-span"></span> -->
                                         </span>
                                     </label>
                                 </div>

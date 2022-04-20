@@ -90,7 +90,7 @@ hr.hr_line {
     display: none;
     position: absolute;
     background-color: #fff;
-    min-width: 160px;
+    min-width: 340px;
     border: 1px solid #ddd;
     font-size: 12px;
     top: 36px;
@@ -227,10 +227,11 @@ hr.hr_line {
 }
 .dropdown-content.connection-number {
     left: 4px;
+    min-width: 179px;
 }
 .dropdown-content.profession {
     left:-36px;
-    min-width: 200px;
+    min-width: 250px;
 }
 .serach_input {
     border-top: none;
@@ -252,8 +253,8 @@ hr.hr_line {
 
 .dropdown-content.gender {
     left: -56px;
-    min-width: 121px;
-    max-height: 78px;
+    min-width: 160px;
+    max-height: 90px;
 }
 .search-desktop, .cust-input {
     border-top: none;
@@ -288,6 +289,8 @@ hr.hr_line {
 }
 .dropdown-content.year{
     left: -51px;
+    min-width: 160px;
+
 }
 .header-filter.header-filter-desk {
     line-height: unset;
@@ -304,7 +307,7 @@ hr.hr_line {
 .bhp-theme {
     border-radius: 9px;
     color: #535453;
-    padding: 0 5px;
+    padding: 0 5px !important;
     height: 15px;
 }
 @media (max-width: 991px){
@@ -314,4 +317,13 @@ hr.hr_line {
 }
 .marginset{
     margin: 0 9.5vw 0 9vw;
+}
+.clear-text {
+    float: right;
+    padding: 0 8px;
+    color: #353535;
+    text-decoration: underline;
+}
+.dropdown-content.profession .round span {
+    padding: 0 5px !important;
 }
