@@ -24,9 +24,7 @@ export class SettingsService {
     this.settings = { sort: RelationSortOrder.DEFAULT,
                       locale: Locale.EN,
                       p2p: true,
-                      serachlist: {
-                        serach:''
-                      },
+                      serachlist: '',
                       filter: {
                         gender:'',
                         fromYear: '',
@@ -131,6 +129,3 @@ export interface Filters {
   profession: Array<string>;
 }
 
-export interface serachData {
-  serach: string;
-}

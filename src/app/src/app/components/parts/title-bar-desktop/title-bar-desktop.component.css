@@ -230,6 +230,7 @@ hr.hr_line {
 }
 .dropdown-content.profession {
     left:-36px;
+    min-width: 200px;
 }
 .serach_input {
     border-top: none;
