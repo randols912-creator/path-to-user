@@ -295,6 +295,9 @@ hr.hr_line {
 .search-desktop:focus-visible  {
     outline: unset;
 }
+.cust-input:focus-visible{
+    outline: unset;
+}
 .header-filter.header-filter-desk label {
     font-size: 14px;
 }
