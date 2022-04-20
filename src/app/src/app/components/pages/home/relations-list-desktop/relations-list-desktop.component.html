@@ -1,4 +1,4 @@
-<div class="relations-list cust-row" *ngIf="relations.length" #list>
+<div class="relations-list-destop cust-row" *ngIf="relations.length" #list>
   <app-relations-card-desktop [relation]="relation" class="cust-col"
     *ngFor="let relation of relations | relationsFilterBy: filterOrder: limit | relationsSortBy: sortOrder: limit | searchPipe: serachOrder | paginate: config ">
   </app-relations-card-desktop>

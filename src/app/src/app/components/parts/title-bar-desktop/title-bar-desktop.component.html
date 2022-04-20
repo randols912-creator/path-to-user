@@ -1,8 +1,8 @@
 <div *ngIf="showMenuHome">
-    <div class="title-bar">
+    <div class="title-bar-destop">
         <img class="profile-img" *ngIf="user" src="{{user.photo_urls.large}}" />
         <h3 *ngIf="user">{{user.name}}</h3>
-        <img *ngIf="showTitle" src="assets/img/ANU-family.svg" alt="" class="title-logo" />
+        <img *ngIf="showTitle" src="assets/img/ANU-family.svg" alt="" class="title-logo-destop" />
         <a [routerLink]="[aboutUrl]" class="btn btn-link bigger-text about-link" translate>menu.about</a>
         <button *ngIf="isAuthenticated" type="button" class="btn btn-link bigger-text logout-btn">
             logo&nbsp;BH
