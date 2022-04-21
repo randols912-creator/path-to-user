@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { AuthService } from 'src/app/auth/auth.service';
@@ -18,7 +18,7 @@ export class RelationComponent implements OnInit, OnDestroy {
   relationship: string;
   loading: boolean;
   relationServiceSub: Subscription;
-
+  public getScreenWidth: any;
   constructor(
     private relations: RelationService,
     private route: ActivatedRoute,
@@ -56,6 +56,13 @@ export class RelationComponent implements OnInit, OnDestroy {
           relationSubject.next(relation);
         });
     }
+
+    this.getScreenWidth = window.innerWidth;
+  }
+  
+  @HostListener('window:resize', ['$event'])
+  onWindowResize() {
+    this.getScreenWidth = window.innerWidth;
   }
 
   ngOnDestroy(): void {

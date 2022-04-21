@@ -46,6 +46,7 @@ import { TitleBarComponent } from './components/parts/title-bar/title-bar.compon
 import { ToolbarComponent } from './components/parts/toolbar/toolbar.component';
 import { ModalRefDirective } from './directives/modal-ref.directive';
 import { RelationsSortByPipe } from './pipes/relations-sort-by.pipe';
+import { RelationsFilterByPipe } from './pipes/relations-filter.pipe';
 import { SearchComponent } from './components/pages/settings/search/search.component';
 import { FiltersComponent } from './components/pages/settings/filters/filters.component';
 import { AccordionModule } from 'ngx-bootstrap/accordion';
@@ -53,6 +54,9 @@ import { FilterPipeModule } from 'ngx-filter-pipe';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { SearchPipePipe } from './pipes/search-pipe.pipe';
 import { ProfilePopupComponent } from './components/pages/profile-popup/profile-popup.component';
+import { TitleBarDesktopComponent } from './components/parts/title-bar-desktop/title-bar-desktop.component';
+import { RelationsListDesktopComponent } from './components/pages/home/relations-list-desktop/relations-list-desktop.component';
+import { RelationsCardDesktopComponent } from './components/pages/home/relations-list-desktop/relations-card-desktop/relations-card-desktop.component';
 
 const INTERCEPTOR_PROVIDER: Provider = {
   provide: HTTP_INTERCEPTORS,
@@ -93,6 +97,7 @@ class JsonpInterceptorModule {}
     ProfileComponent,
     SpinnerComponent,
     RelationsSortByPipe,
+    RelationsFilterByPipe,
     SettingsComponent,
     SortComponent,
     SearchComponent,
@@ -109,7 +114,10 @@ class JsonpInterceptorModule {}
     PredefinedMessagesComponent,
     P2pMessageModalComponent,
     SearchPipePipe,
-    ProfilePopupComponent
+    ProfilePopupComponent,
+    TitleBarDesktopComponent,
+    RelationsListDesktopComponent, 
+    RelationsCardDesktopComponent
   ],
   imports: [
     BrowserModule,

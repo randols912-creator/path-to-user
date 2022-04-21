@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { AuthService } from 'src/app/auth/auth.service';
 import Path from 'src/app/model/Path';
 import Profile from 'src/app/model/Profile';
@@ -14,7 +14,7 @@ import {
 })
 export class HomeComponent implements OnInit {
   status: Status;
-
+  public getScreenWidth: any;
   constructor(
     private auth: AuthService,
     private relationService: RelationService
@@ -33,6 +33,12 @@ export class HomeComponent implements OnInit {
           this.status = Status.SEARCHING;
       }
     });
+    this.getScreenWidth = window.innerWidth;
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onWindowResize() {
+    this.getScreenWidth = window.innerWidth;
   }
 
   get user(): Profile {

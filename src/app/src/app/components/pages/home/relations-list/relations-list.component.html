@@ -1,10 +1,10 @@
 <div class="relations-list" *ngIf="relations.length" #list>
   <app-relation-card [relation]="relation"
-    *ngFor="let relation of relations | paginate: config | relationsSortBy: sortOrder: limit">
-  </app-relation-card>
-  <div class="custom_image">
+  *ngFor="let relation of relations | relationsFilterBy: filterOrder: relations.length | relationsSortBy: sortOrder: relations.length | searchPipe: serachOrder | paginate: config ">
+    </app-relation-card>
+</div>
+<div class="custom_image">
     <button (click)="onPageFirst()" class="button_img">
-      <!-- <img src="assets/img/home.png" alt="" class="title-logo" style="width: 18px"/> -->
       <svg class="SVGInline-svg" id="S_NavHome_S_22" viewBox="0 0 22 22" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" x="0px" y="0px" width="22px" height="22px">
         <g id="Background">
           <path d="M 11.7168 3.1748 C 11.3276 2.7646 10.7573 2.7246 10.3477 3.1147 L 3.0073 10.1748 C 2.5977 10.5947 2.5977 11.2749 3.0176 11.6846 C 3.2173 11.875 3.4775 11.9844 3.7476 11.9844 L 5.0073 12.0254 L 5.0073 17.4844 C 5.0073 17.7852 5.2373 18.0254 5.5376 18.0254 L 9.0073 18.0254 L 9.0073 12.0254 L 13.0078 12.0254 L 13.0078 18.0254 L 16.4873 18.0254 C 16.7773 18.0254 17.0078 17.7852 17.0078 17.4941 L 17.0078 12.0254 L 18.2578 12.0254 C 18.8379 12.0547 19.3281 11.6055 19.3574 11.0249 C 19.377 10.7246 19.2578 10.4248 19.0371 10.2148 L 11.7168 3.1748 Z" fill="#707070"></path>
@@ -13,24 +13,22 @@
         </g>
       </svg>
     </button>
-    <pagination-template #p="paginationApi" [id]="config.id" (pageChange)="onPageChange($event)"
-      style="display: flex;">
+    <pagination-template #p="paginationApi" class="pagination-temp" [id]="config.id" (pageChange)="onPageChange($event)" [maxSize]="total" >
       <div class="custom-pagination">
-        <div class="pagination-previous" [class.disabled]="p.isFirstPage()">
+        <div class="pagination-previous">
           <span (click)="p.previous()" class="leftarrow">
           </span>
         </div>
-        <div class="page-number">
-          <div style="display: flex;">
-            <span class="cursor_default span_width_1">{{ p.getCurrent() }}</span>
-            <span class="cursor_default span_width_of">of </span>
-            <span class="cursor_default">{{ total }}</span>
-          </div>
-        </div>
-        <div class="pagination-next" [class.disabled]="p.isLastPage()">
-          <span *ngIf="!p.isLastPage()" (click)="p.next()" class="rightarrow"></span>
+        <select class="select_blck" (change)="p.setCurrent($event.target.value); onchange($event)"
+          [(ngModel)]="pageSize">
+          <option value="" hidden>{{ p.getCurrent() }} / {{ p.pages.length }} </option>
+          <option  *ngFor="let page of p.pages;let i = index" [value]="page.label">
+            <span (click)="p.setCurrent(page.value)">{{ page.label }}</span>
+          </option>
+        </select>
+        <div class="pagination-next">
+          <span (click)="p.next()" class="rightarrow"></span>
         </div>
       </div>
     </pagination-template>
-  </div>
 </div>

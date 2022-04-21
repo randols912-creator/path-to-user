@@ -32,6 +32,7 @@ export interface NameDetails {
   last_name: string;
   maiden_name: string;
   middle_name: string;
+  nicknames: string;
 }
 
 interface PhotoUrls {

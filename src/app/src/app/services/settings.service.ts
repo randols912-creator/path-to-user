@@ -21,9 +21,18 @@ export class SettingsService {
   }
 
   private initSettings() {
-    this.settings = { sort: RelationSortOrder.DEFAULT,
+    this.settings = { sort: RelationSortOrder.CONNECTIONS,
                       locale: Locale.EN,
-                      p2p: true };
+                      p2p: true,
+                      serachlist: '',
+                      filter: {
+                        gender:'',
+                        fromYear: '',
+                        toYear: '',
+                        country: [],
+                        museum: [],
+                        profession: []
+                      } };
     this.saveSettings();
   }
 
@@ -44,6 +53,24 @@ export class SettingsService {
 
   setSortOrder(orderKey: RelationSortOrder) {
     this.settings.sort = orderKey;
+    this.saveSettings();
+  }
+
+  getFilterOrder() {
+    return this.settings.filter;
+  }
+
+  setFilterOrder(filter) {
+    this.settings.filter = filter;
+    this.saveSettings();
+  }
+
+  getSerachOrder() {
+    return this.settings.serachlist;
+  }
+
+  setSerachOrder(serach) {
+    this.settings.serachlist = serach;
     this.saveSettings();
   }
 
@@ -89,4 +116,16 @@ export interface Settings {
   sort: number;
   locale: Locale;
   p2p: boolean;
+  filter: any;
+  serachlist: any;
 }
+
+export interface Filters {
+  gender: string;
+  fromYear: number;
+  toYear: number;
+  country: Array<string>;
+  museum: Array<number>;
+  profession: Array<string>;
+}
+

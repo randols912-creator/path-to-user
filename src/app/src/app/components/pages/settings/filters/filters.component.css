@@ -22,6 +22,7 @@
     opacity: 1;
     background: transparent radial-gradient(closest-side at 27% 26%, #ffffff 0%, #cecece 100%) 0% 0% no-repeat
         padding-box;
+    cursor: pointer;
 }
 
 .filter-settings-option .checkmark.active {
@@ -43,9 +44,36 @@
     line-height: 32px;
     letter-spacing: 0;
 
-    background-color: unset;
-    background: transparent linear-gradient(263deg, #ffdba7 0%, #ff9e1e 100%) 0% 0% no-repeat padding-box;
+    background-color: #efefef;
     opacity: 1;
+    color: #aba5a5;
+}
+.settings .finish-button_btn {
+    padding: 0;
+    margin: 0;
+    border: none;
+    width: 100%;
+
+    position: absolute;
+    /* bottom: 5px; */
+    left: 0;
+
+    font: Bold 16px Open Sans Hebrew;
+    line-height: 32px;
+    letter-spacing: 0;
+
+    background: transparent linear-gradient(263deg, #ffdba7 0%, #ff9e1e 100%) 0% 0% no-repeat padding-box;;
+    opacity: 1;
+}
+.settings .disableButton {
+    background: transparent linear-gradient(263deg, #ffdba7 0%, #ff9e1e 100%) 0% 0% no-repeat padding-box;;
+}
+.selected_lenght{
+    position:absolute;
+    left: 36px;
+    font: normal 14px Open Sans Hebrew;
+    line-height: 32px;
+    letter-spacing: 0;
 }
 
 button:focus {
@@ -127,11 +155,24 @@ button:focus {
 
 .clear_button {
     padding-top: 22px;
-    margin-left: 55%;
     align-items: center;
     color: #353535;
-    font: normal 14px Open Sans Hebrew;
+    font: normal 13px Open Sans Hebrew;
     text-decoration: underline;
+    margin-left: auto;
+    position: absolute;
+    right: 18px;
+}
+
+.clear_button_all{
+    padding-top: 6px;
+    align-items: center;
+    color: #353535;
+    font: normal 13px Open Sans Hebrew;
+    text-decoration: underline;
+    margin-left: auto;
+    position: absolute;
+    right: 18px;
 }
 
 .clear_button:hover {
@@ -140,6 +181,11 @@ button:focus {
     cursor: pointer;
 }
 
+.clear_button_all:hover{
+    text-decoration: underline;
+    color: #353535;
+    cursor: pointer;
+}
 .bhf-theme {
     border-radius: 9px;
     color: #535453;
@@ -184,3 +230,72 @@ button:focus {
 .round_checkbox {
     padding-left: 28px;
 }
+
+.round-country {
+    position: relative;
+}
+
+.round-country .checkbox-span {
+    background:transparent radial-gradient(closest-side at 27% 26%, #ffffff 0%, #cecece 100%) 0% 0% no-repeat
+    padding-box;
+    /* border: 1px solid #ccc; */
+    border-radius: 50%;
+    cursor: pointer;
+    height: 12px;
+    left: 0;
+    position: absolute;
+    top: 5px;
+    width: 12px;
+    margin-right: 20px;
+}
+
+.round-country.checkbox-span:after {
+    border: 2px solid #ccc;
+    border-top: none;
+    border-right: none;
+    content: "";
+    height: 4px;
+    left: 3px;
+    opacity: 0;
+    position: absolute;
+    top: 3px;
+    transform: rotate(-45deg);
+    width: 10px;
+}
+
+.round-country input[type="checkbox"] {
+    visibility: hidden;
+}
+
+.round-country input[type="checkbox"]:checked+.checkbox-span {
+    background: transparent radial-gradient(closest-side at 27% 26%, #ffdba7 0%, #ff9e1e 100%) 0% 0% no-repeat
+    padding-box;
+}
+
+.round-country input[type="checkbox"]:checked+.checkbox-span:after {
+    opacity: 1;
+}
+.filter-btn {
+    padding: 0;
+    margin: 0;
+    border: none;
+    width: 100%;
+  
+    position: absolute;
+    bottom: 0;
+    left: 0;
+  
+    font: Bold 16px Open Sans Hebrew;
+    line-height: 32px;
+    letter-spacing: 0;
+  
+    background-color: unset;
+    background: transparent linear-gradient(263deg, #ffdba7 0%, #ff9e1e 100%) 0% 0% no-repeat padding-box;
+    opacity: 1;
+  }
+  
+  button:focus {
+    outline: 1px dotted;
+    outline: 5px auto -webkit-focus-ring-color;
+    outline: none;
+  }

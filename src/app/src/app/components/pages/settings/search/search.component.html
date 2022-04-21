@@ -1,16 +1,19 @@
 <div class="settings">
-    <span class="serach-settings-form custome_search">
-        <label class="subtitle-text">
-            <span class="search_text">
-                <input class="serach_input" type="text" name="search" [(ngModel)]="searchText"
-                    (keyup)="searchRelation($event)" (click)="ckangecolor($event)">
+    <form [formGroup]="serachForm">
+        <span class="serach-settings-form custome_search">
+            <label class="subtitle-text">
+                <span class="search_text">
+                    <input class="serach_input" type="text"  formControlName="searchText"
+                    autocomplete="off" (keyup)="searchRelation($event)">
                 <img class="input_img" src="assets/img/search.svg" alt="" id="img_serach" />
             </span>
         </label>
     </span>
     <div>
-        <p *ngFor="let user of users_name | searchPipe : searchText : 'target_profile':'display_name'" class="search_result">
-            <a [routerLink]="['/relation/', user.target_id]">{{ user.target_profile.display_name }}</a>
+        <p *ngFor="let user of users_name | searchPipe: serachOrder" class="search_result">
+            <a [routerLink]="['/relation/', user.target_id]">{{ user.target_profile.name }}</a>
         </p>
     </div>
+    </form>
+    <button class="finish-button-serach" (click)="goToAllResults()">Search</button>
 </div>

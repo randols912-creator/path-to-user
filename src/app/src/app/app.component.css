@@ -4,6 +4,11 @@
   margin: 0 auto;
 }
 
+.geni-container-desktop{
+  position: relative;
+  max-width: 1900px;
+  margin: 0 auto;
+}
 .locked {
   height: 100vh;
   overflow: hidden;

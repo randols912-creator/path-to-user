@@ -1,6 +1,10 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { Component, Input, OnChanges, OnInit, ViewEncapsulation } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { Router } from '@angular/router';
 import { faSlash } from '@fortawesome/free-solid-svg-icons';
+import { filter } from 'rxjs/operators';
+import { HOME_PATH } from 'src/app/app.constants';
+import Path from 'src/app/model/Path';
 import { getColor, Theme } from 'src/app/model/Theme';
 import { SettingsService } from 'src/app/services/settings.service';
 // import { AccordionModule } from 'ngx-bootstrap/accordion';
@@ -11,154 +15,262 @@ import { SettingsService } from 'src/app/services/settings.service';
   styleUrls: ['./filters.component.css'],
   encapsulation: ViewEncapsulation.None
 })
-export class FiltersComponent implements OnInit {
+export class FiltersComponent implements OnInit, OnChanges {
 
+  @Input() relations: Array<Path>;
   filterForm: FormGroup;
   oneAtATime = true;
-  male_femaleOptions = ['Male', 'Female',];
-  selectedItemsList = [];
-  selectedmuseumList = [];
-  ischeckedradio: boolean = false;
-  isCheckedcountry: boolean = false;
-  isCheckedmuseum: boolean = false;
-  isCheckrdprofession: boolean = false;
-  selectedprofessionsList = [];
-  birth_country = [
-    { name: 'Afghanistan', isChecked: false },
-    { name: 'Albania', isChecked: false },
-    { name: 'Algeria', isChecked: false },
-    { name: 'Angola', isChecked: false },
-    { name: 'Argentina', isChecked: false },
-    { name: 'Armenia', isChecked: false },
-    { name: 'Australia', isChecked: false },
-    { name: 'Austria', isChecked: false },
-    { name: 'Azerbaijan', isChecked: false },
-    { name: 'Belarus', isChecked: false },
-    { name: 'Belgium', isChecked: false },
-    { name: 'Belize', isChecked: false },
-    { name: 'Brazil', isChecked: false },
-    { name: 'Bulgaria', isChecked: false },
-    { name: 'Canada', isChecked: false }];
-
+  relationsData: any[] = [];
   place_at_museum = [
-    { place_museum_name: 'Ground floor', isChecked: false },
-    { place_museum_name: 'first floor', isChecked: false },
-    { place_museum_name: 'Second floor', isChecked: false },
-    { place_museum_name: 'Third floor', isChecked: false }];
+    { place_museum_name: 'Ground floor', isChecked: false, value: 0 },
+    { place_museum_name: 'First floor', isChecked: false, value: 1 },
+    { place_museum_name: 'Second floor', isChecked: false, value: 2 },
+    { place_museum_name: 'Third floor', isChecked: false, value: 3 }];
 
-  professions = [
-    { isChecked: false, profession_name: 'Humanities & Religion' },
-    { isChecked: false, profession_name: 'Science' },
-    { isChecked: false, profession_name: 'Diplomacy' },
-    { isChecked: false, profession_name: 'Law' },
-    { isChecked: false, profession_name: 'Economics' },
-    { isChecked: false, profession_name: 'The Holocaust' },
-    { isChecked: false, profession_name: 'Press & Media' },
-    { isChecked: false, profession_name: 'Military' },
-    { isChecked: false, profession_name: 'Literature & Poetry' },
-    { isChecked: false, profession_name: 'Plastic Art' },
-    { isChecked: false, profession_name: 'Classical Music' },
-    { isChecked: false, profession_name: 'Popular Music' },
-    { isChecked: false, profession_name: 'Architecture' },
-    { isChecked: false, profession_name: 'Theatre' },
-    { isChecked: false, profession_name: 'Cinema & Television' },
-    { isChecked: false, profession_name: 'Photography & Comics' },
-    { isChecked: false, profession_name: 'Humor' },
-    { isChecked: false, profession_name: 'Sports' },
-    { isChecked: false, profession_name: 'Other' }];
-  country: any;
-  museum: any;
-  profession_name: any;
-
-  constructor(private settingsService: SettingsService) { }
+  female: number;
+  male: number;
+  proData: any = [];
+  countryData = [];
+  first: any;
+  second: number;
+  third: number;
+  ground: number;
+  filters : any = {
+    gender: '',
+    country : [],
+    museum : [],
+    profession : [],
+    fromYear : '',
+    toYear: '',
+  }
+  constructor(private settingsService: SettingsService, private router: Router, private fb : FormBuilder) { }
 
   ngOnInit(): void {
+    this.countryData = [];
+
+    this.filters = this.settingsService.getFilterOrder();
     this.filterForm = new FormGroup({
-      filterOrder: new FormControl(this.settingsService.getSortOrder()),
-      country: new FormControl(this.settingsService.getSortOrder()),
-      museum: new FormControl(this.settingsService.getSortOrder()),
-      profession_name: new FormControl(this.settingsService.getSortOrder())
+      gender: new FormControl(this.filters?.gender ? this.filters?.gender : ''),
+      country: new FormControl([]),
+      museum: new FormControl([]),
+      profession_name: new FormControl([]),
+      fromYear: new FormControl(this.filters?.fromYear ? this.filters?.fromYear : ''),
+      toYear: new FormControl(this.filters?.toYear ? this.filters?.toYear : '')
     });
-    this.filterForm.valueChanges.subscribe((value) => {
-      this.settingsService.setSortOrder(value.filterOrder);
-    });
-    this.filterForm.valueChanges.subscribe((value) => {
-      this.settingsService.setSortOrder(value.country);
-    });
-    this.filterForm.valueChanges.subscribe((value) => {
-      this.settingsService.setSortOrder(value.museum);
-    });
-    this.filterForm.valueChanges.subscribe((value) => {
-      this.settingsService.setSortOrder(value.profession_name)
+    
+    if(this.filters && this.filters?.museum?.length) {
+      for(var i= 0; i < this.place_at_museum.length; i++) {
+        let alreadyChecked = false;
+        if(this.filters?.museum?.length) {
+          let exist = this.filters?.museum.find((museum) => museum === this.place_at_museum[i].value)
+          if(exist >= 0) {
+            alreadyChecked = true;
+          }
+        }
+        this.place_at_museum[i].isChecked = alreadyChecked
+      }
+    }
+  }
+
+  ngOnChanges() {
+    this.filters = this.settingsService.getFilterOrder();
+    this.relationsData = this.relations
+    let result = this.relationsData.reduce((res, pro) => {
+      if (!res[pro.target_profile.birth?.location?.country]) {
+        res[pro.target_profile.birth?.location?.country] = pro;
+      } else if (Number(res[pro.target_profile.birth?.location?.country].cost) < Number(pro?.cost)) {
+        res[pro.target_profile.birth?.location?.country] = pro;
+      }
+      return res;
+    }, {});
+
+    for (const property in result) {
+      let countryExist = this.countryData.find((country) => country.countryName === property);
+      let alreadyChecked = false;
+      if(this.filters?.country?.length) {
+        let exist = this.filters?.country.find((country) => country === property)
+        if(exist) {
+          alreadyChecked = true;
+        }
+      }
+      if(!countryExist) {
+        this.countryData.push({
+          countryName : property,
+          checkedcountry : alreadyChecked
+        })
+      }
+    }
+
+    let themes = this.relationsData.reduce((res, pro) => {
+      if (!res[pro.bh_theme]) {
+        res[pro.bh_theme] = pro;
+      } else if (Number(res[pro.bh_theme].cost) < Number(pro.cost)) {
+        res[pro.bh_theme] = pro;
+      }
+      return res;
+    }, {});
+
+    for (const property in themes) {
+      let themeExist = this.proData.find((theme) => theme.bh_theme === property);
+      let alreadyChecked = false;
+      if(this.filters?.profession?.length) {
+        let exist = this.filters?.profession.find((profession) => profession === property)
+        if(exist) {
+          alreadyChecked = true;
+        }
+      }
+      if(!themeExist) {
+        this.proData.push({
+          bh_theme : property,
+          checkedpro : alreadyChecked
+        })
+      }
+    }
+
+    this.ground = this.relationsData.filter((item: any) => {
+      return item.bh_floor === 0
+    }).length
+
+    this.first = this.relationsData.filter((item: any) => {
+      return item.bh_floor === 1
+    }).length
+
+    this.second = this.relationsData.filter((item: any) => {
+      return item.bh_floor === 2
+    }).length
+
+    this.third = this.relationsData.filter((item: any) => {
+      return item.bh_floor === 3
+    }).length
+
+    this.male = this.relationsData.filter((item: any) => {
+      return item.target_profile.gender === 'male'
+    }).length
+    
+    this.female = this.relationsData.filter((item: any) => {
+      return item.target_profile.gender === 'female'
+    }).length
+
+  }
+
+  goToAllResults() {
+    this.settingsService.setFilterOrder(this.filters);
+    this.router.navigate([`/${HOME_PATH}`]);
+  }
+
+  onchangecountry(event, i, name) {
+    this.countryData.forEach((element, index) => {
+      if(index === i) {
+        element['checkedcountry'] = event.target.checked
+        this.countryData[index] = element;
+      }
+    })
+
+    if(event.target.checked) {
+      this.filters.country.push(name)
+    } else {
+      let index = this.filters.country.indexOf(name)
+      if(index > -1) {
+        this.filters.country.splice(index, 1);
+      }
+    }
+  }
+
+  clearCountry() {
+    for (let i = 0; i < this.countryData.length; i++) {
+      this.countryData[i]['checkedcountry'] = false
+    }
+  }
+
+  onchangemuseum(event, i, name) {
+    this.place_at_museum.forEach((element, index) => {
+      if(index === i) {
+        element['isChecked'] = event.target.checked
+        this.place_at_museum[index] = element;
+      }
+    })
+
+    if(event.target.checked) {
+      this.filters.museum.push(name)
+    } else {
+      let index = this.filters.museum.indexOf(name)
+      if(index > -1) {
+        this.filters.museum.splice(index, 1);
+      }
+    }
+  }
+
+  clearMuseum() {
+    for (let i = 0; i <this.place_at_museum.length; i++) {
+     this.place_at_museum[i].isChecked = false
+    }
+  }
+  onchangeprofession(event, i, name) {
+    this.proData.forEach((element, index) => {
+      if(index === i) {
+        element['checkedpro'] = event.target.checked
+        this.proData[index] = element;
+      }
+    })
+
+    if(event.target.checked) {
+      this.filters.profession.push(name)
+    } else {
+      let index = this.filters.profession.indexOf(name)
+      if(index > -1) {
+        this.filters.profession.splice(index, 1);
+      }
+    }
+  }
+
+  clearProfession() {
+    for (let i = 0; i < this.proData.length; i++) {
+      this.proData[i].checkedpro = false;
+    }
+  }
+
+  changeGender(gender) {
+    this.filters.gender = gender
+    this.filterForm.patchValue({
+      gender: gender
     })
   }
 
-  onchange() {
-    if (this.filterForm.value.filterOrder == 0 || this.filterForm.value.filterOrder == 1) {
-      this.ischeckedradio = true;
-    } else {
-      this.ischeckedradio = false;
-    }
-  }
-
-  clear() {
-    this.filterForm.value.filterOrder = '';
-    this.ischeckedradio = false;
-  }
-
-  onchangecountry() {
-    this.fetchSelectedItems();
-    this.country = this.birth_country.filter((item) => item.isChecked)
-    if (this.country.length > 0) {
-      this.isCheckedcountry = true;
-    } else {
-      this.isCheckedcountry = false;
-    }
-  }
-
-  clearcountry(){
-    this.fetchSelectedItems();
-
-  }
-
-  onchangemuseum() {
-    this.fetchSelectedItems();
-    this.museum = this.place_at_museum.filter((item) => item.isChecked);
-    if (this.museum.length > 0) {
-      this.isCheckedmuseum = true;
-    } else {
-      this.isCheckedmuseum = false;
-    }
-  }
-
-  onchangeprofession() {
-    this.fetchSelectedItems();
-    this.profession_name = this.professions.filter((item) => item.isChecked);
-    if (this.profession_name.length > 0) {
-      this.isCheckrdprofession = true;
-    } else {
-      this.isCheckrdprofession = false;
-    }
+  changeYear(event, field) {
+    this.filters[field] = event.target.value
   }
 
   categoryColor(category: Theme): string {
     return getColor(category);
   }
 
-  fetchSelectedItems() {
-    if (this.filterForm.value.country) {
-      this.selectedItemsList = this.birth_country.filter((value, index) => {
-        console.log(value.isChecked)
-        return value.isChecked
-      });
-    } else if (this.filterForm.value.museum) {
-      this.selectedmuseumList = this.place_at_museum.filter((value, index) => {
-        return value.isChecked
-      });
-    } else if (this.filterForm.value.profession_name) {
-      this.selectedprofessionsList = this.professions.filter((value, index) => {
-        return value.isChecked
-      });
+  clearFilter(key, value) {
+    this.filters[key] = value
+    this.settingsService.setFilterOrder(this.filters);
+
+    if(key === 'gender' || key === 'fromYear' || key === 'toYear') {
+      this.filterForm.patchValue({
+        gender: ''
+      })
+    }
+
+    if(key === 'fromYear' || key === 'toYear') {
+      this.filterForm.patchValue({
+        fromYear: '',
+        toYear: ''
+      })
+    }
+
+    if(key === 'country') {
+      this.clearCountry();
+    }
+
+    if(key === 'museum') {
+      this.clearMuseum();
+    }
+
+    if(key === 'profession') {
+      this.clearProfession();
     }
   }
 }

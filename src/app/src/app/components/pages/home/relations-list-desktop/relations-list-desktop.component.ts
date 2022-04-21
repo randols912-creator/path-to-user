@@ -3,6 +3,7 @@ import {
   ElementRef,
   HostListener,
   Input,
+
   ViewChild,
   ViewEncapsulation
 } from '@angular/core';
@@ -14,18 +15,16 @@ import {
 import Path from 'src/app/model/Path';
 import { RelationSortOrder } from 'src/app/pipes/relations-sort-by.pipe';
 import { SettingsService } from 'src/app/services/settings.service';
-
 import { PaginationInstance } from 'ngx-pagination'
 import { getScrollPercentage } from '../scroll-utils';
+
 @Component({
-  selector: 'app-relations-list',
-  templateUrl: './relations-list.component.html',
-  styleUrls: ['./relations-list.component.css'],
+  selector: 'app-relations-list-desktop',
+  templateUrl: './relations-list-desktop.component.html',
+  styleUrls: ['./relations-list-desktop.component.css'],
   encapsulation: ViewEncapsulation.None
 })
-export class RelationsListComponent {
-
-
+export class RelationsListDesktopComponent {
 
   @Input() relations: Array<Path>;
   @ViewChild('list') listRef: ElementRef;
@@ -60,7 +59,6 @@ export class RelationsListComponent {
   get serachOrder() {
     return this.settingsService.getSerachOrder();
   }
-  
   onPageChange(event) {
     this.config.currentPage = event;
   }

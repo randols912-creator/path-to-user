@@ -7,7 +7,7 @@
     [showMenu]="false"
     [showMenuHome]="true"
   ></app-title-bar>
-  <app-filters *ngIf="action === 'filter'"></app-filters>
+  <app-filters *ngIf="action === 'filter'" [relations]="relations"></app-filters>
   <app-sort *ngIf="action === 'sort'"></app-sort>
   <app-search *ngIf="action === 'search'" [relations]="relations"></app-search>
 </div>

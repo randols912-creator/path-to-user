@@ -1,7 +1,7 @@
 <!-- TODO fix me -->
 <!-- <app-modal></app-modal> -->
 <main
-  class="geni-container"
+  class="geni-container" [ngClass]="{'geni-container-desktop':!isMobile}"
   [@routeChangeAnimation]="getRouteAnimationState(outlet)"
 >
   <ng-template app-modal-ref></ng-template>
