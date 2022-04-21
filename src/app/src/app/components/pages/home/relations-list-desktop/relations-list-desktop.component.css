@@ -21,6 +21,7 @@
     min-height: 31px;
     border-width: 0;
     color: #4b4b4b;
+    background: white;
 }
 
 .select_blck:focus-visible {

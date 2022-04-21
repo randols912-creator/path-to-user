@@ -2,10 +2,9 @@ import { Location } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { APP_SETTINGE_STORAGE_KEY, HOME_PATH, MENU_PATH, SETTINGS_PATH } from 'src/app/app.constants';
-import { ModalService } from 'src/app/services/modal.service';
 import { SettingsService } from 'src/app/services/settings.service';
 import { SettingsAction } from '../../pages/settings/settings.component';
-import { P2pModalComponent } from '../p2p-modal/p2p-modal.component';
+import { RelationSortOrder } from 'src/app/pipes/relations-sort-by.pipe';
 
 @Component({
   selector: 'app-title-bar',
@@ -79,4 +78,9 @@ export class TitleBarComponent {
 
     return count
   }
+
+  isDefaultSort() {
+    return this.sort.sort == RelationSortOrder.CONNECTIONS;
+  }
+
 }

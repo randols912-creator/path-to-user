@@ -21,7 +21,7 @@
         </div>
         <select class="select_blck" (change)="p.setCurrent($event.target.value); onchange($event)"
           [(ngModel)]="pageSize">
-          <option value="" hidden>{{ p.getCurrent() }} of {{ p.pages.length }} </option>
+          <option value="" hidden>{{ p.getCurrent() }} / {{ p.pages.length }} </option>
           <option  *ngFor="let page of p.pages;let i = index" [value]="page.label">
             <span (click)="p.setCurrent(page.value)">{{ page.label }}</span>
           </option>

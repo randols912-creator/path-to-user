@@ -155,6 +155,10 @@
     "null": "Other"
   },
   "titleBar": {
-    "toAllResults": "to all results"
+    "toAllResults": "to all results",
+    "filter": "Filters",
+    "sorting": "Sorting",
+    "search": "Search"
+
   }
 }

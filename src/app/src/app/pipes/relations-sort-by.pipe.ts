@@ -11,6 +11,11 @@ const compareByProfileName = (a: Path, b: Path): number =>
     ? 1
     : -1;
 
+const compareByFirstName = (a: Path, b: Path): number =>
+a.target_profile.first_name > b.target_profile.first_name
+      ? 1
+      : -1;
+    
 const compareByStepCount = (a: Path, b: Path): number =>
   a.step_count > b.step_count ? 1 : -1;
 
@@ -29,7 +34,7 @@ export class RelationsSortByPipe implements PipeTransform {
 
   transform(
     relations: Path[],
-    order: RelationSortOrder = RelationSortOrder.DEFAULT,
+    order: RelationSortOrder = RelationSortOrder.CONNECTIONS,
     limit: number = 0
   ): Path[] {
     if (!relations.length) {
@@ -37,11 +42,15 @@ export class RelationsSortByPipe implements PipeTransform {
     }
 
     switch (order) {
-      case RelationSortOrder.NAME:
+      case RelationSortOrder.FIRST_NAME:
+        return [
+          ...relations.sort((a: Path, b: Path) => compareByFirstName(a, b)),
+        ];
+      case RelationSortOrder.LAST_NAME:
         return [
           ...relations.sort((a: Path, b: Path) => compareByProfileName(a, b)),
         ];
-      case 2:
+      case RelationSortOrder.BIRTH_DATE:
         return [
           ...relations
             .filter((r) => r.target_profile.birth?.date?.year > 0)
@@ -54,7 +63,7 @@ export class RelationsSortByPipe implements PipeTransform {
             .filter((r) => r.target_profile.birth?.date?.year === 0)
             .sort((a: Path, b: Path) => compareByBirthDate(a, b)),
         ].slice(0, limit);
-      case 3:
+      case RelationSortOrder.DEATH_DATE:
         return [
           ...relations
             .filter((r) => r.target_profile.death?.date?.year > 0)
@@ -85,8 +94,9 @@ export class RelationsSortByPipe implements PipeTransform {
 }
 
 export enum RelationSortOrder {
-  DEFAULT,
-  NAME,
-  THEME,
-  COUNTRY,
+  FIRST_NAME,
+  LAST_NAME,
+  BIRTH_DATE,
+  DEATH_DATE,
+  CONNECTIONS
 }

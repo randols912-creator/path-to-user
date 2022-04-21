@@ -21,7 +21,7 @@ export class SettingsService {
   }
 
   private initSettings() {
-    this.settings = { sort: RelationSortOrder.DEFAULT,
+    this.settings = { sort: RelationSortOrder.CONNECTIONS,
                       locale: Locale.EN,
                       p2p: true,
                       serachlist: '',
