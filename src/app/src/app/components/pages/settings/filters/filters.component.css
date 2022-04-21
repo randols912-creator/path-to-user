@@ -55,7 +55,7 @@
     width: 100%;
 
     position: absolute;
-    bottom: 5px;
+    /* bottom: 5px; */
     left: 0;
 
     font: Bold 16px Open Sans Hebrew;

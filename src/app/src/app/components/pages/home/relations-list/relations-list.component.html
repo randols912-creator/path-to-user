@@ -1,8 +1,9 @@
 <div class="relations-list" *ngIf="relations.length" #list>
   <app-relation-card [relation]="relation"
-      *ngFor="let relation of relations | relationsFilterBy: filterOrder: limit | relationsSortBy: sortOrder: limit | paginate: config ">
+  *ngFor="let relation of relations | relationsFilterBy: filterOrder: relations.length | relationsSortBy: sortOrder: relations.length | searchPipe: serachOrder | paginate: config ">
     </app-relation-card>
-  <div class="custom_image">
+</div>
+<div class="custom_image">
     <button (click)="onPageFirst()" class="button_img">
       <svg class="SVGInline-svg" id="S_NavHome_S_22" viewBox="0 0 22 22" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" x="0px" y="0px" width="22px" height="22px">
         <g id="Background">
@@ -30,5 +31,4 @@
         </div>
       </div>
     </pagination-template>
-  </div>
 </div>

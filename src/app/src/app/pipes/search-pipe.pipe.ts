@@ -10,8 +10,8 @@ export class SearchPipePipe implements PipeTransform {
     if (!searchText) { return items; }
     searchText = searchText.toLowerCase();
     return items.filter(item => {
-      if (item && item.target_profile?.display_name) {
-        return item.target_profile?.display_name.toLowerCase().includes(searchText);
+      if (item && item.target_profile?.name) {
+        return item.target_profile?.name.toLowerCase().includes(searchText);
       }
       return false;
     });
