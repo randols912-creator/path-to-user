@@ -4,7 +4,42 @@
     overflow: auto; */
   /* max-height: calc(100vh - 155px); */
   /* overflow-y: scroll; */
+
 }
+
+@media only screen and (min-width: 768px) {
+  .relations-list {
+    display: grid;
+    grid-template-columns: 45% 45%;
+  }  
+
+  .relation-card {
+    margin-left: 10%;
+  }
+
+}
+
+@media only screen and (min-width: 1200px) {
+  .relations-list {
+    display: grid;
+    grid-template-columns: 30% 30% 30%;
+  }  
+
+  .relation-card {
+    margin-left: 10%;
+  }
+
+}
+
+
+
+/* Clear floats after the columns 
+.relations-list:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+*/
 
 .custom-pagination .page-number{
   display: inline-block;

@@ -91,12 +91,12 @@
   "welcome": {
     "top": {
       "headline": "ANU - Museum of the Jewish People",
-      "question": "Wouldn’t it be great to know if you have a family connection to famous Jewish people like Albert Einstein, Emma Lazarus or Theodor Herzl?",
+      "question": "The Geni World Family Tree is a unique collaborative, largely public collection of connected family trees. The path to user tool calculates the shortest path between two geni profiles in a readable format.",
       "whatToDo": "Here's what you need to do in order to discover that and where they are located in the museum:"
     },
     "middle": {
       "login": "Log in to your Geni account",
-      "instructions": "Once you're in, you'll see a list of famous people you're connected to and the relationship path for each one. A click on each person will reveal the exact location in the museum. You may even find your relationship to other museum visitors!",
+      "instructions": "Please note that the Path-to-User tool may be limited by privacy settings or by anomalies in the Geni database.",
       "terms": "I Agree to <a href='{{value}}' target='_blank' rel='nofollow noopener'>Terms of Use</a>",
       "relatives": "I Agree to allow this app to <a>connect me with relatives</a> who may now be in the museum itself"
     },

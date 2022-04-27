@@ -2,11 +2,10 @@
   <app-title-bar [showTitle]="false"></app-title-bar>
   <section class="box welcome__top">
       <img
-        src="assets/img/ANU-family.svg"
-        alt=""
+        src="assets/img/p2u.png"
+        alt="Path To User Tool"
         class="title-logo"
       />
-    <h2 class="subtitle-text" [innerHTML]="'welcome.top.headline' | translate"></h2>
     <h4
       class="subtitle-text"
       [ngClass]="{ 'hebrew-direction': isHebrewLocale }"
@@ -15,7 +14,7 @@
       welcome.top.question
     </h4>
     <img src="assets/img/lineOfCircles.svg" class="circles-separator" />
-    <p class="regular-text" translate>welcome.top.whatToDo</p>
+    <p class="regular-text" translate></p>
   </section>
   <section class="welcome__middle">
     <form class="box" (ngSubmit)="loginHandler()" [formGroup]="loginForm">
@@ -55,8 +54,9 @@
       <div
         class="welcome__agree-box"
         [ngClass]="{ 'hebrew-alignment': isHebrewLocale }"
+        hidden
       >
-        <input
+        <input 
           type="checkbox"
           autocomplete="off"
           formControlName="agreeToConnectRelatives"
@@ -71,19 +71,6 @@
     </form>
   </section>
   <section class="box welcome__bottom">
-    <div class="other-platform" >
-      <h5 class="accent-text" translate [ngClass]="{ 'hebrew-direction': isHebrewLocale }" >welcome.bottom.anotherPlatform</h5>
-      <p class="regular-text" translate [ngClass]="{ 'hebrew-direction': isHebrewLocale }" >welcome.bottom.uploadGedcom</p>
-    </div>
-    <div class="none-platform">
-      <h5 class="accent-text" translate [ngClass]="{ 'hebrew-direction': isHebrewLocale }" >welcome.bottom.noFamilyTree</h5>
-      <p class="regular-text" translate [ngClass]="{ 'hebrew-direction': isHebrewLocale }" >welcome.bottom.invitedToDesk</p>
-    </div>
     <img src="assets/img/lineOfCircles.svg" class="circles-separator" />
-    <img
-      class="bottom-logo"
-      src="assets/img/Anu_Pos_{{logoHebrewSuffix}}.svg"
-      [alt]="'welcome.bottom.logoAlt' | translate"
-    />
   </section>
 </div>
