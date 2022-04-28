@@ -15,9 +15,18 @@ export class ProfilePopupComponent implements OnInit {
   profileForm: FormGroup;
   oneAtATime = true;
   ischeckedradio: boolean = false;
-  soruce = ['My Profile', 'Profile ID'];
+  soruce = ['My Profile', 'Another Profile'];
   target = ['Profile', 'Project'];
-  profileId: any[] = []
+  projectList: any[] = [
+    ["Nobel Prize in Physics", "project-10373"],
+    ["Nobel Prize in Literature", "project-5272"],
+    ["Nobel Prize in Economics", "project-5571"],
+    ["Mayflower Passengers of 1620", "project-8"],
+    ["British Monarchs", "project-3232"],
+    ["Partial Hollywood Walk of Fame", "project-358"],
+    ["US Presidents and Vice Presidents", "project-9"],
+    ["World Monarchs", "project-56256"]
+  ]
   selectedItemsList = [];
   checkboxvalue: any;
   arryvalue: any[];
@@ -49,8 +58,7 @@ export class ProfilePopupComponent implements OnInit {
   }
 
   onchangeTarget() {
-    this.profileId = this.relations
-    const newData = this.profileId
+    const newData = this.projectList
     for (let i = 0; i < newData.length; i++) {
       newData[i].checked = false;
     }
@@ -65,6 +73,7 @@ export class ProfilePopupComponent implements OnInit {
 
   onChangeCheckbox() {
     this.checkboxvalue = this.profileForm.value.profile_id_list
+    console.log(this.checkboxvalue);
   }
 
   fetchSelectedItems() {
