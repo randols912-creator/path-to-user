@@ -14,7 +14,7 @@ class GeniClientAsync:
     VALIDATE_TOKEN_URL = 'platform/oauth/validate_token'
     PROFILE_URL = 'api/{profile}'
     PATH_BETWEEN_PROFILES_URL = 'api/{source}/path-to/{target}?skip_email=1&skip_notify=1'
-    PROFILES_FROM_PROJECT = 'api/project-56250/profiles'
+    PROFILES_FROM_PROJECT = 'api/{project_id}/profiles'
 
     def __init__(self):
         self.session = requests.session()
@@ -46,8 +46,8 @@ class GeniClientAsync:
 
 
 
-    async def get_personalities_profiles(self, token, next_page_url=None):
-        url: str = self.BASE_URL + self.PROFILES_FROM_PROJECT if not next_page_url else next_page_url
+    async def get_personalities_profiles(self, token, next_page_url=None, project_id='project-56250'):
+        url: str = self.BASE_URL + self.PROFILES_FROM_PROJECT.format(project_id=project_id) if not next_page_url else next_page_url
         profiles = []
         fields = [
             'id',
@@ -70,7 +70,7 @@ class GeniClientAsync:
         if part_profiles['is_success']:
             profiles += part_profiles['results']
 
-        return profiles, next_page_url
+        return profiles, next_page_url, part_profiles.get('total_count')
 
     def build_auth_url(self):
         """Create the OAuth url for the application"""
@@ -85,7 +85,8 @@ class GeniClientAsync:
 
         return url
 
-    async def get_profile_details(self, token, profile_id="profile", fields=None):
+    async def get_profile_details(self, token, profile_id=None, fields=None):
+        if not profile_id: profile_id = "profile"
         """Get the profile details. By default, return details of logged in account"""
         url = self.BASE_URL + self.PROFILE_URL.format(profile=profile_id)
         counter = 0
