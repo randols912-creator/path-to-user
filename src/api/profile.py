@@ -6,9 +6,13 @@ from api.models import CURRENT_TIMESTAMP, paths_table, profiles_table
 from sqlalchemy import and_, func
 from databases import Database
 
+from cachetools.keys import hashkey
+from cachetools import TTLCache
+
 
 class ProfileManager:
     TOKEN_TO_PROFILE = dict()
+    CACHE = TTLCache(maxsize=1024, ttl=600)
 
     def __init__(self, database: Database, geni: GeniClientAsync, token: str):
         self.geni = geni
@@ -55,10 +59,27 @@ class ProfileManager:
 
         return profile
 
-    async def count(self, is_user):
-        query = profiles_table.count().where(profiles_table.c.is_user == is_user)
-        count = await self.database.fetch_one(query=query)
-        return count
+    async def count(self, target_id):
+        #query = profiles_table.count().where(profiles_table.c.is_user == is_user)
+        #count = await self.database.fetch_one(query=query)
+        if not target_id:
+            return 0
+        if target_id.startswith('profile'):
+            return 1
+
+
+        key = hashkey(target_id)
+        try:
+            return self.CACHE[key]
+        except:
+            total_count = 0
+
+        if  target_id.startswith('project'):
+            p,np,total_count = await self.geni.get_personalities_profiles(self.token, project_id=target_id)
+
+        self.CACHE[key] = total_count
+
+        return total_count
 
     async def load_personalities(self):
         personalities = []

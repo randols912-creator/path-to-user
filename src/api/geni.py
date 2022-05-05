@@ -2,6 +2,7 @@ import asyncio
 import os, time
 import requests
 import aiohttp
+import logging
 
 
 class GeniClientAsync:
@@ -63,7 +64,6 @@ class GeniClientAsync:
             'death',
             'nicknames'
         ]
-        print(f'querying {url}')
         part_profiles, token = await self._geni_api_call(url, token, fields)
         next_page_url = part_profiles.get('next_page')
         print(part_profiles)
@@ -116,6 +116,8 @@ class GeniClientAsync:
 
         try:
             #response_raw = self.session.get(url, params=payload, timeout=20)
+            #print(f'querying {url} {payload}')
+            logging.debug(f"Geni API call: {url} {payload}")
             async with aiohttp.ClientSession() as session:
                 async with session.get(url, params=payload) as response_raw:
                     response = await response_raw.json()

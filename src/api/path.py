@@ -249,6 +249,7 @@ async def path_finder_async(number, queue, user2user_result_queue, db_url, geni)
                 for u2u in u2u_list:
                     await user2user_result_queue.put(u2u)
             except Exception as e:
+                traceback.print_exc(file=sys.stdout)
                 # If any exception happened during processing, refer to all batch as 'pending'
                 pending_list = task_or_list
                 for task in pending_list:
@@ -257,7 +258,8 @@ async def path_finder_async(number, queue, user2user_result_queue, db_url, geni)
                 logger.warning(f"{log_prefix} Exception caught, ignoring the whole batch:")
                 traceback.print_exc(file=sys.stdout)
                 logger.warning(f"{log_prefix} End of Exception caught ====")
-
+            # Notify that processing of the received task is done
+            queue.task_done()
             # Enqueue pending list
             if pending_list:
                 await asyncio_sleep(0.5) # make a pause before inserting again pending tasks

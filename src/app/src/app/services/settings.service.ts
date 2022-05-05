@@ -32,6 +32,10 @@ export class SettingsService {
                         country: [],
                         museum: [],
                         profession: []
+                      },
+                      sourceTarget: {
+                        sourceId: null,
+                        targetId: null
                       } };
     this.saveSettings();
   }
@@ -110,6 +114,21 @@ export class SettingsService {
   getP2p(): boolean {
     return this.settings.p2p;
   }
+
+  getSourceTarget() {
+    return this.settings.sourceTarget;
+  }
+
+
+  setSourceTarget(sourceId, targetId) {
+    this.settings.sourceTarget = {
+      sourceId: sourceId,
+      targetId: targetId
+    }
+    this.saveSettings();
+
+  }
+
 }
 
 export interface Settings {
@@ -118,6 +137,7 @@ export interface Settings {
   p2p: boolean;
   filter: any;
   serachlist: any;
+  sourceTarget: any;
 }
 
 export interface Filters {

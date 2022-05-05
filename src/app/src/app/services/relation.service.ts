@@ -10,6 +10,8 @@ import {
   PROFILES_COUNT_URL,
 } from '../app.constants';
 import { AuthService } from '../auth/auth.service';
+import { SettingsService } from './settings.service';
+
 import Path, { PathDetailsResponse } from '../model/Path';
 
 interface PathServiceResponse {
@@ -34,8 +36,10 @@ export class RelationService {
   private pathsCount = 0;
   private pathsCountTs = Date.now();
 
-  constructor(private http: HttpClient, private auth: AuthService) {
-    auth.isAuthenticatedSubj.subscribe((isAuthenticated) => {
+  constructor(private http: HttpClient, 
+              private auth: AuthService,
+              private settings: SettingsService) {
+    this.auth.isAuthenticatedSubj.subscribe((isAuthenticated) => {
       if (isAuthenticated && this.status.value === Status.INITIALIZING) {
         this.search();
       }
@@ -77,8 +81,12 @@ export class RelationService {
     this.pathsCountTs = Date.now();
     this.status.next(Status.INITIALIZING);
 
-
-    this.http.delete(FETCH_PATHS_URL, {}).subscribe(() => {
+    let st = this.settings.getSourceTarget()
+    let params = "";
+    if (st.sourceId) {
+      params = `?source_id=${st.sourceId}`
+    }
+    this.http.delete(FETCH_PATHS_URL + params).subscribe(() => {
       debugMessage('Reset connections - starting search again after a bit!');
       setTimeout(
         () => this.search(),
@@ -86,6 +94,10 @@ export class RelationService {
       );
       
     }); 
+  }
+
+  startSearch() {
+    this.triggerBackendWorkers();
   }
 
   private notReady(
@@ -162,12 +174,16 @@ export class RelationService {
     Observable<PathsCountResponse>,
     Observable<PathsCountResponse>
   ] {
+    let st = this.settings.getSourceTarget()
+
     return [
       this.http.get<PathServiceResponse>(FETCH_PATHS_URL, {
         params: { offset: `${offset}` },
       }),
       this.http.get<PathsCountResponse>(PATHS_COUNT_URL),
-      this.http.get<PathsCountResponse>(PROFILES_COUNT_URL),
+      this.http.get<PathsCountResponse>(PROFILES_COUNT_URL, {
+        params: {target_id: st.targetId}
+      }),
       this.http.get<PathsCountResponse>(PATHS_COUNT_URL, {
         params: { connected_only: 'false' },
       }),
@@ -175,7 +191,8 @@ export class RelationService {
   }
 
   private triggerBackendWorkers(): void {
-    this.http.post(FETCH_PATHS_URL, {}).subscribe(() => {
+    let st = this.settings.getSourceTarget()
+    this.http.post(FETCH_PATHS_URL, {source_id: st.sourceId, target_id: st.targetId}).subscribe(() => {
       debugMessage('Backend workers triggered!');
     });
   }

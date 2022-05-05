@@ -126,14 +126,12 @@ class ProfileView(HTTPMethodView):
     @staticmethod
     @bp_profiles.get("/count")
     @doc.consumes(Token, location='headers')
-    @doc.consumes(doc.String(name="type", description="Profile type", choices=['personality', 'user']))
+    @doc.consumes(doc.String(name="target_id", description="Target id"))
     @doc.summary("Count profiles")
     async def get_count(request):
         token = await Token.validate(request.headers.get(TOKEN_PARAM))
-        type = request.args.get('id')
-        is_user = (type == 'user')
         # Count personalities from cache
-        count = len(ProfileView.PERSONALITIES) if not is_user else await ProfileManager(database, geni, token).count(is_user)[0]
+        count = await ProfileManager(database, geni, token).count(request.args.get('target_id'))
 
         return json({"count": count})
 
@@ -218,7 +216,7 @@ class PathView(HTTPMethodView):
     @doc.summary("Delete paths from user to all personalities")
     async def delete_search_personalities(request):
         token = await Token.validate(request.headers.get(TOKEN_PARAM))
-        source_id = request.json.get('source_id')
+        source_id = request.args.get('source_id')
 
         await PathView._reset_connections(token, source_id)
         return json({"status": "Deleted personalities paths"})
@@ -232,6 +230,14 @@ class PathView(HTTPMethodView):
             source_id = my_profile['id']
         await path_mgr.clear_paths(source_id)
         logger.info(f"Deleted personalities paths search for : {source_id}")
+        # Clear all queues
+        for q in app.task_queue:
+            for _ in range(q.qsize()):
+                try:
+                    q.get_nowait()
+                    q.task_done()
+                except:
+                    pass
 
     @staticmethod 
     async def _post_search_personalities(token, source_id, target_id):

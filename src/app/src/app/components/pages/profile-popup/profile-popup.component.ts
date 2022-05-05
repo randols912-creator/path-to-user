@@ -1,8 +1,10 @@
 import { Component, Input, OnInit, ViewEncapsulation } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import Path from 'src/app/model/Path';
-import { RelationService } from 'src/app/services/relation.service';
+import { Router } from '@angular/router';
 import { SettingsService } from 'src/app/services/settings.service';
+import { RelationService } from 'src/app/services/relation.service';
+import { HOME_PATH} from 'src/app/app.constants';
+
 
 @Component({
   selector: 'app-profile-popup',
@@ -15,42 +17,48 @@ export class ProfilePopupComponent implements OnInit {
   profileForm: FormGroup;
   oneAtATime = true;
   ischeckedradio: boolean = false;
-  soruce = ['My Profile', 'Another Profile'];
-  target = ['Profile', 'Project'];
+  sourceLabels = ['My Profile', 'Another Profile'];
+  targetLabels = ['Profile', 'Project'];
+  targetType = 'profile';
+
   projectList: any[] = [
-    ["Nobel Prize in Physics", "project-10373"],
-    ["Nobel Prize in Literature", "project-5272"],
-    ["Nobel Prize in Economics", "project-5571"],
-    ["Mayflower Passengers of 1620", "project-8"],
-    ["British Monarchs", "project-3232"],
-    ["Partial Hollywood Walk of Fame", "project-358"],
-    ["US Presidents and Vice Presidents", "project-9"],
-    ["World Monarchs", "project-56256"]
-  ]
+    {label: "Nobel Prize in Physics", id: "10373"},
+    {label: "Nobel Prize in Literature", id: "5272"},
+    {label: "Nobel Prize in Economics", id: "5571"},
+    {label: "Mayflower Passengers of 1620", id: "8"},
+    {label: "British Monarchs", id: "3232"},
+    {label: "Partial Hollywood Walk of Fame", id: "358"},
+    {label: "US Presidents and Vice Presidents", id: "9"},
+    {label: "World Monarchs", id: "56256"}
+  ];
+  customSourceProfileId = "";
+  customTargetProfileId = "";
+  customTargetProjectId = "";
   selectedItemsList = [];
   checkboxvalue: any;
-  arryvalue: any[];
-  constructor(private settingsService: SettingsService, private relationService: RelationService) { }
+  constructor(private settingsService: SettingsService,
+              private relationsService: RelationService,
+              private router: Router) { }
 
   ngOnInit(): void {
     this.profileForm = new FormGroup({
-      profile: new FormControl(this.settingsService.getSortOrder()),
-      project_profile: new FormControl(this.settingsService.getSortOrder()),
-      profile_id_list: new FormControl(this.settingsService.getSortOrder())
+      sourceProfile: new FormControl(this.settingsService.getSortOrder()),
+      targetType: new FormControl(this.settingsService.getSortOrder()),
+      targetProjectIdSelection: new FormControl(this.settingsService.getSortOrder())
     });
     this.profileForm.valueChanges.subscribe((value) => {
-      this.settingsService.setSortOrder(value.profile);
+      this.settingsService.setSortOrder(value.sourceProfile);
     });
     this.profileForm.valueChanges.subscribe((value) => {
-      this.settingsService.setSortOrder(value.project_profile);
+      this.settingsService.setSortOrder(value.targetType);
     });
     this.profileForm.valueChanges.subscribe((value) => {
-      this.settingsService.setSortOrder(value.profile_id_list);
+      this.settingsService.setSortOrder(value.targetProjectIdSelection);
     });
   }
 
   onchange() {
-    if (this.profileForm.value.profile == 0 || this.profileForm.value.profile == 1) {
+    if (this.profileForm.value.sourceProfile == 0 || this.profileForm.value.sourceProfile == 1) {
       this.ischeckedradio = true;
     } else {
       this.ischeckedradio = false;
@@ -58,32 +66,35 @@ export class ProfilePopupComponent implements OnInit {
   }
 
   onchangeTarget() {
-    const newData = this.projectList
-    for (let i = 0; i < newData.length; i++) {
-      newData[i].checked = false;
+    this.targetType = this.profileForm.value.targetType == 1 ? "project" : "profile";
+    for (let i = 0; i < this.projectList.length; i++) {
+      this.projectList[i].checked = false;
     }
-    this.arryvalue= newData
-    this.fetchSelectedItems();
   }
 
   clear() {
-    this.profileForm.value.profile = '';
+    this.profileForm.value.sourceProfile = '';
     this.ischeckedradio = false;
   }
 
-  onChangeCheckbox() {
-    this.checkboxvalue = this.profileForm.value.profile_id_list
-    console.log(this.checkboxvalue);
+  onProjectSelection() {
+    this.customTargetProjectId = this.profileForm.value.targetProjectIdSelection
+    for (let i = 0; i < this.projectList.length; i++) {
+      this.projectList[i].checked = (this.customTargetProjectId == this.projectList[i].id);
+    }
+    console.log(this.customTargetProjectId);
   }
 
-  fetchSelectedItems() {
-    this.selectedItemsList = this.arryvalue.filter((value, index) => {
-      return value.checked
-    });
+  onSubmit() {
+    let sourceId = this.profileForm.value.sourceProfile  ? "profile-" + this.customSourceProfileId : null;
+    let targetId = this.targetType + "-" + (this.targetType == "profile" ? this.customTargetProfileId : this.customTargetProjectId);
+
+    console.log("Submitting form: sourceId: ", sourceId, ", targetId: " + targetId);
+    this.settingsService.setSourceTarget(sourceId, targetId);
+    this.relationsService.reset();
+    this.router.navigate([`/${HOME_PATH}`]);
+
 
   }
-  get relations(): Array<Path> {
-    let results = this.relationService.getRelations();
-    return results
-  }
+
 }
