@@ -24,7 +24,7 @@
         <div style="display: flex;">
             <accordion-group heading="Years">
                 <div class="display_flex_padding">
-                    <span class="span_input">Form: </span><input type="number" class="filter_input" formControlName="fromYear" (change)="changeYear($event, 'fromYear')"><span
+                    <span class="span_input">From: </span><input type="number" class="filter_input" formControlName="fromYear" (change)="changeYear($event, 'fromYear')"><span
                         class="span_input span_to">To:</span><input type="number" class="filter_input" formControlName="toYear" (change)="changeYear($event, 'toYear')">
                 </div>
             </accordion-group>
@@ -49,47 +49,6 @@
                 </div>
             </accordion-group>
             <a *ngIf="filters?.country?.length" class="clear_button" (click)="clearFilter('country', [])">Clear</a>
-        </div>
-        <div style="display: flex;">
-            <accordion-group heading="Place at the museum">
-                <div class="round_checkbox">
-                    <div *ngFor="let museum_name of place_at_museum; let i = index">
-                        <label >
-                            <span class="round-country">
-                                <input type="checkbox" [checked]="museum_name.isChecked == true" 
-                                (change)="onchangemuseum($event, i, museum_name.value)"/>
-                                {{museum_name.place_museum_name}}
-                                <span class="checkbox-span"></span>
-                                <span *ngIf="museum_name.place_museum_name === 'Ground floor'">({{ground}})</span>
-                                <span *ngIf="museum_name.place_museum_name === 'First floor'">({{first}})</span>
-                                <span *ngIf="museum_name.place_museum_name === 'Second floor'">({{second}})</span>
-                                <span *ngIf="museum_name.place_museum_name === 'Third floor'">({{third}})</span>
-                            </span>
-                        </label>
-                    </div>
-                </div>
-            </accordion-group>
-            <a *ngIf="filters?.museum?.length" class="clear_button" (click)="clearFilter('museum', [])">Clear</a>
-        </div>
-        <div style="display: flex;">
-            <accordion-group heading="Profession">
-                <div class="round_checkbox">
-                    <div *ngFor="let profession of proData; let i = index">
-                        <label >
-                            <span class="round-country">
-                                <input type="checkbox" [checked]="profession.checkedpro == true" 
-                            (change)="onchangeprofession($event, i, profession.bh_theme)"/>
-                            <span class="checkbox-span"></span>
-                            <span class="bhf-theme"
-                                    [ngStyle]="{'backgroundColor':categoryColor(profession.bh_theme)}">{{profession.bh_theme}}
-                                    <span>({{profession.bh_theme.length}})</span>
-                                </span>
-                            </span>
-                        </label>
-                    </div>
-                </div>
-            </accordion-group>
-            <a *ngIf="filters?.profession?.length" class="clear_button" (click)="clearFilter('profession', [])">Clear</a>
         </div>
     </form>
 </accordion>

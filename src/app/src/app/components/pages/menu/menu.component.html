@@ -1,24 +1,6 @@
 <app-title-bar [showMenu]="false" [showGoBack]="true"></app-title-bar>
 <div class="menu-container">
-  <button
-    (click)="switchLocaleHandler()"
-    type="button"
-    class="btn btn-link bigger-text"
-    translate
-  >
-    menu.locale
-  </button>
-  <img src="assets/img/lineOfCircles.svg" class="circles-separator" />
-  <a
-   [href]="'assets/files/tutorial_' + locale + '.pdf'"
-    class="btn btn-link bigger-text"
-    target="_blank"
-    rel="noopener noreferrer"
-    translate
-    >menu.tutorial</a
-  >
-  <img src="assets/img/lineOfCircles.svg" class="circles-separator" />
-  <a
+    <a
     href="https://www.geni.com/discussions/228228"
     class="btn btn-link bigger-text"
     target="_blank"
@@ -39,16 +21,6 @@
     class="btn btn-link bigger-text"
     translate
   >menu.reset</button>
-  <img src="assets/img/lineOfCircles.svg" class="circles-separator" *ngIf="isAuthenticated" />
-  <button
-    *ngIf="isAuthenticated"
-    (click)="profileMenuOpen()"
-    type="button"
-    class="btn btn-link bigger-text"
-    translate
-  >
-    menu.profile
-  </button>
   <img src="assets/img/lineOfCircles.svg" class="circles-separator" />
   <button
     *ngIf="isAuthenticated"

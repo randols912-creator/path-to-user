@@ -1,10 +1,4 @@
 <app-title-bar [showMenu]="false" [showGoBack]="true"></app-title-bar>
-<h2 class="subtitle-text" [innerHTML]="'welcome.top.headline' | translate"></h2>
-<img
-  class="logo"
-  src="assets/img/Anu_Pos_{{logoHebrewSuffix}}.svg"
-  [alt]="'welcome.bottom.logoAlt' | translate"
-/>
 <section [ngClass]="{ hebrew: isHebrewLocale }">
   <h3 translate>about.app.header</h3>
   <div class="circles">
@@ -14,35 +8,8 @@
   <article [innerHTML]="'about.app.article' | translate"></article>
 </section>
 <section [ngClass]="{ hebrew: isHebrewLocale }">
-  <h3 translate>about.museum.header</h3>
   <div class="circles">
     <img src="assets/img/lineOfCircles.svg" class="circles-separator" />
     <img src="assets/img/lineOfCircles.svg" class="circles-separator" />
   </div>
-  <h4 translate>about.museum.subheader</h4>
-  <article [innerHTML]="'about.museum.article' | translate"></article>
 </section>
-<button class="btn btn-block" (click)="share()" translate>
-  about.share
-  <i>
-    <svg
-      width="1.2rem"
-      height="1.2rem"
-      viewBox="0 0 16 16"
-      class="bi bi-share-fill"
-      fill="#666666"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        fill-rule="evenodd"
-        d="M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5z"
-      />
-    </svg>
-  </i>
-</button>
-<div class="links">
-  <a href="{{'about.links.shop.url' | translate}}" [innerHTML]="'about.links.shop.text' | translate" target="_blank"></a>
-  <a href="{{'about.links.visit.url' | translate}}" [innerHTML]="'about.links.visit.text' | translate" target="_blank"></a>
-  <a href="{{'about.links.database.url' | translate}}" [innerHTML]="'about.links.database.text' | translate" target="_blank"></a>
-  <a href="{{'about.links.learn.url' | translate}}" [innerHTML]="'about.links.learn.text' | translate" target="_blank"></a>
-</div>

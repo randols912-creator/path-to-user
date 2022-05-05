@@ -79,6 +79,7 @@ class PathManager:
         target_id_cond = paths_table.c.target_id == target_id if target_id else True
         query = select([paths_table.c.source_id,
                         paths_table.c.target_id,
+                        paths_table.c.url,
                         paths_table.c.step_count,
                         profiles_table.c.bh_theme,
                         profiles_table.c.bh_location,

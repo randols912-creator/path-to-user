@@ -23,8 +23,8 @@
       <div>
         <div #fullname class="fullname">
           <a
-            [routerLink]="[relationPath, relation.target_id]"
-            [state]="{ id: relation.target_id }"
+            href="{{relation.url}}"
+            target="_blank"
             >{{ localizedFullname }}</a
           >
         </div>

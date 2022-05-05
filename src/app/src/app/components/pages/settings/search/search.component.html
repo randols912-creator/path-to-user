@@ -11,7 +11,7 @@
     </span>
     <div>
         <p *ngFor="let user of users_name | searchPipe: serachOrder" class="search_result">
-            <a [routerLink]="['/relation/', user.target_id]">{{ user.target_profile.name }}</a>
+            <a href="{{user.url}}" target="_blank">{{ user.target_profile.name }}</a>
         </p>
     </div>
     </form>

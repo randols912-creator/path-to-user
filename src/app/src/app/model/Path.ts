@@ -6,6 +6,7 @@ import { Locale } from './Locale';
 export default interface Path {
   source_id: string;
   target_id: string;
+  url: string;
   step_count: number;
   target_profile: Profile;
   relations: Connection[];

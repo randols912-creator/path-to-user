@@ -41,12 +41,12 @@ export const INITIAL_RELATIONS_LIMIT = 25;
 export const RELATION_SCROLL_THRESHOLD_PCT = 50;
 export const RELATION_LIMIT_STEP = 25;
 
-export const termsOfUseUrl = 'https://www.bh.org.il/terms-of-use';
+export const termsOfUseUrl = 'https://www.geni.com/company/terms_of_use';
 
 export const welcomePhotos = [
   'assets/img/photos/einstein.jpg',
-  'assets/img/photos/lazarus.jpg',
-  'assets/img/photos/herzl.jpg',
+  'assets/img/photos/elizabeth.jpg',
+  'assets/img/photos/hemmingway.jpg',
   'assets/img/photos/0.jpg',
   'assets/img/photos/1.jpg',
   'assets/img/photos/2.jpg',
