@@ -65,6 +65,7 @@ geni = GeniClientAsync()
 
 bp_profiles = Utils.create_blueprint("profiles")
 bp_paths = Utils.create_blueprint("paths")
+bp_projects = Utils.create_blueprint("projects")
 bp_debug = Utils.create_blueprint("debug")
 
 
@@ -171,6 +172,18 @@ def dt_converter(o):
         return o.__str__()
     return o
 
+class ProjectView(HTTPMethodView):
+    @doc.summary("Get project details")
+    @doc.consumes(Token, location='headers')
+    @doc.consumes(doc.String(name="id", description="Project id"))
+    async def get(self, request):
+        token = await Token.validate(request.headers.get(TOKEN_PARAM))
+        id = request.args.get('id')
+        if not id:
+            abort(403, "Project id is missing")
+        project = await geni.get_project_details(token, id)
+        return json({"project": project})
+
 class PathView(HTTPMethodView):
 
     @doc.summary("Get path details")
@@ -231,13 +244,13 @@ class PathView(HTTPMethodView):
         await path_mgr.clear_paths(source_id)
         logger.info(f"Deleted personalities paths search for : {source_id}")
         # Clear all queues
-        for q in app.task_queue:
-            for _ in range(q.qsize()):
-                try:
-                    q.get_nowait()
-                    q.task_done()
-                except:
-                    pass
+        # for q in app.task_queue:
+        #     for _ in range(q.qsize()):
+        #         try:
+        #             q.get_nowait()
+        #             q.task_done()
+        #         except:
+        #             pass
 
     @staticmethod 
     async def _post_search_personalities(token, source_id, target_id):
@@ -309,6 +322,7 @@ class PathView(HTTPMethodView):
         timer.stop("PathView:get_paths:validate_token")
         offset = request.args.get('offset', 0)
         limit = request.args.get('limit', 50)
+        source_id = request.args.get('source_id')
 
         pm = ProfileManager(database, geni, token)
         timer.start("PathView:get_paths:cache")
@@ -364,9 +378,12 @@ class PathView(HTTPMethodView):
         connected_only = str(request.args.get('connected_only', True)).lower() == 'true'
 
         pm = ProfileManager(database, geni, token)
-        my_profile = await pm.cache()
-        logger.debug(my_profile)
-        count = await PathManager(database, geni, token).count_paths(my_profile['id'], connected_only, user2user=user2user)
+        source_id = request.args.get('source_id')
+        if not source_id:
+            my_profile = await pm.cache()
+            source_id = my_profile['id']
+
+        count = await PathManager(database, geni, token).count_paths(source_id, connected_only, user2user=user2user)
 
         return json({"count": count}, escape_forward_slashes=False)
 
@@ -391,6 +408,7 @@ class DebugView(HTTPMethodView):
 # Add blueprints to the app
 Utils.add_blueprint(app, bp_profiles, ProfileView)
 Utils.add_blueprint(app, bp_paths, PathView)
+Utils.add_blueprint(app, bp_projects, ProjectView)
 Utils.add_blueprint(app, bp_debug, DebugView)
 
 

@@ -178,14 +178,16 @@ export class RelationService {
 
     return [
       this.http.get<PathServiceResponse>(FETCH_PATHS_URL, {
-        params: { offset: `${offset}` },
+        params: { source_id: st.sourceId, offset: `${offset}` },
       }),
-      this.http.get<PathsCountResponse>(PATHS_COUNT_URL),
+      this.http.get<PathsCountResponse>(PATHS_COUNT_URL,         
+        {params: {source_id: st.sourceId}
+      }),
       this.http.get<PathsCountResponse>(PROFILES_COUNT_URL, {
         params: {target_id: st.targetId}
       }),
       this.http.get<PathsCountResponse>(PATHS_COUNT_URL, {
-        params: { connected_only: 'false' },
+        params: { source_id: st.sourceId, connected_only: 'false' },
       }),
     ];
   }

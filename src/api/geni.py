@@ -14,6 +14,7 @@ class GeniClientAsync:
     TOKEN_URL = 'platform/oauth/request_token'
     VALIDATE_TOKEN_URL = 'platform/oauth/validate_token'
     PROFILE_URL = 'api/{profile}'
+    PROJECT_URL = 'api/{project}'
     PATH_BETWEEN_PROFILES_URL = 'api/{source}/path-to/{target}?skip_email=1&skip_notify=1'
     PROFILES_FROM_PROJECT = 'api/{project_id}/profiles'
 
@@ -101,6 +102,23 @@ class GeniClientAsync:
             await asyncio.sleep(0.25)
 
         return profile_raw, token
+
+    async def get_project_details(self, token, project_id=None, fields=None):
+        if not project_id: project_id = "project"
+        """Get the profile details. By default, return details of logged in account"""
+        url = self.BASE_URL + self.PROJECT_URL.format(project=project_id)
+        counter = 0
+
+        while counter < 5:
+            project_raw, token = await self._geni_api_call(url, token, fields)
+
+            if project_raw['is_success']:
+                break
+
+            counter += 1
+            await asyncio.sleep(0.25)
+
+        return project_raw, token
 
     # TODO: limit call rate (by token) to 25 calls in 10 seconds
     async def _geni_api_call(self, url, token, fields=None):
