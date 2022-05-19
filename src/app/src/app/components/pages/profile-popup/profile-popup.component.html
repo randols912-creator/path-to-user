@@ -5,10 +5,10 @@
       [showMenu]="false"
       [showMenuHome]="true"
     ></app-title-bar>
-    <accordion [closeOthers]="oneAtATime" class="custom_accordion">
+    <accordion [closeOthers]="oneAtATime" class="custom_accordion"  >
         <form class="profile-setting-model" [formGroup]="profileForm">
             <div>
-                <accordion-group heading="Choose source profile">
+                <accordion-group heading="Choose source profile" [isOpen]="openFirst">
                     <div class="display_flex_padding">
                         <label for="filterOption{{ i }}" *ngFor="let option of sourceLabels; let i = index"
                             class="profile-settings-option"><span
@@ -24,7 +24,7 @@
                     </div>
                 </accordion-group>
             </div>
-            <accordion-group heading="Choose target profile or project">
+            <accordion-group heading="Choose target profile or project" [isOpen]="!openFirst">
                 <div class="display_flex_padding">
                     <label for="target{{ i }}" *ngFor="let option of targetLabels; let i = index"
                         class="profile-settings-option"><span
@@ -61,5 +61,5 @@
             </accordion-group>
         </form>
     </accordion>
-    <button class="finish-button" (click)="onSubmit()">Submit</button>
+    <button class="finish-button" [disabled]="!isValid()" (click)="onSubmit()">Submit</button>
 </div>

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { SettingsService } from 'src/app/services/settings.service';
@@ -13,9 +13,12 @@ import { HOME_PATH} from 'src/app/app.constants';
   encapsulation: ViewEncapsulation.None
 })
 export class ProfilePopupComponent implements OnInit {
+  @ViewChild('accordion') accordion;
+
 
   profileForm: FormGroup;
   oneAtATime = true;
+  openFirst=true;
   ischeckedradio: boolean = false;
   sourceLabels = ['My Profile', 'Another Profile'];
   targetLabels = ['Profile', 'Project'];
@@ -46,6 +49,8 @@ export class ProfilePopupComponent implements OnInit {
       targetType: new FormControl(this.settingsService.getSortOrder()),
       targetProjectIdSelection: new FormControl(this.settingsService.getSortOrder())
     });
+    this.profileForm.value.sourceProfile = 1;
+    /*
     this.profileForm.valueChanges.subscribe((value) => {
       this.settingsService.setSortOrder(value.sourceProfile);
     });
@@ -55,6 +60,7 @@ export class ProfilePopupComponent implements OnInit {
     this.profileForm.valueChanges.subscribe((value) => {
       this.settingsService.setSortOrder(value.targetProjectIdSelection);
     });
+    */
   }
 
   onchange() {
@@ -83,6 +89,15 @@ export class ProfilePopupComponent implements OnInit {
       this.projectList[i].checked = (this.customTargetProjectId == this.projectList[i].id);
     }
     console.log(this.customTargetProjectId);
+  }
+
+  isValid() {
+    let hasSourceId = this.profileForm.value.sourceProfile == 0 ||
+                        this.profileForm.value.sourceProfile &&  this.customSourceProfileId;
+    let hasTargetId = this.targetType == "profile" ? this.customTargetProfileId : this.customTargetProjectId;
+  
+    return hasSourceId && hasTargetId;
+
   }
 
   onSubmit() {
