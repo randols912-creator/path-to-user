@@ -5,6 +5,7 @@ import { APP_SETTINGE_STORAGE_KEY, HOME_PATH, MENU_PATH, SETTINGS_PATH } from 's
 import { SettingsService } from 'src/app/services/settings.service';
 import { SettingsAction } from '../../pages/settings/settings.component';
 import { RelationSortOrder } from 'src/app/pipes/relations-sort-by.pipe';
+import { RelationService } from 'src/app/services/relation.service';
 
 @Component({
   selector: 'app-title-bar',
@@ -29,7 +30,8 @@ export class TitleBarComponent {
   constructor(
     private location: Location,
     private router: Router,
-    private settingsService: SettingsService
+    private settingsService: SettingsService,
+    private relationService: RelationService
   ) {}
 
   get settingsUrl() {
@@ -81,6 +83,10 @@ export class TitleBarComponent {
 
   isDefaultSort() {
     return this.sort.sort == RelationSortOrder.CONNECTIONS;
+  }
+
+  isLoading() {
+    return this.relationService.isLoading();
   }
 
 }

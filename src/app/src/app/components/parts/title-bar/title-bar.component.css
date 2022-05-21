@@ -54,7 +54,7 @@ button:focus {
   z-index: 101;
   position: absolute;
   top: 50%;
-  left: 85%;
+  right: 3%;
   transform: translate(-50%, -50%);
 }
 

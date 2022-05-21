@@ -19,7 +19,7 @@
         'home.status.' + status | translate
       }}</b>
             <ng-template #foundInfo>
-                <b translate [translateParams]="{ value: relations.length }">
+                <b translate [translateParams]="{ num_connections: relations.length, source: sourceText , target: targetText }">
           home.found
         </b>
             </ng-template>

@@ -101,7 +101,7 @@ export class ProfilePopupComponent implements OnInit {
   }
 
   onSubmit() {
-    let sourceId = this.profileForm.value.sourceProfile  ? "profile-" + this.customSourceProfileId : null;
+    let sourceId = this.profileForm.value.sourceProfile  ? "profile-" + this.customSourceProfileId : '';
     let targetId = this.targetType + "-" + (this.targetType == "profile" ? this.customTargetProfileId : this.customTargetProjectId);
 
     console.log("Submitting form: sourceId: ", sourceId, ", targetId: " + targetId);

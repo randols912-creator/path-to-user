@@ -49,7 +49,9 @@ class ProfileManager:
             update_active = datetime.datetime.now() - cached_at > datetime.timedelta(minutes=5)
         else:
             profile, self.token = await self.geni.get_profile_details(self.token, profile_id)
-            self.TOKEN_TO_PROFILE[self.token] = profile,datetime.datetime.now()
+            # Cache mapped to token only if the profile is of a current user
+            if not profile_id:
+                self.TOKEN_TO_PROFILE[self.token] = profile,datetime.datetime.now()
             update_active = True
         # Update last active field (if needed)
         if update_active:

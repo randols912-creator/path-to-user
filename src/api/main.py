@@ -277,6 +277,15 @@ class PathView(HTTPMethodView):
             if await path_mgr.get(src, tgt):
                 logger.debug(f"Personality path {src} -> {tgt} already exists - skipping")
                 continue
+            # Check validity of both src and target profiles
+            profiles_valid = True
+            for id in [src, tgt]:
+                if not await pm.get(id):
+                    logging.warning(f"Profile {id} doesn't exist - skipping")
+                    profiles_valid = False
+                    break
+            if not profiles_valid: continue
+
             task_priority = random.randint(1, profiles_count)
             batch.append(Task({"source_id": src,
                       "target_id": tgt,
@@ -326,11 +335,14 @@ class PathView(HTTPMethodView):
 
         pm = ProfileManager(database, geni, token)
         timer.start("PathView:get_paths:cache")
-        my_profile = await pm.cache()
+        if not source_id:
+            my_profile = await pm.cache()
+            source_id = my_profile['id']
+            logger.debug(my_profile)
+
         timer.stop("PathView:get_paths:cache")
-        logger.debug(my_profile)
         timer.start("PathView:get_paths:query")
-        paths = await PathManager(database, geni, token).get_paths(my_profile['id'], offset, limit, user2user=user2user)
+        paths = await PathManager(database, geni, token).get_paths(source_id, offset, limit, user2user=user2user)
         timer.stop("PathView:get_paths:query")
         timer.stop("PathView:get_paths")
         return json({"paths": [dict(p) for p in paths]}, escape_forward_slashes=False)

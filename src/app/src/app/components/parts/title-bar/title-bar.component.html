@@ -42,7 +42,7 @@
     </button>
   
     <img *ngIf="showTitle" src="assets/img/p2u.png" alt="" class="title-logo" />
-    <app-p2p-button *ngIf="showP2P" class="p2p"></app-p2p-button>
+    <app-p2p-button *ngIf="showP2P  && !isLoading()" class="p2p"></app-p2p-button>
     <span *ngIf="showTitle"> 
       <button *ngIf="showMenu" class="btn open-menu-icon" (click)="gotoMenuHandler()">
         <img src="assets/img/menu.svg" alt="menu" />

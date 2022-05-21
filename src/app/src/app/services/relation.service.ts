@@ -30,6 +30,8 @@ const debugMessage = (msg: string): void =>
 })
 export class RelationService {
   status = new BehaviorSubject<Status>(Status.INITIALIZING);
+
+  isLoadingStatus: boolean;
   private relations: Path[] = [];
   private uniqueIds: Set<string> = new Set<string>();
 
@@ -43,6 +45,9 @@ export class RelationService {
       if (isAuthenticated && this.status.value === Status.INITIALIZING) {
         this.search();
       }
+    });
+    this.status.subscribe((status) => {
+      this.isLoadingStatus = !(status == Status.ERROR || status == Status.READY)
     });
   }
 
@@ -218,6 +223,10 @@ export class RelationService {
     return this.http.get<PathDetailsResponse>(`${PATH_DETAILS_URL}`, {
       params: { source_id, target_id },
     });
+  }
+
+  isLoading() {
+    return this.isLoadingStatus;
   }
 }
 

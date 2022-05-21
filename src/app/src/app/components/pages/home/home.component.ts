@@ -6,6 +6,7 @@ import {
   RelationService,
   Status as ServiceStatus,
 } from 'src/app/services/relation.service';
+import { SettingsService } from 'src/app/services/settings.service';
 
 @Component({
   selector: 'app-home',
@@ -15,9 +16,12 @@ import {
 export class HomeComponent implements OnInit {
   status: Status;
   public getScreenWidth: any;
+  sourceText: any;
+  targetText: any;
   constructor(
     private auth: AuthService,
-    private relationService: RelationService
+    private relationService: RelationService,
+    private settingsService: SettingsService
   ) {}
 
   ngOnInit(): void {
@@ -34,6 +38,14 @@ export class HomeComponent implements OnInit {
       }
     });
     this.getScreenWidth = window.innerWidth;
+    let sourceTarget = this.settingsService.getSourceTarget();
+    this.sourceText = sourceTarget.sourceId ? sourceTarget.sourceId : "you";
+    if (sourceTarget.targetId.startsWith('project')) {
+      this.targetText = '(from ' + sourceTarget.targetId + ")"; 
+    } else {
+      this.targetText = '(' + sourceTarget.targetId + ")"; 
+    }
+
   }
 
   @HostListener('window:resize', ['$event'])
