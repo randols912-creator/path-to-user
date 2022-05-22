@@ -56,7 +56,12 @@ export class ProfilePopupComponent implements OnInit {
     };
 
     let srcTgt = this.settingsService.getSourceTarget();
-    this.customSourceProfileId = srcTgt.sourceId;
+    
+    if(srcTgt.sourceId) {
+      this.customSourceProfileId = srcTgt.sourceId.replace('profile-', '');
+      initialFormValues['sourceProfile'] = 1;
+    }
+
     if (srcTgt.targetId) {
       if (srcTgt.targetId.startsWith('profile')) {
         this.customTargetProfileId = srcTgt.targetId.replace('profile-', '');

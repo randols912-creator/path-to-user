@@ -7,6 +7,7 @@ import {
   Status as ServiceStatus,
 } from 'src/app/services/relation.service';
 import { SettingsService } from 'src/app/services/settings.service';
+import { GeniService } from 'src/app/services/geni.service';
 
 @Component({
   selector: 'app-home',
@@ -21,7 +22,8 @@ export class HomeComponent implements OnInit {
   constructor(
     private auth: AuthService,
     private relationService: RelationService,
-    private settingsService: SettingsService
+    private settingsService: SettingsService,
+    private geniService: GeniService
   ) {}
 
   ngOnInit(): void {
@@ -38,12 +40,34 @@ export class HomeComponent implements OnInit {
       }
     });
     this.getScreenWidth = window.innerWidth;
+
+    this.retrieveNames();
+  }
+
+  retrieveNames() {
+    // Retrieve source/target names
     let sourceTarget = this.settingsService.getSourceTarget();
-    this.sourceText = sourceTarget.sourceId ? sourceTarget.sourceId : "you";
-    if (sourceTarget.targetId.startsWith('project')) {
-      this.targetText = '(from ' + sourceTarget.targetId + ")"; 
+
+    // Retrieve source name from source profile id  
+    if (sourceTarget.sourceId) {
+      this.sourceText = sourceTarget.sourceId;
+      this.geniService.fetchProfiles([sourceTarget.sourceId]).subscribe(({ results: [profile] }) => {
+        this.sourceText = profile.name;
+      }, console.log);  
     } else {
-      this.targetText = '(' + sourceTarget.targetId + ")"; 
+    // No source id -> the name is "you"
+    this.sourceText =  "you";
+    }
+    // Retrieve target name either from target profile or project id  
+    this.targetText = '(' + sourceTarget.targetId + ")"; 
+    if (sourceTarget.targetId.startsWith('project')) {
+      this.geniService.projectDetails(sourceTarget.targetId).subscribe(({ project: project }) => {
+        this.targetText = `(${project.name})`;
+      }, console.log);  
+    } else {
+      this.geniService.fetchProfiles([sourceTarget.targetId]).subscribe(({ results: [profile] }) => {
+        this.targetText = `(${profile.name})`;
+      }, console.log);  
     }
 
   }

@@ -18,6 +18,7 @@ export const FETCH_PATHS_URL = `${env.relationsServiceHost}/api/v1/paths/persona
 export const PATHS_COUNT_URL = `${env.relationsServiceHost}/api/v1/paths/personalities/count`;
 export const PROFILES_COUNT_URL = `${env.relationsServiceHost}/api/v1/profiles/count`;
 export const PATH_DETAILS_URL = `${env.relationsServiceHost}/api/v1/paths`;
+export const PROJECT_DETAILS_URL = `${env.relationsServiceHost}/api/v1/projects`;
 export const FETCH_USERS_URL = `${env.relationsServiceHost}/api/v1/paths/users`;
 export const FETCH_CHATS_URL = `${env.relationsServiceHost}/api/v1/chats`;
 export const FETCH_NEW_MESSAGES_COUNT = `${env.relationsServiceHost}/api/v1/chats/messages/count_new`;

@@ -181,8 +181,8 @@ class ProjectView(HTTPMethodView):
         id = request.args.get('id')
         if not id:
             abort(403, "Project id is missing")
-        project = await geni.get_project_details(token, id)
-        return json({"project": project})
+        project_response = await geni.get_project_details(token, id)
+        return json({"project": project_response[0]})
 
 class PathView(HTTPMethodView):
 

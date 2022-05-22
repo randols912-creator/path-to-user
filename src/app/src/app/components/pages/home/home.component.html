@@ -15,8 +15,8 @@
             home.greet
         </div>
         <div class="regular-text">
-            <b *ngIf="loading && !relations.length; else foundInfo">{{
-        'home.status.' + status | translate
+            <b *ngIf="loading && !relations.length; else foundInfo" translate [translateParams]="{ source: sourceText , target: targetText }">{{
+        'home.status.' + status
       }}</b>
             <ng-template #foundInfo>
                 <b translate [translateParams]="{ num_connections: relations.length, source: sourceText , target: targetText }">

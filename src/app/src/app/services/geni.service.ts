@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { FETCH_PROFILE_URL, GENI_OAUTH_URL } from '../app.constants';
+import { FETCH_PROFILE_URL, GENI_OAUTH_URL, PROJECT_DETAILS_URL } from '../app.constants';
 import Profile from '../model/Profile';
 
 export interface FetchProfilesResponse {
@@ -13,6 +13,14 @@ export interface FetchProfilesResponse {
     type: string;
   };
 }
+
+export interface ProjectDetailsResponse {
+  project: {
+    id: string;
+    name: string;
+  }
+}
+
 
 @Injectable({
   providedIn: 'root',
@@ -44,6 +52,21 @@ export class GeniService {
     }
 
     return this.http.get<FetchProfilesResponse>(FETCH_PROFILE_URL, {
+      params,
+    });
+  }
+
+  /**
+   * Fetch profiles data
+   * @param ids of profiles to fetch, or empty to fetch current user profile
+   * @param fields needed
+   */
+   projectDetails(
+    id: string  
+    ): Observable<ProjectDetailsResponse> {
+    const params: { id: string } = {id: id};
+
+    return this.http.get<ProjectDetailsResponse>(PROJECT_DETAILS_URL, {
       params,
     });
   }
