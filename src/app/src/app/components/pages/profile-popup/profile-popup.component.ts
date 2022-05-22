@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, ViewEncapsulation, ElementRef } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { SettingsService } from 'src/app/services/settings.service';
@@ -14,6 +14,7 @@ import { HOME_PATH} from 'src/app/app.constants';
 })
 export class ProfilePopupComponent implements OnInit {
   @ViewChild('accordion') accordion;
+  @ViewChild("filterOption0") myNameElem: ElementRef;
 
 
   profileForm: FormGroup;
@@ -45,11 +46,30 @@ export class ProfilePopupComponent implements OnInit {
 
   ngOnInit(): void {
     this.profileForm = new FormGroup({
-      sourceProfile: new FormControl(this.settingsService.getSortOrder()),
-      targetType: new FormControl(this.settingsService.getSortOrder()),
-      targetProjectIdSelection: new FormControl(this.settingsService.getSortOrder())
+      sourceProfile: new FormControl(),
+      targetType: new FormControl(),
+      targetProjectIdSelection: new FormControl()
     });
-    this.profileForm.value.sourceProfile = 1;
+
+    let initialFormValues = {
+      sourceProfile: 0
+    };
+
+    let srcTgt = this.settingsService.getSourceTarget();
+    this.customSourceProfileId = srcTgt.sourceId;
+    if (srcTgt.targetId) {
+      if (srcTgt.targetId.startsWith('profile')) {
+        this.customTargetProfileId = srcTgt.targetId.replace('profile-', '');
+        initialFormValues['targetType'] = 0;
+      } else {
+        this.customTargetProjectId = srcTgt.targetId.replace('project-', '');
+        initialFormValues['targetType'] = 1;
+
+      }
+    }
+    this.profileForm.patchValue(initialFormValues);
+    this.onchangeTarget();
+
     /*
     this.profileForm.valueChanges.subscribe((value) => {
       this.settingsService.setSortOrder(value.sourceProfile);
