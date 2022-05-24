@@ -41,7 +41,7 @@
                 <div *ngIf="profileForm.value.targetType === 1">
                     <div class="display_profile_id">
                         <span class="span_input">Project ID:</span>
-                        <input type="text" placeholder="Enter project id" class="profile_input" [value]="customTargetProjectId">
+                        <input type="text" placeholder="Enter project id" class="profile_input" [(ngModel)]="customTargetProjectId" [ngModelOptions]="{standalone: true}"/>
                     </div>
                     <span class="or">or</span>
                     <div class="display_profile_id">
