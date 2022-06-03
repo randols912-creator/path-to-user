@@ -65,7 +65,16 @@ class GeniClientAsync:
             'death',
             'nicknames'
         ]
-        part_profiles, token = await self._geni_api_call(url, token, fields)
+        counter = 0
+        while counter < 5:
+            part_profiles, token = await self._geni_api_call(url, token, fields)
+
+            if part_profiles['is_success']:
+                break
+
+            counter += 1
+            await asyncio.sleep(0.25)
+
         next_page_url = part_profiles.get('next_page')
         print(part_profiles)
         if part_profiles['is_success']:

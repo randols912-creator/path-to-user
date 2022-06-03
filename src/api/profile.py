@@ -96,6 +96,7 @@ class ProfileManager:
         profiles, next_page_url, total_count = await self.geni.get_personalities_profiles(self.token, project_id=project_id)
 
         while profiles:
+            print(f"Caching {len(profiles)} profiles")
             for profile in profiles:
                 values = {'id': profile['id'],
                           'name': profile['name'],
@@ -115,9 +116,11 @@ class ProfileManager:
                 if iterate:
                     yield values, total_count
             # Get next page
-            if not next_page_url: break
+            if not next_page_url:
+                break
             profiles, next_page_url, total_count = await self.geni.get_personalities_profiles(self.token, next_page_url)
-
+        print("Finished getting profiles")
+        
 async def cache_personalities():
     from dotenv import load_dotenv
     geni = GeniClientAsync()
