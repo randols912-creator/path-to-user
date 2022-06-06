@@ -34,7 +34,7 @@ export class RelationsListComponent {
   @Input('data') meals: string[] = [];
   public config: PaginationInstance = {
     id: 'custom',
-    itemsPerPage: 15,
+    itemsPerPage: 18,
     currentPage: 1
   };
   total: number;

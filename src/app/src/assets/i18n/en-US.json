@@ -58,7 +58,7 @@
   "about": {
     "app": {
       "header": "About this app",
-      "article": "<p>The Geni World Family Tree is a unique collaborative, largely public collection of connected family trees. The path to user tool calculates the shortest path between two geni profiles in a readable format.</p>\n\n<p><small><em><b>This app was conceived and supported by E. Randol Schoenberg</b><br />\nDevelopment: <a href=\"https://jhn.ngo\" target=\"_blank\">JHN</a><br />\nUI/UX designer: Neta Manor, ANU Museum Digital Department<br />\nContent research: Nurit Gillath, Ushi Derman<br />\nProject management: Eynat Sharon, ANU Museum CDO</em><br /></small></p>"
+      "article": "<p>The Geni World Family Tree is a unique collaborative, largely public collection of connected family trees. The path to user tool calculates the shortest path between two geni profiles in a readable format.</p>\n\n<p><small><em><b>This app was conceived and supported by E. Randol Schoenberg</b><br />\nDevelopment: <a href=\"https://jhn.ngo\" target=\"_blank\">JHN</a><br /></small></p>"
     },
     "museum": {
       "header": "About the museum",
