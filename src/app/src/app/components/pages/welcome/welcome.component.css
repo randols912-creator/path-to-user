@@ -116,8 +116,10 @@ app-title-bar::ng-deep .title-bar {
 
 .welcome__photos-row img {
   height: 90%;
+  width: 15vw;
   border-radius: 50%;
   margin: 0 5px;
+  object-fit: cover;
 }
 
 .welcome__middle .welcome__agree-box {
