@@ -26,7 +26,7 @@ export const FETCH_NEW_MESSAGES_COUNT = `${env.relationsServiceHost}/api/v1/chat
 export const GENI_TOKEN_HEADER_KEY = 'authorization';
 export const MILLIS_BETWEEN_API_CALLS = 1000;
 export const QUADRANT_COUNT = 40;
-export const PATHS_TIMEOUT = 60;
+export const PATHS_TIMEOUT = 300;
 
 export const HOME_PATH = '';
 export const WELCOME_PATH = 'welcome';
