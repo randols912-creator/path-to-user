@@ -14,3 +14,4 @@ aiomonitor==0.4.5
 SQLAlchemy==1.3.18
 cachetools==5.0.0
 redis==4.1.4
+gunicorn==20.1.0
