@@ -469,6 +469,6 @@ if __name__ == "__main__":
         print(f"/{route}]")
 
     app.run( port=APP_PORT,
-        host=os.environ.get('HOST', "127.0.0.1"),
+        host=os.environ.get('HOST', "0.0.0.0"),
         debug=False,
         workers=worker_quantity)
