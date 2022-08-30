@@ -9,7 +9,7 @@
     "start": "ng serve --host 0.0.0.0",
     "ssl": "ng serve --host 0.0.0.0 --ssl true",
     "build": "ng build",
-    "heroku-postbuild": "( cd src/app; ln -sf ../../node_modules; ng build --prod) ",
+    "heroku-postbuild": "( cd src/app; ln -sf ../../node_modules; cp src/environments/environment.heroku.ts src/environments/environment.ts; ng build --prod) ",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
