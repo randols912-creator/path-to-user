@@ -429,7 +429,7 @@ STATIC_FILES_DIR = os.path.join(os.path.dirname(__file__), "..", "app", "dist", 
 app.static('/', STATIC_FILES_DIR)
 @app.route('/')
 async def handle_request(request):
-    return await response.file(os.path.join(STATIC_FILES_DIR, 'index.html')
+    return await response.file(os.path.join(STATIC_FILES_DIR, 'index.html'))
 
 @app.listener('after_server_start')
 def setup_workers(app, loop):
