@@ -6,9 +6,13 @@ from api.models import CURRENT_TIMESTAMP, paths_table, profiles_table
 from sqlalchemy import and_, func
 from databases import Database
 
-from redis import StrictRedis
+from redis import StrictRedis, from_url
 
-redis = StrictRedis(decode_responses=True)
+redis_url = os.environ.get("REDIS_URL")
+if redis_url:
+    redis_instance = from_url(redis_url, decode_responses=True)
+else:
+    redis_instance = StrictRedis(decode_responses=True)
 
 class ProfileManager:
     TOKEN_TO_PROFILE = dict()
@@ -68,14 +72,14 @@ class ProfileManager:
         if target_id.startswith('profile'):
             return 1
 
-        total_count = redis.get(target_id)
+        total_count = redis_instance.get(target_id)
         if total_count:
             return total_count
 
         if  target_id.startswith('project'):
             p,np,total_count = await self.geni.get_personalities_profiles(self.token, project_id=target_id)
 
-        redis.setex(target_id,
+        redis_instance.setex(target_id,
                     60*60,
                     total_count) # ttl
         return total_count
