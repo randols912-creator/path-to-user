@@ -8,7 +8,7 @@
     "ng": "ng",
     "start": "ng serve --host 0.0.0.0",
     "ssl": "ng serve --host 0.0.0.0 --ssl true",
-    "build": "ng build",
+    "build": "( cd src/app; ln -sf ../../node_modules; ng build --prod) ",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
