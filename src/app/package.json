@@ -35,7 +35,7 @@
     "ng-chat": "^3.0.3",
     "ngx-bootstrap": "^6.2.0",
     "ngx-filter-pipe": "^2.1.2",
-    "ngx-pagination": "^6.0.2",
+    "ngx-pagination": "^5.1.1",
     "ngx-socket-io": "^3.2.0",
     "rxjs": "~6.5.4",
     "tslib": "^1.10.0",
