@@ -425,10 +425,11 @@ Utils.add_blueprint(app, bp_projects, ProjectView)
 Utils.add_blueprint(app, bp_debug, DebugView)
 
 # Serve static files (for Heroku)
-app.static('/', os.path.join(os.path.dirname(__file__), "..", "app", "dist", "geni-app"))
+STATIC_FILES_DIR = os.path.join(os.path.dirname(__file__), "..", "app", "dist", "geni-app")
+app.static('/', STATIC_FILES_DIR)
 @app.route('/')
 async def handle_request(request):
-    return await response.file('src/app/dist/geni-app/index.html')
+    return await response.file(os.path.join(STATIC_FILES_DIR, 'index.html')
 
 @app.listener('after_server_start')
 def setup_workers(app, loop):
