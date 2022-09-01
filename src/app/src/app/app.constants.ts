@@ -1,9 +1,7 @@
 import { environment as env } from 'src/environments/environment';
 
-export const GENI_CLIENT_ID = 'eYis8xWUg8AoILdkT1GsmuwO9PTFFQrECLaNSONt';
-
 export const GENI_HOST = 'https://www.geni.com';
-export const GENI_OAUTH_URL = `${GENI_HOST}/platform/oauth/authorize?client_id=${GENI_CLIENT_ID}&redirect_uri=${env.host}&response_type=token&display=mobile`;
+export const GENI_OAUTH_URL = `${GENI_HOST}/platform/oauth/authorize?client_id=${env.geni_client_id}&redirect_uri=${env.host}&response_type=token&display=mobile`;
 export const GENI_API_URL = `${GENI_HOST}/api`;
 export const CURRENT_USER_PROFILE_PATH = 'profile';
 
