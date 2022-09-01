@@ -1,4 +1,5 @@
 import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 import datetime
 
 from dotenv import load_dotenv
@@ -423,6 +424,12 @@ Utils.add_blueprint(app, bp_paths, PathView)
 Utils.add_blueprint(app, bp_projects, ProjectView)
 Utils.add_blueprint(app, bp_debug, DebugView)
 
+# Serve static files (for Heroku)
+STATIC_FILES_DIR = os.path.join(os.path.dirname(__file__), "..", "app", "dist", "geni-app")
+app.static('/', STATIC_FILES_DIR)
+@app.route('/')
+async def handle_request(request):
+    return await response.file(os.path.join(STATIC_FILES_DIR, 'index.html'))
 
 @app.listener('after_server_start')
 def setup_workers(app, loop):
@@ -463,6 +470,6 @@ if __name__ == "__main__":
         print(f"/{route}]")
 
     app.run( port=APP_PORT,
-        host=os.environ.get('HOST', "127.0.0.1"),
+        host=os.environ.get('HOST', "0.0.0.0"),
         debug=False,
         workers=worker_quantity)

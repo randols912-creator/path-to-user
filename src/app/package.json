@@ -1,11 +1,15 @@
 {
   "name": "geni-app",
   "version": "0.0.0",
+  "engines": {
+    "node": "14.x"
+  },
   "scripts": {
     "ng": "ng",
     "start": "ng serve --host 0.0.0.0",
     "ssl": "ng serve --host 0.0.0.0 --ssl true",
     "build": "ng build",
+    "heroku-postbuild": "( cd src/app; ln -sf ../../node_modules; cp src/environments/environment.heroku.ts src/environments/environment.prod.ts; ng build --prod) ",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
@@ -32,6 +36,7 @@
     "ng-chat": "^3.0.3",
     "ngx-bootstrap": "^6.2.0",
     "ngx-filter-pipe": "^2.1.2",
+    "ngx-pagination": "^5.1.1",
     "ngx-socket-io": "^3.2.0",
     "rxjs": "~6.5.4",
     "tslib": "^1.10.0",

@@ -6,9 +6,10 @@ import Environment from './IEnvironment';
 
 export const environment: Environment = {
   production: true,
-  host: 'https://geni.anumuseum.org.il',
-  relationsServiceHost: 'https://geni.anumuseum.org.il',
-  socketioUrl: 'https://geni.anumuseum.org.il',
+  host: 'http://localhost:5050',
+  relationsServiceHost: 'http://localhost:5050',
+  socketioUrl: 'http://localhost:5050',
+  geni_client_id: 'RRVZfiR5slgxuQqz4mzhHZ3xBN9iCE8oio1SSVIo'
 };
 
 /*
