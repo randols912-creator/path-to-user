@@ -25,11 +25,13 @@ export class AuthGuard implements CanActivate {
     // Trying to obtain auth data from URL
     if (
       !this.authService.isAuthenticated() &&
-      'access_token' in next.queryParams &&
+      ('access_token' in next.queryParams || 'code' in next.queryParams) &&
       'expires_in' in next.queryParams
     ) {
-      const { access_token, expires_in } = next.queryParams;
-      this.authService.storeTokenAndFetchUserDetails(access_token, expires_in);
+      const { access_token, expires_in, code } = next.queryParams;
+      // Geni returns token either in access_token or code parameter
+      const token = access_token ? access_token : code;
+      this.authService.storeTokenAndFetchUserDetails(token, expires_in);
       return this.router.navigate([`/${PROFILE_POPUP_PATH}`]);
     }
 
