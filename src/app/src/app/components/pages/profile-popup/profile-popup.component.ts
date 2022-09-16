@@ -24,16 +24,26 @@ export class ProfilePopupComponent implements OnInit {
   sourceLabels = ['My Profile', 'Another Profile'];
   targetLabels = ['Profile', 'Project'];
   targetType = 'profile';
+  profilePrefix = 'profile-g';
 
   projectList: any[] = [
     {label: "Nobel Prize in Physics", id: "10373"},
     {label: "Nobel Prize in Literature", id: "5272"},
-    {label: "Nobel Prize in Economics", id: "5571"},
+    {label: "Nobel Prize in Chemistry", id: "5571"},
+    {label: "Nobel Peace Prize", id: "8020"},
+    {label: "Nobel Prize in Physiology or Medicine", id: "7284"},
+    {label: "Nobel Prize in Economics", id: "10374"},
     {label: "Mayflower Passengers of 1620", id: "8"},
     {label: "British Monarchs", id: "3232"},
     {label: "Partial Hollywood Walk of Fame", id: "358"},
     {label: "US Presidents and Vice Presidents", id: "9"},
-    {label: "World Monarchs", id: "56256"}
+    {label: "Titanic Passengers - First Class", id: "10700"},
+    {label: "Titanic Passengers - Second Class", id: "10701"},
+    {label: "Titanic Passengers - Third Class", id: "10702"},
+    {label: "Titanic Deck Crew", id: "10704"}
+
+    
+
   ];
   customSourceProfileId = "";
   customTargetProfileId = "";
@@ -58,17 +68,18 @@ export class ProfilePopupComponent implements OnInit {
     let srcTgt = this.settingsService.getSourceTarget();
     
     if(srcTgt.sourceId) {
-      this.customSourceProfileId = srcTgt.sourceId.replace('profile-', '');
+      this.customSourceProfileId = srcTgt.sourceId.replace(this.profilePrefix, '');
       initialFormValues['sourceProfile'] = 1;
     }
 
     if (srcTgt.targetId) {
       if (srcTgt.targetId.startsWith('profile')) {
-        this.customTargetProfileId = srcTgt.targetId.replace('profile-', '');
+        this.customTargetProfileId = srcTgt.targetId.replace(this.profilePrefix, '');
         initialFormValues['targetType'] = 0;
       } else {
-        this.customTargetProjectId = srcTgt.targetId.replace('project-', '');
+        this.customTargetProjectId = srcTgt.targetId.replace("project-", '');
         initialFormValues['targetType'] = 1;
+        console.log("TGT: " + srcTgt.targetId + ", AFTER STRIP: " + this.customTargetProjectId);
 
       }
     }
@@ -126,8 +137,8 @@ export class ProfilePopupComponent implements OnInit {
   }
 
   onSubmit() {
-    let sourceId = this.profileForm.value.sourceProfile  ? "profile-" + this.customSourceProfileId : '';
-    let targetId = this.targetType + "-" + (this.targetType == "profile" ? this.customTargetProfileId : this.customTargetProjectId);
+    let sourceId = this.profileForm.value.sourceProfile  ? this.profilePrefix + this.customSourceProfileId : '';
+    let targetId = this.targetType + "-" + (this.targetType == "profile" ? "g" + this.customTargetProfileId : this.customTargetProjectId);
 
     console.log("Submitting form: sourceId: ", sourceId, ", targetId: " + targetId);
     this.settingsService.setSourceTarget(sourceId, targetId);

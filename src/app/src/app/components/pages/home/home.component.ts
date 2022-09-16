@@ -51,7 +51,7 @@ export class HomeComponent implements OnInit {
     // Retrieve source name from source profile id  
     if (sourceTarget.sourceId) {
       this.sourceText = sourceTarget.sourceId;
-      this.geniService.fetchProfiles([sourceTarget.sourceId]).subscribe(({ results: [profile] }) => {
+      this.geniService.fetchProfiles(["g" + sourceTarget.sourceId]).subscribe(({ results: [profile] }) => {
         this.sourceText = profile.name;
       }, console.log);  
     } else {

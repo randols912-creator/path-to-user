@@ -53,6 +53,7 @@ class GeniClientAsync:
         profiles = []
         fields = [
             'id',
+            'guid',
             'name',
             'names',
             'url',
@@ -76,10 +77,10 @@ class GeniClientAsync:
             await asyncio.sleep(0.25)
 
         next_page_url = part_profiles.get('next_page')
-        print(part_profiles)
         if part_profiles['is_success']:
             profiles += part_profiles['results']
-
+        for p in profiles:
+            p['id'] = f"profile-g{p['guid']}"
         return profiles, next_page_url, part_profiles.get('total_count')
 
     def build_auth_url(self):
@@ -109,7 +110,8 @@ class GeniClientAsync:
 
             counter += 1
             await asyncio.sleep(0.25)
-
+        if 'guid' in profile_raw:
+            profile_raw['id'] = f"profile-g{profile_raw['guid']}"
         return profile_raw, token
 
     async def get_project_details(self, token, project_id=None, fields=None):
