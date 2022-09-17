@@ -141,13 +141,14 @@ class ProfileView(HTTPMethodView):
     @bp_profiles.get("/geni")
     async def get_geni_profiles(request):
         token = await Token.validate(request.headers.get(TOKEN_PARAM))
-        ids = request.args.get("ids")
+        ids = request.args.getlist("ids")
         fields = request.args.get('fields', '')
+        ids = [id.replace('profile-', '') for id in ids]
 
         if ids:
             resp, token = await geni.get_profile_details(
                 token,
-                f'profile?ids={ids}',
+                f'profile?ids={",".join(ids)}',
                 fields.split(',') if fields else None
             )
         else:
