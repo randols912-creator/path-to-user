@@ -8,8 +8,8 @@
   <div class="connection-badge" [ngClass]="{ expanded: expanded }">
     <div class="connection-photo">
       <a
-        [routerLink]="clickable ? [profileUrl, connection.id] : []"
-        [state]="clickable ? { id: connection.id } : undefined"
+        [routerLink]="clickable ? [profileUrl, connection.target_profile.id] : []"
+        [state]="clickable ? { id: connection.target_profile.id } : undefined"
       >
         <img
           src="{{
