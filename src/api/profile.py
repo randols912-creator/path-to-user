@@ -10,7 +10,8 @@ from redis import StrictRedis, from_url
 
 redis_url = os.environ.get("REDIS_URL")
 if redis_url:
-    redis_instance = from_url(redis_url, decode_responses=True)
+    redis_instance = from_url(redis_url, decode_responses=True, 
+                              ssl_cert_reqs=u'none') # Fix SSL error on Amazon instance 
 else:
     redis_instance = StrictRedis(decode_responses=True)
 
