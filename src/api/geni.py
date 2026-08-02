@@ -3,6 +3,40 @@ import os, time
 import requests
 import aiohttp
 import logging
+from collections import deque
+
+
+class RateLimiter:
+    """Async token-bucket limiter: at most `calls` requests per `period` seconds.
+
+    Geni's API silently degrades (slow or failing responses) when hit with a
+    burst of concurrent requests. The old sync client (src/old/geni_client.py)
+    throttled every call to 1/sec via @limits(calls=1, period=1) and used a
+    20s request timeout, and never stalled. This async port dropped both
+    (see the old "# TODO: limit call rate" below) while also raising
+    concurrency a lot (asyncio.gather over a whole batch, across several
+    worker queues) - so bursts of concurrent Geni calls go out unthrottled.
+    When Geni then errors or hangs, PathManager treats it as "pending" and
+    retries for PENDING_TIMEOUT (30s) before giving up and recording a
+    profile as unconnected even though a real path may exist - which shows
+    up as the search finishing early with some profiles simply missing.
+    """
+    def __init__(self, calls: int, period: float):
+        self.calls = calls
+        self.period = period
+        self._timestamps = deque()
+        self._lock = asyncio.Lock()
+
+    async def acquire(self):
+        async with self._lock:
+            while True:
+                now = time.monotonic()
+                while self._timestamps and now - self._timestamps[0] > self.period:
+                    self._timestamps.popleft()
+                if len(self._timestamps) < self.calls:
+                    self._timestamps.append(now)
+                    return
+                await asyncio.sleep(self.period - (now - self._timestamps[0]))
 
 
 class GeniClientAsync:
@@ -19,8 +53,16 @@ class GeniClientAsync:
     PROFILES_FROM_PROJECT = 'api/{project_id}/profiles'
     PROFILE_SEARCH_URL = 'api/profile/search'
 
+    # 25 calls / 10s: matches the rate this client's own TODO called out, and
+    # is in the same ballpark as the old sync client's 1 call/sec throttle.
+    RATE_LIMIT_CALLS = int(os.environ.get('GENI_RATE_LIMIT_CALLS', 25))
+    RATE_LIMIT_PERIOD = float(os.environ.get('GENI_RATE_LIMIT_PERIOD', 10))
+    HTTP_TIMEOUT_SECONDS = float(os.environ.get('GENI_HTTP_TIMEOUT', 20))
+
     def __init__(self):
         self.session = requests.session()
+        self._rate_limiter = RateLimiter(self.RATE_LIMIT_CALLS, self.RATE_LIMIT_PERIOD)
+        self._http_timeout = aiohttp.ClientTimeout(total=self.HTTP_TIMEOUT_SECONDS)
 
     async def validate_token(self, token):
         url = self.BASE_URL + self.VALIDATE_TOKEN_URL
@@ -146,7 +188,6 @@ class GeniClientAsync:
 
         return project_raw, token
 
-    # TODO: limit call rate (by token) to 25 calls in 10 seconds
     async def _geni_api_call(self, url, token, fields=None):
         result = {
             'api_errors': [],
@@ -158,11 +199,14 @@ class GeniClientAsync:
         if fields is not None:
             payload['fields'] = ','.join(fields)
 
+        # Throttle before every call - see RateLimiter docstring for why.
+        await self._rate_limiter.acquire()
+
         try:
             #response_raw = self.session.get(url, params=payload, timeout=20)
             #print(f'querying {url} {payload}')
             logging.debug(f"Geni API call: {url} {payload}")
-            async with aiohttp.ClientSession() as session:
+            async with aiohttp.ClientSession(timeout=self._http_timeout) as session:
                 async with session.get(url, params=payload) as response_raw:
                     response = await response_raw.json()
 
@@ -180,7 +224,10 @@ class GeniClientAsync:
                 result['is_success'] = True
 
         except Exception as error:
+            # Includes asyncio.TimeoutError from the timeout above - previously
+            # requests could hang indefinitely here with no timeout at all.
             result['internal_errors'].append(error)
+            logging.debug(f"Geni API call failed: {url} -> {error!r}")
 
         return result, token
 
@@ -208,7 +255,7 @@ class GeniClientAsync:
             })
 
         #response = self.session.get(url, params=params).json()
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(timeout=self._http_timeout) as session:
             async with session.get(url, params=params) as response_raw:
                 response = await response_raw.json()
         token_result['access_token'] = response['access_token']
@@ -218,4 +265,3 @@ class GeniClientAsync:
             token_result['tokenExpiration'] = response['expires_in']
 
         return token_result
-
