@@ -223,6 +223,15 @@ async def seed_presets_if_empty():
                 id=pid, label=label, sort_order=i, enabled=True))
         logger.info(f"Seeded {len(DEFAULT_PRESETS)} preset projects")
 
+@bp_projects.get("/search")
+async def user_project_search(request):
+    """Project search by name for the picker UI (any logged-in user)."""
+    await Token.validate(request.headers.get(TOKEN_PARAM))
+    q = (request.args.get('q') or '').strip()
+    configured, results = await google_project_search(q)
+    return json({"configured": configured, "results": results,
+                 "cse_id": os.getenv('GOOGLE_CSE_ID', '')})
+
 @bp_projects.get("/presets")
 async def get_presets(request):
     """Public list of preset target projects for the picker UI."""
@@ -232,6 +241,54 @@ async def get_presets(request):
     rows = await database.fetch_all(query)
     return json({"presets": [{"id": r["id"], "label": r["label"]} for r in rows]})
 
+
+
+# ---- Google Programmable Search for Geni projects (shared, cached) ----
+PROJECT_SEARCH_CACHE = {}          # query -> (timestamp, results)
+PROJECT_SEARCH_CACHE_TTL = 7 * 24 * 3600
+PROJECT_SEARCH_CACHE_MAX = 500
+
+async def google_project_search(q):
+    """Search Geni projects by name via Google Programmable Search.
+    Returns (configured, results). Results cached to conserve API quota."""
+    cse_key = os.getenv('GOOGLE_CSE_KEY')
+    cse_id = os.getenv('GOOGLE_CSE_ID')
+    if not cse_key or not cse_id:
+        return False, []
+    if not q:
+        return True, []
+    key = q.lower()
+    now = datetime.datetime.now().timestamp()
+    hit = PROJECT_SEARCH_CACHE.get(key)
+    if hit and now - hit[0] < PROJECT_SEARCH_CACHE_TTL:
+        return True, hit[1]
+    import aiohttp, re
+    url = 'https://www.googleapis.com/customsearch/v1'
+    params = {'key': cse_key, 'cx': cse_id,
+              'q': f'site:geni.com/projects {q}', 'num': 10}
+    results = []
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, params=params) as resp:
+                data = await resp.json()
+        for item in (data.get('items') or []):
+            link = item.get('link', '')
+            m = re.search(r'geni\.com/projects/[^/]+/(\d+)', link)
+            if not m:
+                continue
+            title = re.sub(r'\s*[-|]\s*geni(\.com)?.*$', '', item.get('title', ''), flags=re.I).strip()
+            results.append({'project_id': f'project-{m.group(1)}',
+                            'title': title or f'project-{m.group(1)}',
+                            'link': link})
+    except Exception:
+        logger.exception('google_project_search error:')
+        return True, []
+    seen = set()
+    results = [r for r in results if not (r['project_id'] in seen or seen.add(r['project_id']))]
+    if len(PROJECT_SEARCH_CACHE) >= PROJECT_SEARCH_CACHE_MAX:
+        PROJECT_SEARCH_CACHE.clear()
+    PROJECT_SEARCH_CACHE[key] = (now, results)
+    return True, results
 
 def require_admin(request):
     admin_key = os.getenv('ADMIN_KEY')
@@ -269,6 +326,15 @@ async def admin_save_preset(request):
         await database.execute(preset_projects_table.update().where(
             preset_projects_table.c.id == pid).values(values))
     return json({"saved": values})
+
+@bp_admin.get("/project-search")
+async def admin_project_search(request):
+    """Search Geni projects by name (admin panel)."""
+    require_admin(request)
+    q = (request.args.get('q') or '').strip()
+    configured, results = await google_project_search(q)
+    return json({"configured": configured, "results": results,
+                 "cse_id": os.getenv('GOOGLE_CSE_ID', '')})
 
 @bp_admin.delete("/presets/<preset_id>")
 async def admin_delete_preset(request, preset_id):

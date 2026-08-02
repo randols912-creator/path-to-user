@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild, ViewEncapsulation, ElementRef } from '@angular/core';
+import { Component, Input, NgZone, OnInit, ViewChild, ViewEncapsulation, ElementRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -55,13 +55,19 @@ export class ProfilePopupComponent implements OnInit {
   // ---- profile name search state ('source' and 'target' are independent) ----
   search = {
     source: { query: '', results: [], busy: false, message: '', selectedName: '' },
-    target: { query: '', results: [], busy: false, message: '', selectedName: '' }
+    target: { query: '', results: [], busy: false, message: '', selectedName: '' },
+    project: { query: '', results: [], busy: false, message: '', selectedName: '' }
   };
+
+  cseVisible = false;
+  private cseLoaded = false;
+  private cseClickAttached = false;
 
   constructor(private settingsService: SettingsService,
               private relationsService: RelationService,
               private authService: AuthService,
               private http: HttpClient,
+              private zone: NgZone,
               private router: Router) { }
 
   ngOnInit(): void {
@@ -190,6 +196,115 @@ export class ProfilePopupComponent implements OnInit {
     if (event.key === 'Enter') {
       event.preventDefault();
       this.searchProfiles(which);
+    }
+  }
+
+  // ---------------- project search by name (Google-backed) ----------------
+
+  searchProjectsByName() {
+    const box = this.search.project;
+    const q = (box.query || '').trim();
+    if (!q || box.busy) { return; }
+    box.busy = true;
+    box.message = '';
+    box.results = [];
+    this.cseVisible = false;
+    this.http.get<any>(`${env.relationsServiceHost}/api/v1/projects/search`, {
+      params: { q: q }
+    }).subscribe(data => {
+      box.busy = false;
+      const results = ((data && data.results) || []).slice(0, 10);
+      if (results.length) {
+        box.results = results;
+        return;
+      }
+      if (data && data.cse_id) {
+        this.showCseWidget(data.cse_id, q);
+        return;
+      }
+      box.message = data && data.configured === false
+        ? 'Project search is not available right now - enter a project id below.'
+        : 'No projects found - try another spelling.';
+    }, () => {
+      box.busy = false;
+      box.message = 'Search failed - please try again.';
+    });
+  }
+
+  // Google Programmable Search widget fallback: render Google's own results
+  // inline and intercept clicks so choosing a project stays in the app.
+  private showCseWidget(cseId, q) {
+    const w: any = window as any;
+    const box = this.search.project;
+    this.cseVisible = true;
+    const doRender = () => {
+      const g = w.google;
+      const holder = document.getElementById('p2uGcseHolder');
+      if (!holder) { setTimeout(doRender, 200); return; }
+      if (g && g.search && g.search.cse && g.search.cse.element) {
+        holder.innerHTML = '';
+        g.search.cse.element.render({ div: 'p2uGcseHolder', tag: 'searchresults-only' });
+        const els = g.search.cse.element.getAllElements();
+        const keys = Object.keys(els);
+        if (keys.length) { els[keys[keys.length - 1]].execute(q); }
+        this.attachCseClickHandler();
+      } else {
+        setTimeout(doRender, 250);
+      }
+    };
+    if (!this.cseLoaded) {
+      const s = document.createElement('script');
+      s.src = 'https://cse.google.com/cse.js?cx=' + encodeURIComponent(cseId);
+      s.async = true;
+      s.onload = () => { this.cseLoaded = true; setTimeout(doRender, 300); };
+      s.onerror = () => {
+        this.zone.run(() => {
+          this.cseVisible = false;
+          box.message = 'Project search is not available right now - enter a project id below.';
+        });
+      };
+      document.head.appendChild(s);
+    } else {
+      setTimeout(doRender, 100);
+    }
+  }
+
+  private attachCseClickHandler() {
+    if (this.cseClickAttached) { return; }
+    const holder = document.getElementById('p2uGcseHolder');
+    if (!holder) { return; }
+    this.cseClickAttached = true;
+    holder.addEventListener('click', (ev: any) => {
+      const a = ev.target && ev.target.closest ? ev.target.closest('a') : null;
+      if (!a) { return; }
+      const url = a.getAttribute('data-ctorig') || a.href || '';
+      const m = url.match(/geni\.com\/projects\/[^\/]+\/(\d+)/);
+      if (!m) { return; }
+      ev.preventDefault();
+      ev.stopPropagation();
+      const title = (a.textContent || ('project-' + m[1]))
+        .replace(/\s*[-|]\s*geni(\.com)?.*$/i, '').trim();
+      this.zone.run(() => {
+        this.cseVisible = false;
+        this.selectProjectResult({ project_id: 'project-' + m[1], title: title });
+      });
+    }, true);
+  }
+
+  selectProjectResult(r) {
+    const box = this.search.project;
+    box.selectedName = r.title;
+    box.results = [];
+    box.message = '';
+    this.customTargetProjectId = String(r.project_id).replace('project-', '');
+    this.profileForm.patchValue({ targetProjectIdSelection: null });
+    this.restoreProjectSelection();
+  }
+
+  projectSearchKeydown(event) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      this.searchProjectsByName();
     }
   }
 

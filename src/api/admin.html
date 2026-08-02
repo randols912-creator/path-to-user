@@ -50,9 +50,9 @@
 
   <div class="card" id="addCard" style="display:none">
     <h2 style="margin-top:0">Add a project</h2>
-    <p class="muted">Search Geni for a project by name, or paste a Geni project URL / id
-      (e.g. <code>https://www.geni.com/projects/US-Presidents/9</code> or <code>project-9</code>).
-      Name search requires being logged into the P2U app in this browser first.</p>
+    <p class="muted">Search for a project by name (uses Google limited to geni.com projects when
+      Geni's own search is unavailable), or paste a Geni project URL / id
+      (e.g. <code>https://www.geni.com/projects/US-Presidents/9</code> or <code>project-9</code>).</p>
     <div style="margin-bottom:8px">
       <input type="text" id="searchBox" size="30" placeholder="Search projects by name&hellip;"/>
       <button onclick="searchProjects()" id="searchBtn">Search</button>
@@ -168,30 +168,92 @@ async function lookupProject(){
   }catch(e){ box.innerHTML = '<span class="err">Lookup failed.</span>'; }
 }
 
+function googleLink(q){
+  return 'https://www.google.com/search?q=' + encodeURIComponent('site:geni.com/projects ' + q);
+}
+function googleFallbackHtml(q){
+  return '<span class="muted">Geni has no project name search - but you can ' +
+         '<a href="' + googleLink(q) + '" target="_blank"><b>search Geni projects on Google</b></a>, ' +
+         'then copy the project\'s URL from a result and paste it below.</span>';
+}
+
 // ---- add via name search (tries Geni project search; may be unsupported) ----
+let cseLoaded = false;
+async function ensureCse(cseId){
+  if(cseLoaded) return true;
+  return new Promise(resolve => {
+    const s = document.createElement('script');
+    s.src = 'https://cse.google.com/cse.js?cx=' + encodeURIComponent(cseId);
+    s.async = true;
+    s.onload = () => { cseLoaded = true; setTimeout(() => resolve(true), 400); };
+    s.onerror = () => resolve(false);
+    document.head.appendChild(s);
+  });
+}
+
+function extractProject(a){
+  // CSE result links carry the real URL in href or data-ctorig
+  const url = a.getAttribute('data-ctorig') || a.href || '';
+  const m = url.match(/geni\.com\/projects\/[^\/]+\/(\d+)/);
+  if(!m) return null;
+  const title = (a.textContent || ('project-' + m[1])).trim();
+  return {pid: 'project-' + m[1], title: title};
+}
+
 async function searchProjects(){
   const q = $('searchBox').value.trim();
   const box = $('searchResults');
   if(!q) return;
-  const token = geniToken();
-  if(!token){ box.innerHTML = '<span class="err">Log into the P2U app in this browser first, then search.</span>'; return; }
   box.innerHTML = 'Searching…';
   try{
-    const r = await fetch('https://www.geni.com/api/project/search?names='+encodeURIComponent(q)+'&access_token='+encodeURIComponent(token));
+    const r = await fetch('/api/v1/admin/project-search?q='+encodeURIComponent(q), {headers: hdrs()});
     const data = await r.json();
-    const results = (data && data.results) || [];
-    if(!results.length){
-      box.innerHTML = '<span class="muted">No results (Geni may not support project search) — use the paste box below instead.</span>';
+
+    // Preferred path: server-side API results (needs GOOGLE_CSE_KEY)
+    if(data.configured && (data.results || []).length){
+      box.innerHTML = data.results.map(p => {
+        const name = p.title.replace(/</g,'&lt;');
+        return `<div style="padding:4px 0">` +
+               `<button class="small" onclick="addPreset('${p.project_id}', ${JSON.stringify(p.title).replace(/"/g,'&quot;')})">Add</button> ` +
+               `${name} <span class="muted">(${p.project_id})</span> ` +
+               `<a href="${p.link}" target="_blank" class="muted">view</a></div>`;
+      }).join('');
       return;
     }
-    box.innerHTML = results.slice(0,15).map(p => {
-      const pid = parseProjectId(String(p.id||'')) || parseProjectId(String(p.url||''));
-      if(!pid) return '';
-      const name = (p.name||pid).replace(/</g,'&lt;');
-      return `<div style="padding:4px 0"><button class="small" onclick="addPreset('${pid}', ${JSON.stringify(name).replace(/"/g,'&quot;')})">Add</button> ${name} <span class="muted">(${pid})</span></div>`;
-    }).join('');
+
+    // Widget path: render Google's embedded search and catch result clicks
+    if(data.cse_id){
+      const ok = await ensureCse(data.cse_id);
+      if(ok){
+        box.innerHTML = '<div class="muted" style="margin-bottom:6px">' +
+          'Results from Google - <b>click a project to add it</b> (it will not leave this page).</div>' +
+          '<div id="gcseHolder"><div class="gcse-searchresults-only" data-linktarget="_self"></div></div>';
+        const render = () => {
+          if(window.google && google.search && google.search.cse && google.search.cse.element){
+            google.search.cse.element.render({div: 'gcseHolder', tag: 'searchresults-only'});
+            const el = google.search.cse.element.getElement('gcseHolder') ||
+                       google.search.cse.element.getAllElements()[Object.keys(google.search.cse.element.getAllElements())[0]];
+            if(el){ el.execute(q); }
+          } else { setTimeout(render, 300); }
+        };
+        // clear our placeholder div content that auto-rendered, then render fresh
+        setTimeout(render, 200);
+        // intercept clicks on results
+        $('searchResults').addEventListener('click', function(ev){
+          const a = ev.target.closest && ev.target.closest('a');
+          if(!a) return;
+          const p = extractProject(a);
+          if(p){
+            ev.preventDefault(); ev.stopPropagation();
+            addPreset(p.pid, p.title.replace(/\s*[-|]\s*geni(\.com)?.*$/i, ''));
+          }
+        }, true);
+        return;
+      }
+    }
+    box.innerHTML = googleFallbackHtml(q);
   }catch(e){
-    box.innerHTML = '<span class="muted">Search not available — use the paste box below instead.</span>';
+    box.innerHTML = googleFallbackHtml(q);
   }
 }
 

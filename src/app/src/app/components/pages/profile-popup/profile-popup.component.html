@@ -70,6 +70,22 @@
                 </div>
                 <div *ngIf="profileForm.value.targetType === 1">
                     <div class="display_profile_id">
+                        <span class="span_input">Search:</span>
+                        <input type="text" placeholder="Search projects by name&hellip;" class="profile_input"
+                               [(ngModel)]="search.project.query" [ngModelOptions]="{standalone: true}"
+                               (keydown)="projectSearchKeydown($event)">
+                        <button type="button" class="search-btn" (click)="searchProjectsByName()"
+                                [disabled]="search.project.busy">{{ search.project.busy ? '&hellip;' : 'Search' }}</button>
+                    </div>
+                    <div class="search-msg" *ngIf="search.project.message">{{ search.project.message }}</div>
+                    <ul class="search-hits" *ngIf="search.project.results.length">
+                        <li *ngFor="let r of search.project.results" (click)="selectProjectResult(r)">{{ r.title }}</li>
+                    </ul>
+                    <div class="search-msg selected" *ngIf="search.project.selectedName">Selected: {{ search.project.selectedName }}</div>
+                    <div class="search-msg" *ngIf="cseVisible" style="color:#555">Results from Google &mdash; click a project to select it:</div>
+                    <div id="p2uGcseHolder" [style.display]="cseVisible ? 'block' : 'none'"
+                         style="margin: 0 47px 10px 47px;"></div>
+                    <div class="display_profile_id">
                         <span class="span_input">Project ID:</span>
                         <input type="text" placeholder="Enter project id" class="profile_input" [(ngModel)]="customTargetProjectId" [ngModelOptions]="{standalone: true}"/>
                     </div>
