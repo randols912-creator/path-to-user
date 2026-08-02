@@ -252,7 +252,8 @@ export class ProfilePopupComponent implements OnInit {
       if (!this.cseGname || holder.childElementCount === 0) {
         holder.innerHTML = '';
         this.cseGname = 'p2uapp' + (++this.cseCounter);
-        g.search.cse.element.render({ div: 'p2uGcseHolder', tag: 'searchresults-only', gname: this.cseGname });
+        g.search.cse.element.render({ div: 'p2uGcseHolder', tag: 'searchresults-only', gname: this.cseGname,
+          attributes: { overlayResults: false, enableHistory: false, linkTarget: '_self' } });
       }
       if (!(holder as any)._p2uHooked) {
         (holder as any)._p2uHooked = true;

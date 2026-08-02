@@ -223,7 +223,8 @@ async function cseSearch(q){
   const ok = await ensureCse(_cseId);
   if(!ok) return false;
   if(!cseRendered){
-    google.search.cse.element.render({div: 'gcseHolder', tag: 'searchresults-only', gname: 'p2uadmin'});
+    google.search.cse.element.render({div: 'gcseHolder', tag: 'searchresults-only', gname: 'p2uadmin',
+        attributes: {overlayResults: false, enableHistory: false, linkTarget: '_self'}});
     cseRendered = true;
     $('gcseHolder').addEventListener('click', function(ev){
       const a = ev.target && ev.target.closest ? ev.target.closest('a') : null;
