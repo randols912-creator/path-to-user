@@ -10,7 +10,7 @@
     "relationCard": {
       "num": "Connection Number:"
     },
-    "genealogical":"With each of the people here, you have genealogical connections by clicking on the results"
+    "genealogical": "With each of the people here, you have genealogical connections by clicking on the results"
   },
   "relation": {
     "whos": {
@@ -52,8 +52,9 @@
     "help": "Help",
     "about": "About",
     "reset": "Reset connections",
-    "profile":"Profile",
-    "logOut": "Log out"
+    "profile": "Profile",
+    "logOut": "Log out",
+    "newSearch": "New search (change target)"
   },
   "about": {
     "app": {
@@ -79,7 +80,7 @@
         "text": "<b>Explore</b> our Open Database",
         "url": "https://dbs.anumuseum.org.il/skn/en/c6/BH"
       },
-      "learn":  {
+      "learn": {
         "text": "<b>Learn</b> Educational Programs",
         "url": "https://www.anumuseum.org.il/education-homepage/"
       }
@@ -119,8 +120,8 @@
         "profile": "Profile",
         "connection": "Our\nconnection"
       },
-      "message" : {
-        "new_message":  "New message from "
+      "message": {
+        "new_message": "New message from "
       }
     },
     "chat": {
@@ -159,6 +160,10 @@
     "filter": "Filters",
     "sorting": "Sorting",
     "search": "Search"
-
+  },
+  "controls": {
+    "stop": "Stop search",
+    "newSearch": "New search",
+    "stopped": "Search stopped — showing the {{value}} found so far."
   }
 }

@@ -10,7 +10,7 @@
     "relationCard": {
       "num": "חיבורים אליך:"
     },
-    "genealogical":"עם כל אחד מהאנשים כאן, יש לך קשרים גנאלוגיים על ידי לחיצה על התוצאות"
+    "genealogical": "עם כל אחד מהאנשים כאן, יש לך קשרים גנאלוגיים על ידי לחיצה על התוצאות"
   },
   "relation": {
     "whos": {
@@ -52,8 +52,9 @@
     "help": "עזרה",
     "about": "אודות",
     "reset": "רענון נתונים",
-    "profile":"פרופיל",
-    "logOut": "התנתקות מהחשבון"
+    "profile": "פרופיל",
+    "logOut": "התנתקות מהחשבון",
+    "newSearch": "חיפוש חדש"
   },
   "about": {
     "app": {
@@ -79,7 +80,7 @@
         "text": "<b>לגלות</b> במאגרי המידע הפתוחים",
         "url": "https://dbs.anumuseum.org.il/skn/he/c6/BH"
       },
-      "learn":  {
+      "learn": {
         "text": "<b>ללמוד</b>  תוכניות חינוכיות",
         "url": "https://www.anumuseum.org.il/he/%D7%97%D7%99%D7%A0%D7%95%D7%9A-%D7%93%D7%A3-%D7%91%D7%99%D7%AA/"
       }
@@ -119,10 +120,9 @@
         "profile": "פרופיל",
         "connection": "החיבור\nשלנו"
       },
-      "message" :{
-        "new_message":  "הודעה חדשה מאת "
+      "message": {
+        "new_message": "הודעה חדשה מאת "
       }
-
     },
     "chat": {
       "pre": {
@@ -160,5 +160,10 @@
     "filter": "סינון",
     "sorting": "מיון",
     "search": "חיפוש"
+  },
+  "controls": {
+    "stop": "עצור חיפוש",
+    "newSearch": "חיפוש חדש",
+    "stopped": "החיפוש הופסק — מוצגות {{value}} התוצאות שנמצאו עד כה."
   }
 }

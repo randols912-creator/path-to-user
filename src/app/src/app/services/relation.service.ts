@@ -38,6 +38,11 @@ export class RelationService {
   private pathsCount = 0;
   private pathsCountTs = Date.now();
 
+  // Set when the user stops a run early; halts the polling loop but keeps
+  // whatever results have been gathered so far.
+  private stopped = false;
+  get wasStopped(): boolean { return this.stopped; }
+
   constructor(private http: HttpClient, 
               private auth: AuthService,
               private settings: SettingsService) {
@@ -51,7 +56,14 @@ export class RelationService {
     });
   }
 
+  // Halt the polling loop but keep the results already gathered.
+  stop() {
+    this.stopped = true;
+    this.status.next(Status.READY);
+  }
+
   search() {
+    if (this.stopped) { this.status.next(Status.READY); return; }
     forkJoin(this.getCountQueriesObservables()).subscribe(
       ([
         { paths: relations },
@@ -84,6 +96,7 @@ export class RelationService {
     this.uniqueIds.clear();
     this.pathsCount = 0;
     this.pathsCountTs = Date.now();
+    this.stopped = false;
     this.status.next(Status.INITIALIZING);
 
     let st = this.settings.getSourceTarget()
@@ -138,6 +151,7 @@ export class RelationService {
   }
 
   private fetchAll(offset: number): void {
+    if (this.stopped) { this.status.next(Status.READY); return; }
     this.status.next(Status.FETCHING);
 
     forkJoin(this.getCountQueriesObservables(offset)).subscribe(
@@ -148,6 +162,7 @@ export class RelationService {
         { count: totalPathsCount },
       ]) => {
         const filtered = this.filterStoreAndReturnFilteredRelations(relations);
+        if (this.stopped) { this.status.next(Status.READY); return; }
         this.status.next(Status.PART_FETCHED);
 
         if (this.notReady(pathsCount, totalPathsCount, profilesCount)) {

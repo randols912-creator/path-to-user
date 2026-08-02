@@ -43,6 +43,7 @@ import { ProfileDetailsComponent } from './components/parts/profile-details/prof
 import { RelativesInfoModalComponent } from './components/parts/relatives-info-modal/relatives-info-modal.component';
 import { SpinnerComponent } from './components/parts/spinner/spinner.component';
 import { TitleBarComponent } from './components/parts/title-bar/title-bar.component';
+import { HistorylinkHeaderComponent } from './components/parts/historylink-header/historylink-header.component';
 import { ToolbarComponent } from './components/parts/toolbar/toolbar.component';
 import { ModalRefDirective } from './directives/modal-ref.directive';
 import { RelationsSortByPipe } from './pipes/relations-sort-by.pipe';
@@ -85,6 +86,7 @@ class JsonpInterceptorModule {}
     WelcomeComponent,
     HomeComponent,
     TitleBarComponent,
+    HistorylinkHeaderComponent,
     ToolbarComponent,
     MenuComponent,
     RelationsListComponent,

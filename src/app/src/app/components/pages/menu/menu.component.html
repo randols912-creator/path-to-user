@@ -8,6 +8,14 @@
     translate
     >menu.help</a
   >
+  <img src="assets/img/lineOfCircles.svg" class="circles-separator" *ngIf="isAuthenticated" />
+  <button
+    *ngIf="isAuthenticated"
+    (click)="profileMenuOpen()"
+    type="button"
+    class="btn btn-link bigger-text"
+    translate
+  >menu.newSearch</button>
   <img src="assets/img/lineOfCircles.svg" class="circles-separator" />
   <a [routerLink]="[aboutUrl]" class="btn btn-link bigger-text" translate
     >menu.about</a

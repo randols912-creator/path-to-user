@@ -1,5 +1,7 @@
 import { Component, HostListener, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService } from 'src/app/auth/auth.service';
+import { PROFILE_POPUP_PATH } from 'src/app/app.constants';
 import Path from 'src/app/model/Path';
 import Profile from 'src/app/model/Profile';
 import {
@@ -23,8 +25,23 @@ export class HomeComponent implements OnInit {
     private auth: AuthService,
     private relationService: RelationService,
     private settingsService: SettingsService,
-    private geniService: GeniService
+    private geniService: GeniService,
+    private router: Router
   ) {}
+
+  // Halt a long-running search but keep the results found so far.
+  stopSearch(): void {
+    this.relationService.stop();
+  }
+
+  // Go back to the picker to choose a different profile or project.
+  changeTarget(): void {
+    this.router.navigate([`/${PROFILE_POPUP_PATH}`]);
+  }
+
+  get stopped(): boolean {
+    return this.relationService.wasStopped;
+  }
 
   ngOnInit(): void {
     this.relationService.status.subscribe((status) => {
