@@ -66,14 +66,6 @@ export class RelationService {
   stop() {
     this.stopped = true;
     this.status.next(Status.READY);
-    this.haltBackend();
-  }
-
-  // Tell the backend to stop the running crawl (cancel + drain + let retries die)
-  // WITHOUT clearing the results already found. Used by Stop and when heading off
-  // to start a new search, so the old target's crawl can't keep bleeding in.
-  haltBackend() {
-    this.http.post(FETCH_PATHS_URL + '/halt', {}).subscribe(() => {}, () => {});
   }
 
   search() {

@@ -35,9 +35,7 @@ export class HomeComponent implements OnInit {
   }
 
   // Go back to the picker to choose a different profile or project.
-  // Halt the current crawl first so it can't bleed into the new search.
   changeTarget(): void {
-    this.relationService.stop();
     this.router.navigate([`/${PROFILE_POPUP_PATH}`]);
   }
 
