@@ -330,11 +330,25 @@ export class ProfilePopupComponent implements OnInit {
     let sourceId = this.profileForm.value.sourceProfile  ? this.profilePrefix + this.customSourceProfileId : '';
     let targetId = this.targetType + "-" + (this.targetType == "profile" ? "g" + this.customTargetProfileId : this.customTargetProjectId);
 
-    this.settingsService.setSourceTarget(sourceId, targetId);
+    // Carry the name we already know from selection so the results page can show
+    // it instantly and never depends on a (sometimes rate-limited) name lookup.
+    let targetName = this.targetName();
+    this.settingsService.setSourceTarget(sourceId, targetId, targetName);
     this.relationsService.reset();
     this.router.navigate([`/${HOME_PATH}`]);
 
 
+  }
+
+  // Best-effort display name for the chosen target, from data already in hand.
+  private targetName(): string {
+    if (this.targetType === 'profile') {
+      return this.search.target.selectedName || '';
+    }
+    // project: prefer an explicit search selection, else the matching preset label
+    if (this.search.project.selectedName) { return this.search.project.selectedName; }
+    const hit = this.projectList.find(p => p.id == this.customTargetProjectId);
+    return hit ? hit.label : '';
   }
 
 }

@@ -120,10 +120,11 @@ export class SettingsService {
   }
 
 
-  setSourceTarget(sourceId, targetId) {
+  setSourceTarget(sourceId, targetId, targetName?) {
     this.settings.sourceTarget = {
       sourceId: sourceId,
-      targetId: targetId
+      targetId: targetId,
+      targetName: targetName || ''
     }
     this.saveSettings();
 

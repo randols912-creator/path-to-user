@@ -58,16 +58,21 @@ export class HomeComponent implements OnInit {
     // No source id -> the name is "you"
     this.sourceText =  "you";
     }
-    // Retrieve target name either from target profile or project id  
-    this.targetText = '(' + sourceTarget.targetId + ")"; 
+    // Retrieve target name either from target profile or project id.
+    // Prefer the name already captured at selection time; fall back to the id,
+    // then refine from the API — but never overwrite with an empty/undefined name
+    // (a rate-limited Geni response can come back without one).
+    this.targetText = sourceTarget.targetName
+      ? `(${sourceTarget.targetName})`
+      : '(' + sourceTarget.targetId + ")";
     if (sourceTarget.targetId.startsWith('project')) {
       this.geniService.projectDetails(sourceTarget.targetId).subscribe(({ project: project }) => {
-        this.targetText = `(${project.name})`;
-      }, console.log);  
+        if (project && project.name) { this.targetText = `(${project.name})`; }
+      }, console.log);
     } else {
       this.geniService.fetchProfiles([sourceTarget.targetId]).subscribe(({ results: [profile] }) => {
-        this.targetText = `(${profile.name})`;
-      }, console.log);  
+        if (profile && profile.name) { this.targetText = `(${profile.name})`; }
+      }, console.log);
     }
 
   }
