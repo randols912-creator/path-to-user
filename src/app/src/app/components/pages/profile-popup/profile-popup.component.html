@@ -18,9 +18,24 @@
                                 (change)="onchange()" />
                         </label>
                     </div>
-                    <div class="display_profile_id" *ngIf="profileForm.value.sourceProfile === 1">
-                        <span class="span_input">Profile ID:</span>
-                        <input type="text" placeholder="Enter profile id" class="profile_input" [(ngModel)]="customSourceProfileId" [ngModelOptions]="{standalone: true}">
+                    <div *ngIf="profileForm.value.sourceProfile === 1">
+                        <div class="display_profile_id">
+                            <span class="span_input">Search:</span>
+                            <input type="text" placeholder="Search by name&hellip;" class="profile_input"
+                                   [(ngModel)]="search.source.query" [ngModelOptions]="{standalone: true}"
+                                   (keydown)="searchKeydown($event, 'source')">
+                            <button type="button" class="search-btn" (click)="searchProfiles('source')"
+                                    [disabled]="search.source.busy">{{ search.source.busy ? '&hellip;' : 'Search' }}</button>
+                        </div>
+                        <div class="search-msg" *ngIf="search.source.message">{{ search.source.message }}</div>
+                        <ul class="search-hits" *ngIf="search.source.results.length">
+                            <li *ngFor="let r of search.source.results" (click)="selectSearchResult('source', r)">{{ r.name }}</li>
+                        </ul>
+                        <div class="search-msg selected" *ngIf="search.source.selectedName">Selected: {{ search.source.selectedName }}</div>
+                        <div class="display_profile_id">
+                            <span class="span_input">Profile ID:</span>
+                            <input type="text" placeholder="Enter profile id" class="profile_input" [(ngModel)]="customSourceProfileId" [ngModelOptions]="{standalone: true}">
+                        </div>
                     </div>
                 </accordion-group>
             </div>
@@ -34,9 +49,24 @@
                             (change)="onchangeTarget()" />
                     </label>
                 </div>
-                <div class="display_profile_id" *ngIf="profileForm.value.targetType === 0">
-                    <span class="span_input">Profile ID:</span>
-                    <input type="text" placeholder="Enter profile id" class="profile_input" [(ngModel)]="customTargetProfileId" [ngModelOptions]="{standalone: true}">
+                <div *ngIf="profileForm.value.targetType === 0">
+                    <div class="display_profile_id">
+                        <span class="span_input">Search:</span>
+                        <input type="text" placeholder="Search by name&hellip;" class="profile_input"
+                               [(ngModel)]="search.target.query" [ngModelOptions]="{standalone: true}"
+                               (keydown)="searchKeydown($event, 'target')">
+                        <button type="button" class="search-btn" (click)="searchProfiles('target')"
+                                [disabled]="search.target.busy">{{ search.target.busy ? '&hellip;' : 'Search' }}</button>
+                    </div>
+                    <div class="search-msg" *ngIf="search.target.message">{{ search.target.message }}</div>
+                    <ul class="search-hits" *ngIf="search.target.results.length">
+                        <li *ngFor="let r of search.target.results" (click)="selectSearchResult('target', r)">{{ r.name }}</li>
+                    </ul>
+                    <div class="search-msg selected" *ngIf="search.target.selectedName">Selected: {{ search.target.selectedName }}</div>
+                    <div class="display_profile_id">
+                        <span class="span_input">Profile ID:</span>
+                        <input type="text" placeholder="Enter profile id" class="profile_input" [(ngModel)]="customTargetProfileId" [ngModelOptions]="{standalone: true}">
+                    </div>
                 </div>
                 <div *ngIf="profileForm.value.targetType === 1">
                     <div class="display_profile_id">

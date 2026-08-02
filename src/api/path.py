@@ -3,7 +3,7 @@ from sanic.log import logger
 from api.geni import GeniClientAsync
 from api.profile import ProfileManager
 from api.models import CURRENT_TIMESTAMP, paths_table, profiles_table
-from sqlalchemy import and_, select, join, func, distinct, delete
+from sqlalchemy import and_, select, join, func, distinct, delete, true
 from databases import Database
 from asyncio import Queue, sleep as asyncio_sleep
 import datetime
@@ -74,17 +74,17 @@ class PathManager:
         j = join(profiles_table, paths_table,
                  profiles_table.c.id == paths_table.c.target_id)
         step_count_cond = (paths_table.c.step_count >
-                           0) if connected_only else True
-        ready_only_cond = paths_table.c.finished_on != None if ready_only else True
-        target_id_cond = paths_table.c.target_id == target_id if target_id else True
-        query = select([paths_table.c.source_id,
+                           0) if connected_only else true()
+        ready_only_cond = paths_table.c.finished_on != None if ready_only else true()
+        target_id_cond = paths_table.c.target_id == target_id if target_id else true()
+        query = select(paths_table.c.source_id,
                         paths_table.c.target_id,
                         paths_table.c.url,
                         paths_table.c.step_count,
                         profiles_table.c.bh_theme,
                         profiles_table.c.bh_location,
                         profiles_table.c.bh_floor,
-                        profiles_table.c.details.label("target_profile")]).select_from(j) \
+                        profiles_table.c.details.label("target_profile")).select_from(j) \
             .where(
             and_(paths_table.c.source_id == source_id,
                  paths_table.c.is_user2user == user2user,
@@ -102,8 +102,8 @@ class PathManager:
 
     async def count_paths(self, source_id: str, connected_only=True, user2user=False):
         step_count_cond = (paths_table.c.step_count >
-                           0) if connected_only else True
-        query = select([func.count(distinct(paths_table.c.target_id))]).where(
+                           0) if connected_only else true()
+        query = select(func.count(distinct(paths_table.c.target_id))).where(
             and_(paths_table.c.source_id == source_id,
                  paths_table.c.is_user2user == user2user,
                  step_count_cond)

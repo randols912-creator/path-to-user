@@ -5,20 +5,18 @@ import datetime
 from dotenv import load_dotenv
 
 from sanic import Sanic, response
-from sanic.log import logger, logging
-from sanic_cors import CORS, cross_origin
-from sanic.response import text, json
+import logging
+from sanic.log import logger
+from sanic.response import text
+from sanic.response import json as sanic_json
 from sanic.request import Request
 from sanic.views import HTTPMethodView
-from sanic.exceptions import abort
-from sanic_openapi import doc, swagger_blueprint, api as sanic_api
+from sanic.exceptions import SanicException, NotFound
 from collections import defaultdict
 from databases import Database
 from sqlalchemy import create_engine, and_
 
 from multiprocessing import cpu_count
-import aiomonitor
-from aiomonitor.utils import all_tasks
 import asyncio
 from asyncio import PriorityQueue, Queue
 
@@ -26,39 +24,54 @@ from api.utils import Timer
 timer = Timer("main", logging.DEBUG)
 import random
 
-import socketio
+logger.setLevel(logging.INFO)
 
-logger.setLevel(logging.DEBUG)
 
-app = Sanic(name='api')
-CORS(app, supports_credentials=True)
-app.blueprint(swagger_blueprint)
+def abort(status_code, message=''):
+    """Shim for the removed sanic.exceptions.abort helper."""
+    raise SanicException(message or 'Error', status_code=status_code)
+
+
+def json(data, **kwargs):
+    """Shim: modern sanic json() dropped escape_forward_slashes."""
+    kwargs.pop('escape_forward_slashes', None)
+    return sanic_json(data, **kwargs)
+
+
+app = Sanic('api')
 
 # Load parameters
 load_dotenv()
-# TODO remove me
 app.config['ACCESS_LOG'] = False
-app.config['CORS_SUPPORTS_CREDENTIALS'] = True
-
-sio = socketio.AsyncServer(async_mode='sanic', cors_allowed_origins=[])
-sio.attach(app)
 
 from api.utils import Utils
-from api.models import metadata, paths_table, profiles_table
+from api.models import metadata, paths_table, profiles_table, preset_projects_table
 if os.getenv("GENI_MOCK"):
     from api.mock.geni import GeniClientAsync
 else:
     from api.geni import GeniClientAsync
 from api.path import PathManager, Task, PATH_FIND_BATCH
 from api.profile import ProfileManager
-# Enabling async template execution which allows you to take advantage
-# of newer Python features requires Python 3.6 or later.
-enable_async = sys.version_info >= (3, 6)
 
-# Initialize database
-db_url = str(os.getenv("SQLALCHEMY_DATABASE_URI"))
-engine = create_engine(db_url, echo = True)
-metadata.create_all(engine)
+
+def normalize_db_url(url, driver):
+    """Force an explicit driver on a mysql:// URL (SQLAlchemy 2 needs one)."""
+    if url.startswith('mysql://'):
+        return url.replace('mysql://', f'mysql+{driver}://', 1)
+    return url
+
+
+# Initialize database. SQLALCHEMY_DATABASE_URI is the primary source;
+# fall back to Heroku's JAWSDB_URL if it's not set.
+raw_db_url = os.getenv("SQLALCHEMY_DATABASE_URI") or os.getenv("JAWSDB_URL") or ""
+db_url = normalize_db_url(raw_db_url, 'aiomysql')          # async access (databases lib)
+sync_db_url = normalize_db_url(raw_db_url, 'pymysql')      # one-time table creation
+
+try:
+    engine = create_engine(sync_db_url, echo=False)
+    metadata.create_all(engine)
+except Exception as _e:
+    logger.error(f"metadata.create_all failed at boot (continuing): {_e}")
 
 database = Database(db_url)
 
@@ -68,17 +81,11 @@ bp_profiles = Utils.create_blueprint("profiles")
 bp_paths = Utils.create_blueprint("paths")
 bp_projects = Utils.create_blueprint("projects")
 bp_debug = Utils.create_blueprint("debug")
-
-
-class Pagination:
-    offset = doc.Integer()
-    limit = doc.Integer()
-
+bp_admin = Utils.create_blueprint("admin")
 
 TOKEN_PARAM = 'authorization'
 
 class Token:
-    access_token = doc.String(name=TOKEN_PARAM, description="Geni access token")
     cache = dict()
     cache_valid_seconds = 300
 
@@ -105,17 +112,11 @@ class ProfileView(HTTPMethodView):
             logger.info(f"Pre-loading personalities from DB: {len(ProfileView.PERSONALITIES)}")
 
     @bp_profiles.get("/cache")
-    @doc.consumes(Token, location='headers')
-    @doc.summary("Cache personality profiles from Geni")
     async def post(self, request: Request):
         token = await Token.validate(request.headers.get(TOKEN_PARAM))
         num_profiles = await ProfileManager(database, geni, token).cache_personalities()
         return json(num_profiles)
 
-
-    @doc.consumes(Token, location='headers')
-    @doc.consumes(doc.String(name="id", description="Profile id"))
-    @doc.summary("Get profile by id")
     async def get(self, request: Request):
         token = await Token.validate(request.headers.get(TOKEN_PARAM))
         profile_id = request.args.get('id')
@@ -127,15 +128,24 @@ class ProfileView(HTTPMethodView):
 
     @staticmethod
     @bp_profiles.get("/count")
-    @doc.consumes(Token, location='headers')
-    @doc.consumes(doc.String(name="target_id", description="Target id"))
-    @doc.summary("Count profiles")
     async def get_count(request):
         token = await Token.validate(request.headers.get(TOKEN_PARAM))
         # Count personalities from cache
         count = await ProfileManager(database, geni, token).count(request.args.get('target_id'))
 
         return json({"count": count})
+
+    @staticmethod
+    @bp_profiles.get("/search")
+    async def search_geni_profiles(request):
+        """Proxy Geni profile-name search for the picker UI (CORS-safe)."""
+        token = await Token.validate(request.headers.get(TOKEN_PARAM))
+        names = (request.args.get('names') or '').strip()
+        page = request.args.get('page', 1)
+        if not names:
+            return json({'results': []})
+        results, _tok = await geni.search_profiles(token, names, page)
+        return json({'results': results[:20]})
 
     @staticmethod
     @bp_profiles.get("/geni")
@@ -175,9 +185,6 @@ def dt_converter(o):
     return o
 
 class ProjectView(HTTPMethodView):
-    @doc.summary("Get project details")
-    @doc.consumes(Token, location='headers')
-    @doc.consumes(doc.String(name="id", description="Project id"))
     async def get(self, request):
         token = await Token.validate(request.headers.get(TOKEN_PARAM))
         id = request.args.get('id')
@@ -186,12 +193,93 @@ class ProjectView(HTTPMethodView):
         project_response = await geni.get_project_details(token, id)
         return json({"project": project_response[0]})
 
+
+# ---------------- Preset target projects (editable via /admin) ----------------
+
+# The list that used to be hardcoded in the Angular picker; used to seed the
+# preset_projects table the first time the app boots against an empty table.
+DEFAULT_PRESETS = [
+    ("project-10373", "Nobel Prize in Physics"),
+    ("project-5272",  "Nobel Prize in Literature"),
+    ("project-5571",  "Nobel Prize in Chemistry"),
+    ("project-8020",  "Nobel Peace Prize"),
+    ("project-7284",  "Nobel Prize in Physiology or Medicine"),
+    ("project-10374", "Nobel Prize in Economics"),
+    ("project-8",     "Mayflower Passengers of 1620"),
+    ("project-3232",  "British Monarchs"),
+    ("project-358",   "Partial Hollywood Walk of Fame"),
+    ("project-9",     "US Presidents and Vice Presidents"),
+    ("project-10700", "Titanic Passengers - First Class"),
+    ("project-10701", "Titanic Passengers - Second Class"),
+    ("project-10702", "Titanic Passengers - Third Class"),
+    ("project-10704", "Titanic Deck Crew"),
+]
+
+async def seed_presets_if_empty():
+    row = await database.fetch_one(preset_projects_table.select().limit(1))
+    if row is None:
+        for i, (pid, label) in enumerate(DEFAULT_PRESETS):
+            await database.execute(preset_projects_table.insert().values(
+                id=pid, label=label, sort_order=i, enabled=True))
+        logger.info(f"Seeded {len(DEFAULT_PRESETS)} preset projects")
+
+@bp_projects.get("/presets")
+async def get_presets(request):
+    """Public list of preset target projects for the picker UI."""
+    query = preset_projects_table.select().where(
+        preset_projects_table.c.enabled == True).order_by(
+        preset_projects_table.c.sort_order)
+    rows = await database.fetch_all(query)
+    return json({"presets": [{"id": r["id"], "label": r["label"]} for r in rows]})
+
+
+def require_admin(request):
+    admin_key = os.getenv('ADMIN_KEY')
+    if not admin_key:
+        abort(403, "Admin interface is not configured (ADMIN_KEY not set)")
+    if request.headers.get('X-Admin-Key') != admin_key:
+        abort(403, "Bad admin key")
+
+@bp_admin.get("/presets")
+async def admin_list_presets(request):
+    require_admin(request)
+    query = preset_projects_table.select().order_by(preset_projects_table.c.sort_order)
+    rows = await database.fetch_all(query)
+    return json({"presets": [dict(r) for r in rows]})
+
+@bp_admin.post("/presets")
+async def admin_save_preset(request):
+    """Insert or update a preset. Body: {id, label, sort_order?, enabled?}"""
+    require_admin(request)
+    body = request.json or {}
+    pid = str(body.get('id', '')).strip()
+    label = str(body.get('label', '')).strip()
+    if not pid.startswith('project-') or not pid.replace('project-', '').isdigit():
+        abort(400, "id must look like project-12345")
+    if not label:
+        abort(400, "label is required")
+    values = {'id': pid, 'label': label,
+              'sort_order': int(body.get('sort_order', 999)),
+              'enabled': bool(body.get('enabled', True))}
+    existing = await database.fetch_one(
+        preset_projects_table.select().where(preset_projects_table.c.id == pid))
+    if existing is None:
+        await database.execute(preset_projects_table.insert().values(values))
+    else:
+        await database.execute(preset_projects_table.update().where(
+            preset_projects_table.c.id == pid).values(values))
+    return json({"saved": values})
+
+@bp_admin.delete("/presets/<preset_id>")
+async def admin_delete_preset(request, preset_id):
+    require_admin(request)
+    await database.execute(preset_projects_table.delete().where(
+        preset_projects_table.c.id == preset_id))
+    return json({"deleted": preset_id})
+
+
 class PathView(HTTPMethodView):
 
-    @doc.summary("Get path details")
-    @doc.consumes(Token, location='headers')
-    @doc.consumes(doc.String(name="source_id", description="Source profile id"))
-    @doc.consumes(doc.String(name="target_id", description="Target profile id"))
     async def get(self, request):
         token = await Token.validate(request.headers.get(TOKEN_PARAM))
         source_id = request.args.get('source_id')
@@ -205,11 +293,6 @@ class PathView(HTTPMethodView):
 
     @staticmethod
     @bp_paths.post("/personalities")
-    @doc.consumes(Token, location='headers')
-    @doc.consumes(doc.String(name="source_id", description="Source profile id (default is current user)"))
-    @doc.consumes(doc.String(name="target_id", description="Target profile or project id"))
-    @doc.consumes(doc.Boolean(name="reset", description="Whether reset connection cache"))
-    @doc.summary("Initiate path search from current user to all personalities")
     async def post_search_personalities(request):
         token = await Token.validate(request.headers.get(TOKEN_PARAM))
         source_id = request.json.get('source_id')
@@ -221,14 +304,11 @@ class PathView(HTTPMethodView):
             await PathView._reset_connections(token, source_id)
 
         asyncio.create_task(PathView._post_search_personalities(token, source_id, target_id))
-        logger.info(f"Started personalities paths search: {token}, source: {source_id}, target: {target_id}")
+        logger.info(f"Started personalities paths search, source: {source_id}, target: {target_id}")
         return json({"status": "Started personalities paths search"})
 
     @staticmethod
     @bp_paths.delete("/personalities")
-    @doc.consumes(Token, location='headers')
-    @doc.consumes(doc.String(name="source_id", description="Source profile id (default is current user)"))
-    @doc.summary("Delete paths from user to all personalities")
     async def delete_search_personalities(request):
         token = await Token.validate(request.headers.get(TOKEN_PARAM))
         source_id = request.args.get('source_id')
@@ -245,16 +325,8 @@ class PathView(HTTPMethodView):
             source_id = my_profile['id']
         await path_mgr.clear_paths(source_id)
         logger.info(f"Deleted personalities paths search for : {source_id}")
-        # Clear all queues
-        # for q in app.task_queue:
-        #     for _ in range(q.qsize()):
-        #         try:
-        #             q.get_nowait()
-        #             q.task_done()
-        #         except:
-        #             pass
 
-    @staticmethod 
+    @staticmethod
     async def _post_search_personalities(token, source_id, target_id):
         pm = ProfileManager(database, geni, token)
         path_mgr = PathManager(database, geni, token)
@@ -272,6 +344,7 @@ class PathView(HTTPMethodView):
 
         batch = []
         count = 0
+        max_priority = 2
         async for personality, profiles_count in profile_iterator(target_id, iterate=True):
             # Enqueue tasks for finding paths to all personalities
             max_priority = max(2, int(profiles_count / PATH_FIND_BATCH))
@@ -297,62 +370,54 @@ class PathView(HTTPMethodView):
                       task_priority))
             if len(batch) >= PATH_FIND_BATCH:
                 q_index = PathView._choose_queue_index()
-                await app.task_queue[q_index].put((random.randint(1, max_priority), batch))
+                await app.ctx.task_queue[q_index].put((random.randint(1, max_priority), batch))
 
                 count += len(batch)
-                logger.info(f"Added task to queue, count: {count} profiles, queue: {q_index}, queue size: {app.task_queue[q_index].qsize()}")
+                logger.info(f"Added task to queue, count: {count} profiles, queue: {q_index}, queue size: {app.ctx.task_queue[q_index].qsize()}")
                 batch = []
         # Last batch remainder
         if len(batch):
             q_index = PathView._choose_queue_index()
-            await app.task_queue[q_index].put((random.randint(1, max_priority), batch))
-            logger.info(f"Added to queue tasks of {count} profiles, queue: {q_index}, queue size: {app.task_queue[q_index].qsize()}")
+            await app.ctx.task_queue[q_index].put((random.randint(1, max_priority), batch))
+            logger.info(f"Added to queue tasks of {count} profiles, queue: {q_index}, queue size: {app.ctx.task_queue[q_index].qsize()}")
 
     @staticmethod
     def _choose_queue_index():
-        q_sizes = [q.qsize() for q in app.task_queue]
+        q_sizes = [q.qsize() for q in app.ctx.task_queue]
         min_q_index = q_sizes.index(min(q_sizes))
         logger.info(f"Choosing shortest queue among: {q_sizes}, chosen: {min_q_index}")
         return min_q_index
 
-        #return random.randint(0, len(app.task_queue)-1)
-
     @staticmethod
     @bp_paths.get("/personalities")
-    @doc.consumes(Token, location='headers')
-    @doc.consumes(Pagination)
-    @doc.summary("Get found paths from current user to all personalities")
     async def get_personalities(request):
         return await PathView._get_paths(request, user2user=False)
 
     @staticmethod
     async def _get_paths(request, user2user):
         timer.start("PathView:get_paths")
-        timer.start("PathView:get_paths:validate_token")
         token = await Token.validate(request.headers.get(TOKEN_PARAM))
-        timer.stop("PathView:get_paths:validate_token")
         offset = request.args.get('offset', 0)
         limit = request.args.get('limit', 50)
         source_id = request.args.get('source_id')
 
         pm = ProfileManager(database, geni, token)
-        timer.start("PathView:get_paths:cache")
         if not source_id:
             my_profile = await pm.cache()
             source_id = my_profile['id']
             logger.debug(my_profile)
 
-        timer.stop("PathView:get_paths:cache")
-        timer.start("PathView:get_paths:query")
         paths = await PathManager(database, geni, token).get_paths(source_id, offset, limit, user2user=user2user)
-        timer.stop("PathView:get_paths:query")
         timer.stop("PathView:get_paths")
         return json({"paths": [dict(p) for p in paths]}, escape_forward_slashes=False)
 
     @staticmethod
+    @bp_paths.get("/personalities/count")
+    async def get_personalities_count(request):
+        return await PathView._count_paths(request, user2user=False)
+
+    @staticmethod
     @bp_paths.get("/personalities/<target_id>")
-    @doc.consumes(Token, location='headers')
-    @doc.summary("Get single path from current user to given personality")
     async def get_personality(request, target_id):
         return await PathView._get_path(request, target_id, user2user=False)
 
@@ -368,21 +433,8 @@ class PathView(HTTPMethodView):
                                                                   user2user=user2user)
         return json(dict(path[0]) if len(path) > 0 else None, escape_forward_slashes=False)
 
-
-
-    @staticmethod
-    @bp_paths.get("/personalities/count")
-    @doc.consumes(Token, location='headers')
-    @doc.consumes(Pagination)
-    @doc.summary("Get found personalities paths count for current user")
-    async def get_personalities_count(request):
-        return await PathView._count_paths(request, user2user=False)
-
     @staticmethod
     @bp_paths.get("/users/count")
-    @doc.consumes(Token, location='headers')
-    @doc.consumes(Pagination)
-    @doc.summary("Get found user paths count for current user")
     async def get_users_count(request):
         return await PathView._count_paths(request, user2user=True)
 
@@ -403,53 +455,57 @@ class PathView(HTTPMethodView):
 
 
 class DebugView(HTTPMethodView):
-    @doc.consumes(Token, location='headers')
-    @doc.summary("Return debug information")
     async def get(self, request: Request):
         if request.ip != '127.0.0.1':
             abort(403)
         d_queues = [
-            {"size": q.qsize()} for q in app.task_queue
+            {"size": q.qsize()} for q in app.ctx.task_queue
         ]
-        task_dicts = []
-        for task in all_tasks(app.loop):
-            task_dict = {"id": str(id(task)),
-                         "state": task._state,
-                         "task": str(task)}
-            task_dicts.append(task_dict)
-        return json({"ip" : request.ip, "queues": d_queues, "tasks": task_dicts})
+        return json({"ip" : request.ip, "queues": d_queues})
 
 # Add blueprints to the app
 Utils.add_blueprint(app, bp_profiles, ProfileView)
 Utils.add_blueprint(app, bp_paths, PathView)
 Utils.add_blueprint(app, bp_projects, ProjectView)
 Utils.add_blueprint(app, bp_debug, DebugView)
+app.blueprint(bp_admin)
 
 # Serve static files (for Heroku)
 STATIC_FILES_DIR = os.path.join(os.path.dirname(__file__), "..", "app", "dist", "geni-app")
-app.static('/', STATIC_FILES_DIR)
-@app.route('/')
-async def handle_request(request):
+app.static('/', STATIC_FILES_DIR, index="index.html")
+
+ADMIN_PAGE = os.path.join(os.path.dirname(__file__), "admin.html")
+
+@app.get('/admin')
+async def admin_page(request):
+    return await response.file(ADMIN_PAGE)
+
+@app.exception(NotFound)
+async def spa_fallback(request, exception):
+    """Serve the Angular app for deep links (e.g. /welcome); real 404s for API paths."""
+    if request.path.startswith('/api') or request.path.startswith('/admin'):
+        return sanic_json({"error": "not found"}, status=404)
     return await response.file(os.path.join(STATIC_FILES_DIR, 'index.html'))
 
 @app.listener('after_server_start')
-def setup_workers(app, loop):
+async def setup_workers(app, loop):
     from api.path import path_finder_async, path_cleaner
 
     process_quantity = int(os.environ.get('PROCESS_QUANTITY',
                                           sys.argv[1] if len(sys.argv) > 1 else 0))
     quantity = process_quantity if process_quantity else cpu_count()*2+1
 
-    app.task_queue = [PriorityQueue(loop=loop) for i in range(0, quantity)]
+    app.ctx.task_queue = [PriorityQueue() for i in range(0, quantity)]
 
-    app.user2user_result_queue = Queue(loop=loop)
+    app.ctx.user2user_result_queue = Queue()
 
-    # One-time load personalities
+    # One-time preset seed + load personalities
+    await seed_presets_if_empty()
     app.add_task(ProfileView.load_personalities())
 
     # Create concurrent tasks (workers)
     for counter in range(quantity):
-        app.add_task(path_finder_async(counter, app.task_queue[counter], app.user2user_result_queue, db_url, geni))
+        app.add_task(path_finder_async(counter, app.ctx.task_queue[counter], app.ctx.user2user_result_queue, db_url, geni))
     # Create concurrent task for cleaning expired paths
     app.add_task(path_cleaner(db_url, geni))
 
@@ -462,15 +518,13 @@ async def setup_db(app, loop):
 @app.listener('after_server_stop')
 async def close_db(app, loop):
     await database.disconnect()
-    
-if __name__ == "__main__":
-    worker_quantity = int(os.environ.get('WORKER_QUANTITY',cpu_count()))
-    APP_PORT = int(os.environ.get('PORT', 4200))
 
-    for k, route in app.router.routes_all.items():
-        print(f"/{route}]")
+if __name__ == "__main__":
+    worker_quantity = int(os.environ.get('WORKER_QUANTITY', 1))
+    APP_PORT = int(os.environ.get('PORT', 4200))
 
     app.run( port=APP_PORT,
         host=os.environ.get('HOST', "0.0.0.0"),
         debug=False,
-        workers=worker_quantity)
+        workers=worker_quantity,
+        single_process=(worker_quantity == 1))

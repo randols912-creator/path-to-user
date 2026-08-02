@@ -31,6 +31,7 @@ export class AuthInterceptor implements HttpInterceptor {
     // All the assets are freely allowed
     if (
       !request.url.startsWith('/assets') &&
+      !request.url.startsWith(GENI_HOST) &&
       request.url.startsWith(env.relationsServiceHost)
     ) {
       return next.handle(

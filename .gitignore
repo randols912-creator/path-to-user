@@ -25,3 +25,4 @@ env/
 **/Pipfile.lock
 **/.venv
 **/tmp
+_to_delete/

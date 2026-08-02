@@ -37,6 +37,10 @@ class GeniClientAsync:
     async def get_personalities_profiles(self, token, next_page_url=None):
         pass
 
+    async def search_profiles(self, token, names, page=1):
+        return ([{'guid': '1001', 'name': f'{names} Mockperson I'},
+                 {'guid': '1002', 'name': f'{names} Mockperson II'}], token)
+
     def build_auth_url(self):
         pass
 

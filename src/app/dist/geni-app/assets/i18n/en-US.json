@@ -1,0 +1,164 @@
+{
+  "home": {
+    "status": {
+      "0": "All the data successfully fetched",
+      "1": "We're searching for people {{target}} connected to {{source}}...",
+      "2": "Error! See the console"
+    },
+    "greet": "Hi, {{value}}, nice to see you here.",
+    "found": "We found {{num_connections}} people {{target}} connected to {{source}}",
+    "relationCard": {
+      "num": "Connection Number:"
+    },
+    "genealogical":"With each of the people here, you have genealogical connections by clicking on the results"
+  },
+  "relation": {
+    "whos": {
+      "your": "your",
+      "male": "his",
+      "female": "her"
+    },
+    "rel": {
+      "father": "{{value}} father",
+      "son": "{{value}} son",
+      "brother": "{{value}} brother",
+      "husband": "{{value}} husband",
+      "mother": "{{value}} mother",
+      "daughter": "{{value}} daughter",
+      "sister": "{{value}} sister",
+      "wife": "{{value}} wife",
+      "ex-wife": "{{value}} ex-wife",
+      "ex-husband": "{{value}} ex-husband"
+    },
+    "showAll": "show all <span class='connections-count-badge'>{{value}}</span> connections"
+  },
+  "profile": {
+    "birthdate": "Birthdate:",
+    "birthplace": "Birthplace:",
+    "about": "About {{value}}",
+    "geni": "For more info in Geni about {{value}}",
+    "footer": "Try to search for {{value}} in the museum databases"
+  },
+  "modal": {
+    "relatives": {
+      "agree": "I agree to allow this app to connect me with relatives who may now be in the museum itself",
+      "what": "What does it mean?",
+      "means": "This means that during your stay in the museum, if the app identifies a relative who is related to you through your Geni family tree, the app will show that both of you are currently in the museum and give you both an option to meet or correspond with each other."
+    }
+  },
+  "menu": {
+    "locale": "עברית",
+    "tutorial": "Tutorial",
+    "help": "Help",
+    "about": "About",
+    "reset": "Reset connections",
+    "profile":"Profile",
+    "logOut": "Log out"
+  },
+  "about": {
+    "app": {
+      "header": "About this app",
+      "article": "<p>The Geni World Family Tree is a unique collaborative, largely public collection of connected family trees. The path to user tool calculates the shortest path between two geni profiles in a readable format.</p>\n\n<p><small><em><b>This app was conceived and supported by E. Randol Schoenberg</b><br />\nDevelopment: <a href=\"https://jhn.ngo\" target=\"_blank\">JHN</a><br /></small></p>"
+    },
+    "museum": {
+      "header": "About the museum",
+      "subheader": "You Are Part of the Story",
+      "article": "<p><a href=\"https://www.anumuseum.org.il/home/\" target=\"_blank\">The Museum of the Jewish People</a> is more than a Museum. This unique global institution tells the ongoing and extraordinary story of the Jewish people.</p><p> The Museum of the Jewish People connects Jewish people to their roots and strengthens their personal and collective Jewish identity. The Museum of the Jewish People conveys to the world the fascinating narrative of the Jewish people and the essence of the Jewish culture, faith, purpose and deed while presenting the contribution of world Jewry to humanity.</p>"
+    },
+    "share": "Share",
+    "links": {
+      "shop": {
+        "text": "Museum <b>Shop</b>",
+        "url": "https://www.anumuseum.org.il/shop/"
+      },
+      "visit": {
+        "text": "<span><b>Visit</b> the</span> Museum",
+        "url": "https://www.anumuseum.org.il/home/"
+      },
+      "database": {
+        "text": "<b>Explore</b> our Open Database",
+        "url": "https://dbs.anumuseum.org.il/skn/en/c6/BH"
+      },
+      "learn":  {
+        "text": "<b>Learn</b> Educational Programs",
+        "url": "https://www.anumuseum.org.il/education-homepage/"
+      }
+    }
+  },
+  "map": {
+    "locatedOn": "is located on the floor {{value}}"
+  },
+  "welcome": {
+    "top": {
+      "headline": "ANU - Museum of the Jewish People",
+      "question": "The Geni World Family Tree is a unique collaborative, largely public collection of connected family trees. The path to user tool calculates the shortest path between two geni profiles in a readable format.",
+      "whatToDo": "Here's what you need to do in order to discover that and where they are located in the museum:"
+    },
+    "middle": {
+      "login": "Log in to your Geni account",
+      "instructions": "Please note that the Path-to-User tool may be limited by privacy settings or by anomalies in the Geni database.",
+      "terms": "I Agree to <a href='{{value}}' target='_blank' rel='nofollow noopener'>Terms of Use</a>",
+      "relatives": "I Agree to allow this app to <a>connect me with relatives</a> who may now be in the museum itself"
+    },
+    "bottom": {
+      "anotherPlatform": "Have a family tree on another platform?",
+      "uploadGedcom": "Upload your Gedcom file to Geni and connect to the World Family Tree (Available only on desktop).",
+      "noFamilyTree": "Don't have a family tree?",
+      "invitedToDesk": "You are invited to our Database Desk in order to register and build your own family tree. The more family members included the greater chance you'll find more connections at the museum.",
+      "logoAlt": "Museum of the jewish people at Beit Hatfutsot"
+    }
+  },
+  "p2p": {
+    "modal": {
+      "found": {
+        "headline": "we found {{ value }} relative(s) now at the museum",
+        "click": "click on relative for more options"
+      },
+      "tabs": {
+        "chat": "Chat",
+        "profile": "Profile",
+        "connection": "Our\nconnection"
+      },
+      "message" : {
+        "new_message":  "New message from "
+      }
+    },
+    "chat": {
+      "pre": {
+        "headline": "choose a message or write your own",
+        "first": "Let's meet at Aroma in half an hour",
+        "second": "I wear __________________________if you see me say hello to me",
+        "third": "Hi relative, here is my email I would love to talk to you later"
+      }
+    }
+  },
+  "theme": {
+    "Humanities & Religion": "Humanities & Religion",
+    "Science": "Science",
+    "Diplomacy": "Diplomacy",
+    "Law": "Law",
+    "Economics": "Economics",
+    "The Holocaust": "The Holocaust",
+    "Press & Media": "Press & Media",
+    "Military": "Military",
+    "Literature & Poetry": "Literature & Poetry",
+    "Plastic Art": "Plastic Art",
+    "Visual Art": "Visual Art",
+    "Classical Music": "Classical Music",
+    "Popular Music": "Popular Music",
+    "Architecture": "Architecture",
+    "Theatre": "Theatre",
+    "Cinema & Television": "Cinema & Television",
+    "Humor": "Humor",
+    "Sports": "Sports",
+    "Other": "Other",
+    "null": "Other"
+  },
+  "titleBar": {
+    "toAllResults": "to all results",
+    "filter": "Filters",
+    "sorting": "Sorting",
+    "search": "Search"
+
+  }
+}

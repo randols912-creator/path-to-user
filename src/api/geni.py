@@ -17,6 +17,7 @@ class GeniClientAsync:
     PROJECT_URL = 'api/{project}'
     PATH_BETWEEN_PROFILES_URL = 'api/{source}/path-to/{target}?skip_email=1&skip_notify=1'
     PROFILES_FROM_PROJECT = 'api/{project_id}/profiles'
+    PROFILE_SEARCH_URL = 'api/profile/search'
 
     def __init__(self):
         self.session = requests.session()
@@ -82,6 +83,20 @@ class GeniClientAsync:
         for p in profiles:
             p['id'] = f"profile-g{p['guid']}"
         return profiles, next_page_url, part_profiles.get('total_count')
+
+    async def search_profiles(self, token, names, page=1):
+        """Search Geni profiles by name. Returns (results, token)."""
+        from urllib.parse import quote
+        url = f"{self.BASE_URL}{self.PROFILE_SEARCH_URL}?names={quote(names)}&page={page}"
+        raw, token = await self._geni_api_call(url, token)
+        results = raw.get('results', []) if raw.get('is_success') else []
+        out = []
+        for p in results:
+            guid = str(p.get('guid', '') or '')
+            if not guid:
+                continue
+            out.append({'guid': guid, 'name': p.get('name', f'profile {guid}')})
+        return out, token
 
     def build_auth_url(self):
         """Create the OAuth url for the application"""

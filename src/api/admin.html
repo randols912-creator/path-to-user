@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>P2U Admin — Preset Projects</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body{font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;margin:0;background:#f4f6f8;color:#222;}
+  .wrap{max-width:820px;margin:24px auto;padding:0 16px;}
+  h1{font-size:22px;} h2{font-size:16px;margin-top:28px;}
+  .card{background:#fff;border:1px solid #dde3e9;border-radius:8px;padding:16px;margin-bottom:16px;}
+  input[type=text],input[type=password]{padding:8px;border:1px solid #bbb;border-radius:5px;font-size:14px;}
+  button{padding:8px 14px;border:none;border-radius:5px;background:#2c6bed;color:#fff;font-size:14px;cursor:pointer;}
+  button.small{padding:4px 10px;font-size:12px;}
+  button.danger{background:#c0392b;} button.gray{background:#888;}
+  button:disabled{opacity:.5;cursor:default;}
+  table{width:100%;border-collapse:collapse;font-size:14px;}
+  th,td{border-bottom:1px solid #eee;padding:8px 6px;text-align:left;}
+  td input[type=text]{width:95%;}
+  .muted{color:#777;font-size:12px;}
+  .ok{color:#1e7e34;} .err{color:#c0392b;}
+  #status{margin-left:10px;font-size:13px;}
+  .drag{cursor:grab;color:#aaa;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Path-to-User Admin <span class="muted">preset target projects</span></h1>
+
+  <div class="card">
+    <label>Admin key:
+      <input type="password" id="adminKey" placeholder="admin key"/>
+    </label>
+    <button onclick="loadPresets()">Unlock</button>
+    <span id="status"></span>
+    <div class="muted" style="margin-top:6px">The key is the ADMIN_KEY config setting on Heroku.
+      It is remembered on this computer after the first unlock.</div>
+  </div>
+
+  <div class="card" id="listCard" style="display:none">
+    <h2 style="margin-top:0">Presets <span class="muted">(order shown = order in the app)</span></h2>
+    <table id="presetTable">
+      <thead><tr><th></th><th>Label</th><th>Project id</th><th>Enabled</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div style="margin-top:10px">
+      <button onclick="saveOrder()">Save order & edits</button>
+    </div>
+  </div>
+
+  <div class="card" id="addCard" style="display:none">
+    <h2 style="margin-top:0">Add a project</h2>
+    <p class="muted">Search Geni for a project by name, or paste a Geni project URL / id
+      (e.g. <code>https://www.geni.com/projects/US-Presidents/9</code> or <code>project-9</code>).
+      Name search requires being logged into the P2U app in this browser first.</p>
+    <div style="margin-bottom:8px">
+      <input type="text" id="searchBox" size="30" placeholder="Search projects by name&hellip;"/>
+      <button onclick="searchProjects()" id="searchBtn">Search</button>
+    </div>
+    <div id="searchResults"></div>
+    <div style="margin:12px 0 8px 0">
+      <input type="text" id="projectInput" size="40" placeholder="&hellip;or paste project URL / id"/>
+      <button onclick="lookupProject()" id="lookupBtn">Look up</button>
+    </div>
+    <div id="lookupResult"></div>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const statusMsg = (msg, ok) => { const s=$('status'); s.textContent=msg; s.className=ok?'ok':'err'; };
+const KEY_STORE = 'p2u-admin-key';
+let presets = [];
+
+function adminKey(){ return $('adminKey').value.trim(); }
+function hdrs(){ return {'X-Admin-Key': adminKey(), 'Content-Type':'application/json'}; }
+function geniToken(){ return localStorage.getItem('gn-token'); }
+
+window.addEventListener('load', () => {
+  const saved = localStorage.getItem(KEY_STORE);
+  if (saved) { $('adminKey').value = saved; loadPresets(); }
+});
+
+async function loadPresets(){
+  statusMsg('Loading…', true);
+  try{
+    const r = await fetch('/api/v1/admin/presets', {headers: hdrs()});
+    if(!r.ok){ statusMsg(r.status===403 ? 'Bad admin key' : 'Error '+r.status, false); return; }
+    const data = await r.json();
+    presets = data.presets;
+    localStorage.setItem(KEY_STORE, adminKey());
+    renderTable();
+    $('listCard').style.display=''; $('addCard').style.display='';
+    statusMsg('Unlocked', true);
+  }catch(e){ statusMsg('Network error', false); }
+}
+
+function renderTable(){
+  const tb = $('presetTable').querySelector('tbody');
+  tb.innerHTML='';
+  presets.forEach((p, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <button class="small gray" onclick="move(${i},-1)" ${i===0?'disabled':''}>&uarr;</button>
+        <button class="small gray" onclick="move(${i},1)" ${i===presets.length-1?'disabled':''}>&darr;</button>
+      </td>
+      <td><input type="text" value="${p.label.replace(/"/g,'&quot;')}" onchange="presets[${i}].label=this.value"/></td>
+      <td class="muted">${p.id}</td>
+      <td><input type="checkbox" ${p.enabled?'checked':''} onchange="presets[${i}].enabled=this.checked"/></td>
+      <td><button class="small danger" onclick="removePreset('${p.id}')">Remove</button></td>`;
+    tb.appendChild(tr);
+  });
+}
+
+function move(i, dir){
+  const j = i + dir;
+  [presets[i], presets[j]] = [presets[j], presets[i]];
+  renderTable();
+}
+
+async function saveOrder(){
+  statusMsg('Saving…', true);
+  for(let i=0;i<presets.length;i++){
+    const p = presets[i];
+    const r = await fetch('/api/v1/admin/presets', {method:'POST', headers:hdrs(),
+        body: JSON.stringify({id:p.id, label:p.label, sort_order:i, enabled:p.enabled})});
+    if(!r.ok){ statusMsg('Save failed on '+p.id, false); return; }
+  }
+  statusMsg('Saved', true);
+  loadPresets();
+}
+
+async function removePreset(id){
+  if(!confirm('Remove '+id+' from the presets?')) return;
+  const r = await fetch('/api/v1/admin/presets/'+id, {method:'DELETE', headers:hdrs()});
+  statusMsg(r.ok ? 'Removed' : 'Remove failed', r.ok);
+  loadPresets();
+}
+
+// ---- add via paste (project URL or id) ----
+function parseProjectId(text){
+  text = text.trim();
+  let m = text.match(/project-(\d+)/);          // project-123
+  if(m) return 'project-'+m[1];
+  m = text.match(/geni\.com\/projects\/[^\/]+\/(\d+)/);  // project URL
+  if(m) return 'project-'+m[1];
+  if(/^\d+$/.test(text)) return 'project-'+text;
+  return null;
+}
+
+async function lookupProject(){
+  const pid = parseProjectId($('projectInput').value);
+  const box = $('lookupResult');
+  if(!pid){ box.innerHTML = '<span class="err">Could not find a project id in that text.</span>'; return; }
+  const token = geniToken();
+  if(!token){ box.innerHTML = '<span class="err">Log into the P2U app in this browser first (needed to look up project names).</span>'; return; }
+  box.innerHTML = 'Looking up…';
+  try{
+    const r = await fetch('https://www.geni.com/api/'+pid+'?access_token='+encodeURIComponent(token));
+    const data = await r.json();
+    if(data && data.name){
+      box.innerHTML = `<b>${data.name}</b> (${pid}) &nbsp;
+        <button class="small" onclick="addPreset('${pid}', ${JSON.stringify(data.name).replace(/"/g,'&quot;')})">Add to presets</button>`;
+    } else {
+      box.innerHTML = '<span class="err">Project not found or not accessible.</span>';
+    }
+  }catch(e){ box.innerHTML = '<span class="err">Lookup failed.</span>'; }
+}
+
+// ---- add via name search (tries Geni project search; may be unsupported) ----
+async function searchProjects(){
+  const q = $('searchBox').value.trim();
+  const box = $('searchResults');
+  if(!q) return;
+  const token = geniToken();
+  if(!token){ box.innerHTML = '<span class="err">Log into the P2U app in this browser first, then search.</span>'; return; }
+  box.innerHTML = 'Searching…';
+  try{
+    const r = await fetch('https://www.geni.com/api/project/search?names='+encodeURIComponent(q)+'&access_token='+encodeURIComponent(token));
+    const data = await r.json();
+    const results = (data && data.results) || [];
+    if(!results.length){
+      box.innerHTML = '<span class="muted">No results (Geni may not support project search) — use the paste box below instead.</span>';
+      return;
+    }
+    box.innerHTML = results.slice(0,15).map(p => {
+      const pid = parseProjectId(String(p.id||'')) || parseProjectId(String(p.url||''));
+      if(!pid) return '';
+      const name = (p.name||pid).replace(/</g,'&lt;');
+      return `<div style="padding:4px 0"><button class="small" onclick="addPreset('${pid}', ${JSON.stringify(name).replace(/"/g,'&quot;')})">Add</button> ${name} <span class="muted">(${pid})</span></div>`;
+    }).join('');
+  }catch(e){
+    box.innerHTML = '<span class="muted">Search not available — use the paste box below instead.</span>';
+  }
+}
+
+async function addPreset(pid, label){
+  const r = await fetch('/api/v1/admin/presets', {method:'POST', headers:hdrs(),
+      body: JSON.stringify({id:pid, label:label, sort_order: presets.length, enabled:true})});
+  statusMsg(r.ok ? ('Added '+label) : 'Add failed', r.ok);
+  $('lookupResult').innerHTML=''; $('projectInput').value='';
+  loadPresets();
+}
+</script>
+</body>
+</html>

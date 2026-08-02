@@ -7,10 +7,8 @@ from sqlalchemy import sql
 
 # Define timestamp with precision of 10^-6 second
 DT_MICRO = mysql.DATETIME(fsp=6)
-class current_timestamp(sql.functions.GenericFunction):
-    type = DT_MICRO
-
-CURRENT_TIMESTAMP = current_timestamp(6)
+# SQLAlchemy 2.0: use the built-in now() with fractional-seconds precision
+CURRENT_TIMESTAMP = sqlalchemy.func.now(6)
 
 metadata = sqlalchemy.MetaData()
 
@@ -53,3 +51,15 @@ paths_table = sqlalchemy.Table(
 )
 
 
+
+
+# Editable list of preset target projects shown in the app's picker.
+# Managed through the /admin page; seeded from the old hardcoded list on first boot.
+preset_projects_table = sqlalchemy.Table(
+    "preset_projects",
+    metadata,
+    sqlalchemy.Column("id", sqlalchemy.String(64), primary_key=True),   # e.g. 'project-10373'
+    sqlalchemy.Column("label", sqlalchemy.String(255), nullable=False),
+    sqlalchemy.Column("sort_order", sqlalchemy.Integer, default=0),
+    sqlalchemy.Column("enabled", sqlalchemy.Boolean, default=True),
+)
