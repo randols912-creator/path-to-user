@@ -43,6 +43,12 @@ export class RelationService {
   private stopped = false;
   get wasStopped(): boolean { return this.stopped; }
 
+  // Bumped on every reset() so that a superseded search's still-pending
+  // callbacks/timeouts bail out instead of writing into the new run's results
+  // (this is what caused a new target to show the previous target's paths).
+  private runId = 0;
+  private superseded(myRun: number): boolean { return myRun !== this.runId; }
+
   constructor(private http: HttpClient, 
               private auth: AuthService,
               private settings: SettingsService) {
@@ -63,6 +69,7 @@ export class RelationService {
   }
 
   search() {
+    const myRun = this.runId;
     if (this.stopped) { this.status.next(Status.READY); return; }
     forkJoin(this.getCountQueriesObservables()).subscribe(
       ([
@@ -71,6 +78,9 @@ export class RelationService {
         { count: profilesCount },
         { count: totalPathsCount },
       ]) => {
+        if (this.superseded(myRun)) { return; }
+        if (this.stopped) { this.status.next(Status.READY); return; }
+
         if (totalPathsCount < profilesCount) {
           debugMessage('Reset / Source or target profiles are empty');
           this.triggerBackendWorkers();
@@ -79,12 +89,13 @@ export class RelationService {
         if (this.notReady(pathsCount, totalPathsCount, profilesCount)) {
           debugMessage('Interval fetch enabled');
           this.filterStoreAndReturnFilteredRelations(relations);
-          this.fetchAll(this.relations.length);
+          this.fetchAll(this.relations.length, myRun);
         } else {
           this.status.next(Status.READY);
         }
       },
       (reason) => {
+        if (this.superseded(myRun)) { return; }
         console.error(reason);
         this.status.next(Status.ERROR);
       }
@@ -97,6 +108,7 @@ export class RelationService {
     this.pathsCount = 0;
     this.pathsCountTs = Date.now();
     this.stopped = false;
+    this.runId++;                       // supersede any in-flight search
     this.status.next(Status.INITIALIZING);
 
     let st = this.settings.getSourceTarget()
@@ -150,7 +162,8 @@ export class RelationService {
     return filtered;
   }
 
-  private fetchAll(offset: number): void {
+  private fetchAll(offset: number, myRun: number): void {
+    if (this.superseded(myRun)) { return; }
     if (this.stopped) { this.status.next(Status.READY); return; }
     this.status.next(Status.FETCHING);
 
@@ -161,6 +174,7 @@ export class RelationService {
         { count: profilesCount },
         { count: totalPathsCount },
       ]) => {
+        if (this.superseded(myRun)) { return; }
         const filtered = this.filterStoreAndReturnFilteredRelations(relations);
         if (this.stopped) { this.status.next(Status.READY); return; }
         this.status.next(Status.PART_FETCHED);
@@ -171,7 +185,7 @@ export class RelationService {
             this.pathsCountTs = Date.now();
           }
           setTimeout(
-            () => this.fetchAll(this.relations.length),
+            () => this.fetchAll(this.relations.length, myRun),
             filtered.length > 0 ? 0 : MILLIS_BETWEEN_API_CALLS
           );
         } else {
@@ -180,6 +194,7 @@ export class RelationService {
         }
       },
       (reason) => {
+        if (this.superseded(myRun)) { return; }
         this.status.next(Status.ERROR);
         console.error(reason);
       }

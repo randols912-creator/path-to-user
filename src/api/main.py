@@ -369,7 +369,14 @@ class PathView(HTTPMethodView):
         if do_reset:
             await PathView._reset_connections(token, source_id)
 
-        asyncio.create_task(PathView._post_search_personalities(token, source_id, target_id))
+        enqueue_task = asyncio.create_task(
+            PathView._post_search_personalities(token, source_id, target_id))
+        try:
+            tasks = [t for t in getattr(app.ctx, 'enqueue_tasks', []) if t and not t.done()]
+            tasks.append(enqueue_task)
+            app.ctx.enqueue_tasks = tasks
+        except Exception as e:
+            logger.warning(f"Could not track enqueue task: {e}")
         logger.info(f"Started personalities paths search, source: {source_id}, target: {target_id}")
         return json({"status": "Started personalities paths search"})
 
@@ -390,7 +397,36 @@ class PathView(HTTPMethodView):
             my_profile = await pm.cache()
             source_id = my_profile['id']
         await path_mgr.clear_paths(source_id)
-        logger.info(f"Deleted personalities paths search for : {source_id}")
+
+        # A new search must not keep populating results for the previous target.
+        # 1) Cancel any still-running enqueuer from the old target.
+        # 2) Drain path-finding tasks that were already queued but not yet run.
+        # Both are wrapped defensively so a hiccup here never breaks the reset.
+        cancelled = 0
+        try:
+            for t in list(getattr(app.ctx, 'enqueue_tasks', []) or []):
+                if t and not t.done():
+                    t.cancel()
+                    cancelled += 1
+            app.ctx.enqueue_tasks = []
+        except Exception as e:
+            logger.warning(f"Enqueuer cancel skipped: {e}")
+
+        drained = 0
+        try:
+            for q in getattr(app.ctx, 'task_queue', []) or []:
+                while True:
+                    try:
+                        q.get_nowait()
+                        q.task_done()
+                        drained += 1
+                    except asyncio.QueueEmpty:
+                        break
+        except Exception as e:
+            logger.warning(f"Queue drain skipped: {e}")
+
+        logger.info(f"Deleted personalities paths search for : {source_id} "
+                    f"(cancelled {cancelled} enqueuers, drained {drained} queued task-batches)")
 
     @staticmethod
     async def _post_search_personalities(token, source_id, target_id):
@@ -562,6 +598,10 @@ async def setup_workers(app, loop):
     quantity = process_quantity if process_quantity else cpu_count()*2+1
 
     app.ctx.task_queue = [PriorityQueue() for i in range(0, quantity)]
+
+    # In-flight coroutine(s) that enqueue path-finding tasks for a target.
+    # Tracked so a new search can cancel a previous target's enqueuer.
+    app.ctx.enqueue_tasks = []
 
     app.ctx.user2user_result_queue = Queue()
 
