@@ -61,8 +61,7 @@ export class ProfilePopupComponent implements OnInit {
 
   cseVisible = false;
   private cseLoaded = false;
-  private cseGname: string = null;
-  private cseCounter = 0;
+  private cseSeq = 0;
 
   constructor(private settingsService: SettingsService,
               private relationsService: RelationService,
@@ -234,46 +233,46 @@ export class ProfilePopupComponent implements OnInit {
 
   // Google Programmable Search widget fallback: render Google's own results
   // inline and intercept clicks so choosing a project stays in the app.
-  // The element is rendered once per holder DOM node and reused for every
-  // subsequent search (re-rendering into a live element breaks it).
+  // NOTE: the Google engine must be set to "Results only" layout in the
+  // control panel; in "Overlay" mode the results float in a layer we can't
+  // manage. We render a FRESH element into a fresh holder on every search so
+  // there is never stale widget state to fight (which broke repeat searches).
   private showCseWidget(cseId, q) {
     const w: any = window as any;
     const box = this.search.project;
     this.cseVisible = true;
-    const doSearch = () => {
+    const renderFresh = () => {
       const g = w.google;
-      const holder = document.getElementById('p2uGcseHolder');
-      if (!holder) { setTimeout(doSearch, 200); return; }
+      const wrap = document.getElementById('p2uGcseWrap');
+      if (!wrap) { setTimeout(renderFresh, 200); return; }
       if (!(g && g.search && g.search.cse && g.search.cse.element)) {
-        setTimeout(doSearch, 250);
+        setTimeout(renderFresh, 250);
         return;
       }
-      // (Re-)render only when this holder node has no live widget in it
-      if (!this.cseGname || holder.childElementCount === 0) {
-        holder.innerHTML = '';
-        this.cseGname = 'p2uapp' + (++this.cseCounter);
-        g.search.cse.element.render({ div: 'p2uGcseHolder', tag: 'searchresults-only', gname: this.cseGname,
-          attributes: { overlayResults: false, enableHistory: false, linkTarget: '_self' } });
-      }
-      if (!(holder as any)._p2uHooked) {
-        (holder as any)._p2uHooked = true;
-        holder.addEventListener('click', (ev: any) => {
-          const a = ev.target && ev.target.closest ? ev.target.closest('a') : null;
-          if (!a) { return; }
-          const url = a.getAttribute('data-ctorig') || a.href || '';
-          const m = url.match(/geni\.com\/projects\/[^\/]+\/(\d+)/);
-          if (!m) { return; }
-          ev.preventDefault();
-          ev.stopPropagation();
-          const title = (a.textContent || ('project-' + m[1]))
-            .replace(/\s*[-|]\s*geni(\.com)?.*$/i, '').trim();
-          this.zone.run(() => {
-            this.hideCseWidget();
-            this.selectProjectResult({ project_id: 'project-' + m[1], title: title });
-          });
-        }, true);
-      }
-      const el = g.search.cse.element.getElement(this.cseGname);
+      const seq = ++this.cseSeq;
+      const holderId = 'p2uGcseHolder' + seq;
+      const gname = 'p2uapp' + seq;
+      wrap.innerHTML = '';
+      const holder = document.createElement('div');
+      holder.id = holderId;
+      wrap.appendChild(holder);
+      holder.addEventListener('click', (ev: any) => {
+        const a = ev.target && ev.target.closest ? ev.target.closest('a') : null;
+        if (!a) { return; }
+        const url = a.getAttribute('data-ctorig') || a.href || '';
+        const m = url.match(/geni\.com\/projects\/[^\/]+\/(\d+)/);
+        if (!m) { return; }
+        ev.preventDefault();
+        ev.stopPropagation();
+        const title = (a.textContent || ('project-' + m[1]))
+          .replace(/\s*[-|]\s*geni(\.com)?.*$/i, '').trim();
+        this.zone.run(() => {
+          this.selectProjectResult({ project_id: 'project-' + m[1], title: title });
+        });
+      }, true);
+      g.search.cse.element.render({ div: holderId, tag: 'searchresults-only', gname: gname,
+        attributes: { overlayResults: false, enableHistory: false, linkTarget: '_self' } });
+      const el = g.search.cse.element.getElement(gname);
       if (el) { el.execute(q); }
     };
     if (!this.cseLoaded) {
@@ -281,7 +280,7 @@ export class ProfilePopupComponent implements OnInit {
       const s = document.createElement('script');
       s.src = 'https://cse.google.com/cse.js?cx=' + encodeURIComponent(cseId);
       s.async = true;
-      s.onload = () => { setTimeout(doSearch, 300); };
+      s.onload = () => { setTimeout(renderFresh, 300); };
       s.onerror = () => {
         this.zone.run(() => {
           this.cseVisible = false;
@@ -290,17 +289,14 @@ export class ProfilePopupComponent implements OnInit {
       };
       document.head.appendChild(s);
     } else {
-      doSearch();
+      renderFresh();
     }
   }
 
-  private hideCseWidget() {
+  hideCseWidget() {
     this.cseVisible = false;
-    const w: any = window as any;
-    if (this.cseGname && w.google && w.google.search && w.google.search.cse) {
-      const el = w.google.search.cse.element.getElement(this.cseGname);
-      if (el && el.clearAllResults) { try { el.clearAllResults(); } catch (e) {} }
-    }
+    const wrap = document.getElementById('p2uGcseWrap');
+    if (wrap) { wrap.innerHTML = ''; }
   }
 
   selectProjectResult(r) {
@@ -308,6 +304,7 @@ export class ProfilePopupComponent implements OnInit {
     box.selectedName = r.title;
     box.results = [];
     box.message = '';
+    this.hideCseWidget();
     this.customTargetProjectId = String(r.project_id).replace('project-', '');
     this.profileForm.patchValue({ targetProjectIdSelection: null });
     this.restoreProjectSelection();

@@ -82,8 +82,9 @@
                         <li *ngFor="let r of search.project.results" (click)="selectProjectResult(r)">{{ r.title }}</li>
                     </ul>
                     <div class="search-msg selected" *ngIf="search.project.selectedName">Selected: {{ search.project.selectedName }}</div>
-                    <div class="search-msg" *ngIf="cseVisible" style="color:#555">Results from Google &mdash; click a project to select it:</div>
-                    <div id="p2uGcseHolder" [style.display]="cseVisible ? 'block' : 'none'"
+                    <div class="search-msg" *ngIf="cseVisible" style="color:#555">Results from Google &mdash; click a project to select it.
+                        <button type="button" class="search-btn" (click)="hideCseWidget()">Close</button></div>
+                    <div id="p2uGcseWrap" [style.display]="cseVisible ? 'block' : 'none'"
                          style="margin: 0 47px 10px 47px;"></div>
                     <div class="display_profile_id">
                         <span class="span_input">Project ID:</span>

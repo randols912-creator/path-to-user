@@ -44,7 +44,7 @@
       <tbody></tbody>
     </table>
     <div style="margin-top:10px">
-      <button onclick="saveOrder()">Save order & edits</button>
+      <button onclick="saveOrder()">Save order &amp; edits</button>
     </div>
   </div>
 
@@ -54,15 +54,11 @@
       Geni's own search is unavailable), or paste a Geni project URL / id
       (e.g. <code>https://www.geni.com/projects/US-Presidents/9</code> or <code>project-9</code>).</p>
     <div style="margin-bottom:8px">
-      <input type="text" id="searchBox" size="30" placeholder="Search projects by name&hellip;"/>
+      <input type="text" id="searchBox" size="30" placeholder="Search projects by name&hellip;"
+             onkeydown="if(event.key==='Enter'){event.preventDefault();searchProjects();}"/>
       <button onclick="searchProjects()" id="searchBtn">Search</button>
     </div>
     <div id="searchResults"></div>
-    <div id="gcseWrap" style="display:none">
-      <div class="muted" style="margin:6px 0"><b>Click a project to add it</b> (stays on this page)
-        &nbsp; <button type="button" class="small gray" onclick="hideCse()">Close results</button></div>
-      <div id="gcseHolder"></div>
-    </div>
     <div style="margin:12px 0 8px 0">
       <input type="text" id="projectInput" size="40" placeholder="&hellip;or paste project URL / id"/>
       <button onclick="lookupProject()" id="lookupBtn">Look up</button>
@@ -86,6 +82,7 @@ window.addEventListener('load', () => {
   if (saved) { $('adminKey').value = saved; loadPresets(); }
 });
 
+// ---------------- presets list ----------------
 async function loadPresets(){
   statusMsg('Loading…', true);
   try{
@@ -143,12 +140,21 @@ async function removePreset(id){
   loadPresets();
 }
 
-// ---- add via paste (project URL or id) ----
+async function addPreset(pid, label){
+  const r = await fetch('/api/v1/admin/presets', {method:'POST', headers:hdrs(),
+      body: JSON.stringify({id:pid, label:label, sort_order: presets.length, enabled:true})});
+  statusMsg(r.ok ? ('Added '+label) : 'Add failed', r.ok);
+  $('lookupResult').innerHTML=''; $('projectInput').value='';
+  closeCseResults();
+  loadPresets();
+}
+
+// ---------------- add via paste (project URL or id) ----------------
 function parseProjectId(text){
-  text = text.trim();
-  let m = text.match(/project-(\d+)/);          // project-123
+  text = (text || '').trim();
+  let m = text.match(/project-(\d+)/);                    // project-123
   if(m) return 'project-'+m[1];
-  m = text.match(/geni\.com\/projects\/[^\/]+\/(\d+)/);  // project URL
+  m = text.match(/geni\.com\/projects\/[^\/]+\/(\d+)/);   // project URL
   if(m) return 'project-'+m[1];
   if(/^\d+$/.test(text)) return 'project-'+text;
   return null;
@@ -182,32 +188,22 @@ function googleFallbackHtml(q){
          'then copy the project\'s URL from a result and paste it below.</span>';
 }
 
-// ---- add via name search (tries Geni project search; may be unsupported) ----
-let cseReady = false, cseRendered = false;
-let _cseId = null;
+// ---------------- add via name search (Google Programmable Search widget) ----------------
+// The Google engine MUST be set to "Results only" layout in the control panel;
+// in "Overlay" mode the results render in a floating layer we can't manage.
+// We render a FRESH results element on every search so there's no stale state.
+let _cseScriptLoaded = false, _cseSeq = 0;
 
-function ensureCse(cseId){
-  _cseId = cseId;
-  if(cseReady) return Promise.resolve(true);
+function loadCse(cseId){
+  if(_cseScriptLoaded) return Promise.resolve(true);
   return new Promise(resolve => {
-    window.__gcse = { parsetags: 'explicit', callback: function(){ cseReady = true; resolve(true); } };
+    window.__gcse = { parsetags: 'explicit', callback: function(){ _cseScriptLoaded = true; resolve(true); } };
     const s = document.createElement('script');
     s.src = 'https://cse.google.com/cse.js?cx=' + encodeURIComponent(cseId);
     s.async = true;
     s.onerror = () => resolve(false);
     document.head.appendChild(s);
   });
-}
-
-function cseElement(){
-  return (window.google && google.search && google.search.cse && google.search.cse.element)
-    ? google.search.cse.element.getElement('p2uadmin') : null;
-}
-
-function hideCse(){
-  $('gcseWrap').style.display = 'none';
-  const el = cseElement();
-  if(el && el.clearAllResults){ try{ el.clearAllResults(); }catch(e){} }
 }
 
 function extractProject(a){
@@ -219,189 +215,57 @@ function extractProject(a){
   return {pid: 'project-' + m[1], title: title};
 }
 
-async function cseSearch(q){
-  const ok = await ensureCse(_cseId);
-  if(!ok) return false;
-  if(!cseRendered){
-    google.search.cse.element.render({div: 'gcseHolder', tag: 'searchresults-only', gname: 'p2uadmin',
-        attributes: {overlayResults: false, enableHistory: false, linkTarget: '_self'}});
-    cseRendered = true;
-    $('gcseHolder').addEventListener('click', function(ev){
+function closeCseResults(){ $('searchResults').innerHTML = ''; }
+
+async function searchProjects(){
+  const q = $('searchBox').value.trim();
+  const box = $('searchResults');
+  if(!q) return;
+  box.innerHTML = 'Searching…';
+  try{
+    const r = await fetch('/api/v1/admin/project-search?q='+encodeURIComponent(q), {headers: hdrs()});
+    const data = await r.json();
+
+    // Preferred: server-side API results (only if an API key is ever configured)
+    if(data.configured && (data.results || []).length){
+      box.innerHTML = data.results.map(p => {
+        const name = p.title.replace(/</g,'&lt;');
+        return `<div style="padding:4px 0">` +
+               `<button class="small" onclick="addPreset('${p.project_id}', ${JSON.stringify(p.title).replace(/"/g,'&quot;')})">Add</button> ` +
+               `${name} <span class="muted">(${p.project_id})</span> ` +
+               `<a href="${p.link}" target="_blank" class="muted">view</a></div>`;
+      }).join('');
+      return;
+    }
+
+    if(!data.cse_id){ box.innerHTML = googleFallbackHtml(q); return; }
+
+    const ok = await loadCse(data.cse_id);
+    if(!ok){ box.innerHTML = googleFallbackHtml(q); return; }
+
+    // Fresh element + holder for every search — no stale widget to fight.
+    const seq = ++_cseSeq;
+    const gname = 'p2ug' + seq;
+    const holderId = 'gcseHolder' + seq;
+    box.innerHTML =
+      '<div class="muted" style="margin-bottom:6px"><b>Click a project to add it.</b> ' +
+      '<button type="button" class="small gray" onclick="closeCseResults()">Close results</button></div>' +
+      '<div id="' + holderId + '"></div>';
+    const holder = document.getElementById(holderId);
+    holder.addEventListener('click', function(ev){
       const a = ev.target && ev.target.closest ? ev.target.closest('a') : null;
       if(!a) return;
       const p = extractProject(a);
-      if(p){
-        ev.preventDefault(); ev.stopPropagation();
-        addPreset(p.pid, p.title);
-        hideCse();
-      }
+      if(p){ ev.preventDefault(); ev.stopPropagation(); addPreset(p.pid, p.title); }
     }, true);
-  }
-  $('gcseWrap').style.display = '';
-  const el = cseElement();
-  if(el){ el.execute(q); return true; }
-  return false;
-}
-
-async function searchProjects(){
-  const q = $('searchBox').value.trim();
-  const box = $('searchResults');
-  if(!q) return;
-  box.innerHTML = 'Searching…';
-  try{
-    const r = await fetch('/api/v1/admin/project-search?q='+encodeURIComponent(q), {headers: hdrs()});
-    const data = await r.json();
-
-    // Preferred: server-side API results (if a key is ever configured)
-    if(data.configured && (data.results || []).length){
-      hideCse();
-      box.innerHTML = data.results.map(p => {
-        const name = p.title.replace(/</g,'&lt;');
-        return `<div style="padding:4px 0">` +
-               `<button class="small" onclick="addPreset('${p.project_id}', ${JSON.stringify(p.title).replace(/"/g,'&quot;')})">Add</button> ` +
-               `${name} <span class="muted">(${p.project_id})</span> ` +
-               `<a href="${p.link}" target="_blank" class="muted">view</a></div>`;
-      }).join('');
-      return;
-    }
-
-    // Widget path
-    if(data.cse_id){
-      box.innerHTML = '';
-      const shown = await cseSearch(q);
-      if(shown) return;
-    }
-    box.innerHTML = googleFallbackHtml(q);
+    google.search.cse.element.render(
+      {div: holderId, tag: 'searchresults-only', gname: gname,
+       attributes: {overlayResults: false, enableHistory: false, linkTarget: '_self'}});
+    const el = google.search.cse.element.getElement(gname);
+    if(el){ el.execute(q); } else { box.innerHTML = googleFallbackHtml(q); }
   }catch(e){
     box.innerHTML = googleFallbackHtml(q);
   }
-}
-
-// ---- add via paste (project URL or id) ----
-function parseProjectId(text){
-  text = text.trim();
-  let m = text.match(/project-(\d+)/);          // project-123
-  if(m) return 'project-'+m[1];
-  m = text.match(/geni\.com\/projects\/[^\/]+\/(\d+)/);  // project URL
-  if(m) return 'project-'+m[1];
-  if(/^\d+$/.test(text)) return 'project-'+text;
-  return null;
-}
-
-async function lookupProject(){
-  const pid = parseProjectId($('projectInput').value);
-  const box = $('lookupResult');
-  if(!pid){ box.innerHTML = '<span class="err">Could not find a project id in that text.</span>'; return; }
-  const token = geniToken();
-  if(!token){ box.innerHTML = '<span class="err">Log into the P2U app in this browser first (needed to look up project names).</span>'; return; }
-  box.innerHTML = 'Looking up…';
-  try{
-    const r = await fetch('https://www.geni.com/api/'+pid+'?access_token='+encodeURIComponent(token));
-    const data = await r.json();
-    if(data && data.name){
-      box.innerHTML = `<b>${data.name}</b> (${pid}) &nbsp;
-        <button class="small" onclick="addPreset('${pid}', ${JSON.stringify(data.name).replace(/"/g,'&quot;')})">Add to presets</button>`;
-    } else {
-      box.innerHTML = '<span class="err">Project not found or not accessible.</span>';
-    }
-  }catch(e){ box.innerHTML = '<span class="err">Lookup failed.</span>'; }
-}
-
-function googleLink(q){
-  return 'https://www.google.com/search?q=' + encodeURIComponent('site:geni.com/projects ' + q);
-}
-function googleFallbackHtml(q){
-  return '<span class="muted">Geni has no project name search - but you can ' +
-         '<a href="' + googleLink(q) + '" target="_blank"><b>search Geni projects on Google</b></a>, ' +
-         'then copy the project\'s URL from a result and paste it below.</span>';
-}
-
-// ---- add via name search (tries Geni project search; may be unsupported) ----
-let cseLoaded = false;
-async function ensureCse(cseId){
-  if(cseLoaded) return true;
-  return new Promise(resolve => {
-    const s = document.createElement('script');
-    s.src = 'https://cse.google.com/cse.js?cx=' + encodeURIComponent(cseId);
-    s.async = true;
-    s.onload = () => { cseLoaded = true; setTimeout(() => resolve(true), 400); };
-    s.onerror = () => resolve(false);
-    document.head.appendChild(s);
-  });
-}
-
-function extractProject(a){
-  // CSE result links carry the real URL in href or data-ctorig
-  const url = a.getAttribute('data-ctorig') || a.href || '';
-  const m = url.match(/geni\.com\/projects\/[^\/]+\/(\d+)/);
-  if(!m) return null;
-  const title = (a.textContent || ('project-' + m[1])).trim();
-  return {pid: 'project-' + m[1], title: title};
-}
-
-async function searchProjects(){
-  const q = $('searchBox').value.trim();
-  const box = $('searchResults');
-  if(!q) return;
-  box.innerHTML = 'Searching…';
-  try{
-    const r = await fetch('/api/v1/admin/project-search?q='+encodeURIComponent(q), {headers: hdrs()});
-    const data = await r.json();
-
-    // Preferred path: server-side API results (needs GOOGLE_CSE_KEY)
-    if(data.configured && (data.results || []).length){
-      box.innerHTML = data.results.map(p => {
-        const name = p.title.replace(/</g,'&lt;');
-        return `<div style="padding:4px 0">` +
-               `<button class="small" onclick="addPreset('${p.project_id}', ${JSON.stringify(p.title).replace(/"/g,'&quot;')})">Add</button> ` +
-               `${name} <span class="muted">(${p.project_id})</span> ` +
-               `<a href="${p.link}" target="_blank" class="muted">view</a></div>`;
-      }).join('');
-      return;
-    }
-
-    // Widget path: render Google's embedded search and catch result clicks
-    if(data.cse_id){
-      const ok = await ensureCse(data.cse_id);
-      if(ok){
-        box.innerHTML = '<div class="muted" style="margin-bottom:6px">' +
-          'Results from Google - <b>click a project to add it</b> (it will not leave this page).</div>' +
-          '<div id="gcseHolder"><div class="gcse-searchresults-only" data-linktarget="_self"></div></div>';
-        const render = () => {
-          if(window.google && google.search && google.search.cse && google.search.cse.element){
-            google.search.cse.element.render({div: 'gcseHolder', tag: 'searchresults-only'});
-            const el = google.search.cse.element.getElement('gcseHolder') ||
-                       google.search.cse.element.getAllElements()[Object.keys(google.search.cse.element.getAllElements())[0]];
-            if(el){ el.execute(q); }
-          } else { setTimeout(render, 300); }
-        };
-        // clear our placeholder div content that auto-rendered, then render fresh
-        setTimeout(render, 200);
-        // intercept clicks on results
-        $('searchResults').addEventListener('click', function(ev){
-          const a = ev.target.closest && ev.target.closest('a');
-          if(!a) return;
-          const p = extractProject(a);
-          if(p){
-            ev.preventDefault(); ev.stopPropagation();
-            addPreset(p.pid, p.title.replace(/\s*[-|]\s*geni(\.com)?.*$/i, ''));
-          }
-        }, true);
-        return;
-      }
-    }
-    box.innerHTML = googleFallbackHtml(q);
-  }catch(e){
-    box.innerHTML = googleFallbackHtml(q);
-  }
-}
-
-async function addPreset(pid, label){
-  const r = await fetch('/api/v1/admin/presets', {method:'POST', headers:hdrs(),
-      body: JSON.stringify({id:pid, label:label, sort_order: presets.length, enabled:true})});
-  statusMsg(r.ok ? ('Added '+label) : 'Add failed', r.ok);
-  $('lookupResult').innerHTML=''; $('projectInput').value='';
-  loadPresets();
 }
 </script>
 </body>
