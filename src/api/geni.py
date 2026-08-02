@@ -4,6 +4,7 @@ import requests
 import aiohttp
 import logging
 from collections import deque
+from sanic.log import logger as sanic_logger
 
 
 class RateLimiter:
@@ -53,9 +54,17 @@ class GeniClientAsync:
     PROFILES_FROM_PROJECT = 'api/{project_id}/profiles'
     PROFILE_SEARCH_URL = 'api/profile/search'
 
-    # 25 calls / 10s: matches the rate this client's own TODO called out, and
-    # is in the same ballpark as the old sync client's 1 call/sec throttle.
-    RATE_LIMIT_CALLS = int(os.environ.get('GENI_RATE_LIMIT_CALLS', 25))
+    # This client's own self-throttle - a backstop against runaway bursts,
+    # NOT an attempt to match whatever Geni enforces server-side (we can't
+    # see that from here, and it may differ per registered Geni app/client
+    # ID). Started at 25/10s from an old TODO comment, but a side-by-side
+    # comparison against geni.anumuseum.org.il (same codebase) sustained
+    # ~17 profiles/sec without errors, so 25/10s (2.5/sec) was almost
+    # certainly us throttling ourselves well below what Geni allows. Set
+    # generously above the observed comparison; if Geni has a lower quota
+    # for THIS app's client ID specifically, we'll now see real rejections
+    # from Geni in the logs (see _geni_api_call) instead of just being slow.
+    RATE_LIMIT_CALLS = int(os.environ.get('GENI_RATE_LIMIT_CALLS', 200))
     RATE_LIMIT_PERIOD = float(os.environ.get('GENI_RATE_LIMIT_PERIOD', 10))
     HTTP_TIMEOUT_SECONDS = float(os.environ.get('GENI_HTTP_TIMEOUT', 20))
 
@@ -212,6 +221,12 @@ class GeniClientAsync:
 
             if response.get('error'):
                 result['api_errors'].append(response['error'])
+                # Logged at WARNING (not DEBUG, which is silent by default in
+                # production) so an actual Geni-side rejection - e.g. a
+                # per-app rate limit distinct from our own client-side
+                # throttle above - is visible in `heroku logs --tail`
+                # instead of just showing up as a slow/incomplete search.
+                sanic_logger.warning(f"Geni API error for {url}: {response['error']} (status={response_raw.status})")
 
                 if response['error']['type'] == 'OAuthException':
                     await self._get_token(token['refresh_token'])
@@ -227,7 +242,7 @@ class GeniClientAsync:
             # Includes asyncio.TimeoutError from the timeout above - previously
             # requests could hang indefinitely here with no timeout at all.
             result['internal_errors'].append(error)
-            logging.debug(f"Geni API call failed: {url} -> {error!r}")
+            sanic_logger.warning(f"Geni API call failed: {url} -> {error!r}")
 
         return result, token
 
