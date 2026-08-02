@@ -15,6 +15,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { NgChatModule } from 'ng-chat';
 import { SocketIoModule } from 'ngx-socket-io';
 import { environment as env } from 'src/environments/environment';
+import { TRANSLATIONS_VERSION } from './app.constants';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AuthInterceptor } from './auth/auth.interceptor';
@@ -67,7 +68,10 @@ const INTERCEPTOR_PROVIDER: Provider = {
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
-  return new TranslateHttpLoader(http);
+  // Cache-bust the translation JSON so a browser that cached an older copy of
+  // assets/i18n/en-US.json (etc.) always fetches the current one after a deploy
+  // that bumps TRANSLATIONS_VERSION. See app.constants.ts.
+  return new TranslateHttpLoader(http, '/assets/i18n/', `.json?v=${TRANSLATIONS_VERSION}`);
 }
 
 /**

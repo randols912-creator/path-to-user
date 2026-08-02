@@ -42,6 +42,12 @@ export const RELATION_LIMIT_STEP = 25;
 
 export const termsOfUseUrl = 'https://www.geni.com/company/terms_of_use';
 
+// Cache-buster for the translation JSON files (assets/i18n/*.json). Unlike the
+// hashed JS bundles, these keep a fixed filename across deploys, so browsers can
+// keep serving a stale cached copy after the text changes. Bump this number any
+// time an i18n JSON file's content changes, so the browser is forced to refetch it.
+export const TRANSLATIONS_VERSION = 1;
+
 export const welcomePhotos = [
   'assets/img/photos/einstein.jpg',
   'assets/img/photos/0.jpg',
