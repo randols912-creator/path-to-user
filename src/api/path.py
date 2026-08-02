@@ -5,6 +5,7 @@ from api.profile import ProfileManager
 from api.models import CURRENT_TIMESTAMP, paths_table, profiles_table
 from sqlalchemy import and_, select, join, func, distinct, delete, true
 from databases import Database
+import asyncio
 from asyncio import Queue, sleep as asyncio_sleep
 import datetime
 import traceback
@@ -46,16 +47,56 @@ class PathManager:
         return pending
 
     async def find_batch(self, task_list):
+        # Resolve each task's path independently and save it to the DB as
+        # soon as ITS OWN Geni call completes, instead of awaiting
+        # asyncio.gather() over the whole batch. Previously one slow/stuck
+        # profile (now capped by the Geni client's timeout) delayed every
+        # other - even already-finished - result in the same batch from
+        # ever reaching the database, which made progress look chunky/stalled
+        # to the frontend even though most of the batch was actually done.
+        u2u_list = []
+        pending_list = []
 
-        # First, save source profile to DB (if not saved yet). TODO: save outside of PathFinder
-        # self._save_profile(session, self.source_profile)
-        # Call Geni API to find path between source and target profiles
-        results = await self.geni.get_batch_path_to(task_list)
+        async def _resolve(task):
+            source_id, target_id, is_user2user, pending_ts, token = task.data.values()
+            try:
+                result, _ = await self.geni.get_path_to(source_id, target_id, token)
+            except Exception:
+                logger.exception(f"[{os.getpid()}] Exception resolving {source_id} -> {target_id}")
+                result = {'is_success': False, 'internal_errors': ['exception in get_path_to']}
+            return task, source_id, target_id, is_user2user, pending_ts, result
 
-        logger.debug("[{}] Status for {} -> {}".format(os.getpid(), task_list, results))
-        # Pending can be changed by timeout during save
-        u2u_list,pending_list = await self._save_path_batch(task_list, results)
-        return u2u_list,pending_list
+        for coro in asyncio.as_completed([_resolve(task) for task in task_list]):
+            task, source_id, target_id, is_user2user, pending_ts, result = await coro
+            logger.debug("[{}] Status for {} -> {}".format(os.getpid(), target_id, result.get('status')))
+
+            pending = (result.get('status') == 'pending' or result['is_success'] == False) \
+                      and not self._is_pending_timeout(pending_ts)
+            if pending:
+                if not task.data.get('pending_ts'):
+                    task.data['pending_ts'] = datetime.datetime.now()
+                pending_list.append(task)
+                continue
+
+            values = {
+                'source_id': source_id,
+                'target_id': target_id,
+                'is_user2user': is_user2user,
+                'url': result.get('url', ''),
+                'step_count': result.get('step_count', 0),
+                'relationship': result.get('relationship', '')[:250],
+                'relations': result.get('relations', ''),
+                'updated_on': CURRENT_TIMESTAMP,
+                'finished_on': CURRENT_TIMESTAMP
+            }
+            # Written immediately so a fast result is visible to the frontend
+            # right away, instead of waiting on the slowest task in the batch.
+            await self.database.execute(paths_table.insert().values(values))
+
+            if values['step_count'] > 0 and values['is_user2user']:
+                u2u_list.append(values)
+
+        return u2u_list, pending_list
 
 
     async def get(self, source_id: str, target_id: str):
@@ -175,46 +216,6 @@ class PathManager:
             await self.user2user_result_queue.put(values)
 
         return pending
-
-    async def _save_path_batch(self, task_list, result_list):
-        values_list = []
-        pending_task_list = []
-        user2user_list = []
-        for task,(result,token) in zip(task_list, result_list):
-            source_id,target_id,is_user2user,pending_ts,token = task.data.values()
-            # Calculate pending status
-            pending = (result.get('status') == 'pending' or result['is_success'] == False) \
-                      and not self._is_pending_timeout(pending_ts)
-            if pending:
-                if not task.data.get('pending_ts'):
-                    task.data['pending_ts'] = datetime.datetime.now()
-                pending_task_list.append(task)
-                continue
-
-            values = {
-                'source_id': source_id,
-                'target_id': target_id,
-                'is_user2user': is_user2user,
-                'url': result.get('url', ''),
-                'step_count': result.get('step_count', 0),
-                'relationship': result.get('relationship', '')[:250],
-                'relations': result.get('relations', ''),
-                'updated_on': CURRENT_TIMESTAMP,
-                'finished_on': CURRENT_TIMESTAMP
-            }
-            values_list.append(values)
-
-            # Communicate found user2user connection
-            if values['step_count'] > 0 and values['is_user2user']:
-                user2user_list.append(values)
-
-        query = paths_table.insert()
-        logger.debug(query)
-        logger.debug(f"values: {values_list}")
-        if values_list:
-            await self.database.execute_many(query, values_list)
-
-        return user2user_list,pending_task_list
 
     async def is_user2user(self, source_id, target_id):
         for profile_id in [target_id, source_id]:  # target id is usually personality id, so start with it
