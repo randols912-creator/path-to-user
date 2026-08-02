@@ -36,6 +36,7 @@ export class RelationService {
   private uniqueIds: Set<string> = new Set<string>();
 
   private pathsCount = 0;
+  private prevTotal = 0;          // previous total-attempted count, to detect real backend progress
   private pathsCountTs = Date.now();
 
   // Set when the user stops a run early; halts the polling loop but keeps
@@ -113,6 +114,7 @@ export class RelationService {
     this.relations = [];
     this.uniqueIds.clear();
     this.pathsCount = 0;
+    this.prevTotal = 0;
     this.pathsCountTs = Date.now();
     this.targetTotal = 0;
     this.stopped = false;
@@ -143,8 +145,14 @@ export class RelationService {
     totalPathsCount: number,
     profilesCount: number
   ): boolean {
-    if (this.pathsCount == pathsCount && (Date.now() - this.pathsCountTs) > PATHS_TIMEOUT*1000  ) {
-       return false; // stuck on the same path count and timed out, stop search
+    // Give up only when the backend has made NO progress of any kind for the
+    // timeout window — neither a new connection NOR a newly-attempted profile.
+    // (Previously this only watched the connected count, so it stopped polling
+    // while the crawl was still working through a big project, and a page
+    // refresh was needed to catch up.)
+    if (this.pathsCount == pathsCount && this.prevTotal == totalPathsCount
+        && (Date.now() - this.pathsCountTs) > PATHS_TIMEOUT*1000  ) {
+       return false; // backend has gone quiet and timed out, stop search
     }
     return (
       this.relations.length < pathsCount || totalPathsCount < profilesCount
@@ -189,8 +197,12 @@ export class RelationService {
         this.status.next(Status.PART_FETCHED);
 
         if (this.notReady(pathsCount, totalPathsCount, profilesCount)) {
-          if (this.pathsCount != pathsCount) {
+          // Reset the "no progress" timer whenever EITHER the connected count or
+          // the total-attempted count moves, so a still-working crawl keeps the
+          // page polling instead of timing out mid-run.
+          if (this.pathsCount != pathsCount || this.prevTotal != totalPathsCount) {
             this.pathsCount = pathsCount;
+            this.prevTotal = totalPathsCount;
             this.pathsCountTs = Date.now();
           }
           setTimeout(

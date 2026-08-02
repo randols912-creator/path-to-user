@@ -30,13 +30,12 @@
 <div style="text-align:center; margin: 6px 0 2px;">
     <button *ngIf="loading" type="button" class="btn btn-link"
             style="color:#c0392b; font-weight:600; margin:0 8px;"
-            (click)="stopSearch()" translate>controls.stop</button>
+            (click)="stopSearch()">{{ 'controls.stop' | translate }}</button>
     <button type="button" class="btn btn-link"
             style="font-weight:600; margin:0 8px;"
-            (click)="changeTarget()" translate>controls.newSearch</button>
+            (click)="changeTarget()">{{ 'controls.newSearch' | translate }}</button>
 </div>
-<div *ngIf="stopped && !loading" style="text-align:center; color:#777; font-size:13px; margin-bottom:6px;"
-     translate [translateParams]="{ value: relations.length }">controls.stopped</div>
+<div *ngIf="stopped && !loading" style="text-align:center; color:#777; font-size:13px; margin-bottom:6px;">{{ 'controls.stopped' | translate:{ value: relations.length } }}</div>
 
 <!-- TODO hidden for now -->
 <app-toolbar *ngIf="false"></app-toolbar>

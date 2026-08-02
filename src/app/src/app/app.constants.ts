@@ -22,7 +22,7 @@ export const FETCH_CHATS_URL = `${env.relationsServiceHost}/api/v1/chats`;
 export const FETCH_NEW_MESSAGES_COUNT = `${env.relationsServiceHost}/api/v1/chats/messages/count_new`;
 
 export const GENI_TOKEN_HEADER_KEY = 'authorization';
-export const MILLIS_BETWEEN_API_CALLS = 1000;
+export const MILLIS_BETWEEN_API_CALLS = 3000;   // idle poll interval (was 1000): eases DB load during rate-limit lulls; active fetching still runs immediately
 export const QUADRANT_COUNT = 40;
 export const PATHS_TIMEOUT = 300;
 
