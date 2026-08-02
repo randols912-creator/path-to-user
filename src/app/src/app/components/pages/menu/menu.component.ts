@@ -57,6 +57,9 @@ export class MenuComponent implements OnInit {
   }
 
   profileMenuOpen(){
+    // Halt the current crawl before heading to the picker so it can't bleed
+    // its results into the next search.
+    this.relationService.stop();
     this.router.navigate([`/${PROFILE_POPUP_PATH}`]);
   }
 }

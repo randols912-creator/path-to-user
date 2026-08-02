@@ -50,7 +50,7 @@ if os.getenv("GENI_MOCK"):
     from api.mock.geni import GeniClientAsync
 else:
     from api.geni import GeniClientAsync
-from api.path import PathManager, Task, PATH_FIND_BATCH
+from api.path import PathManager, Task, PATH_FIND_BATCH, bump_crawl_gen, current_crawl_gen
 from api.profile import ProfileManager
 
 
@@ -390,18 +390,27 @@ class PathView(HTTPMethodView):
         return json({"status": "Deleted personalities paths"})
 
     @staticmethod
-    async def _reset_connections(token, source_id):
-        pm = ProfileManager(database, geni, token)
-        path_mgr = PathManager(database, geni, token)
-        if not source_id:
-            my_profile = await pm.cache()
-            source_id = my_profile['id']
-        await path_mgr.clear_paths(source_id)
+    @bp_paths.post("/personalities/halt")
+    async def halt_search_personalities(request):
+        """Stop the running crawl (cancel enqueuers + drain the queue + bump the
+        crawl generation so retries die) WITHOUT clearing the results already
+        found — used when the user hits Stop or heads off to start a new search."""
+        await Token.validate(request.headers.get(TOKEN_PARAM))
+        PathView._halt_crawl()
+        return json({"status": "Halted personalities crawl"})
 
-        # A new search must not keep populating results for the previous target.
-        # 1) Cancel any still-running enqueuer from the old target.
-        # 2) Drain path-finding tasks that were already queued but not yet run.
-        # Both are wrapped defensively so a hiccup here never breaks the reset.
+    @staticmethod
+    def _halt_crawl():
+        # Stop the current crawl without touching saved results:
+        #  - bump the crawl generation so already-running batches stop re-queuing
+        #    their rate-limited retries (see path.py worker),
+        #  - cancel any still-running enqueuer,
+        #  - drain path-finding tasks already queued but not yet run.
+        # All defensive so a hiccup here never breaks anything.
+        try:
+            bump_crawl_gen()
+        except Exception as e:
+            logger.warning(f"Crawl-gen bump skipped: {e}")
         cancelled = 0
         try:
             for t in list(getattr(app.ctx, 'enqueue_tasks', []) or []):
@@ -424,14 +433,30 @@ class PathView(HTTPMethodView):
                         break
         except Exception as e:
             logger.warning(f"Queue drain skipped: {e}")
+        logger.info(f"Halted crawl (cancelled {cancelled} enqueuers, drained {drained} task-batches, gen now {current_crawl_gen()})")
+        return cancelled, drained
 
-        logger.info(f"Deleted personalities paths search for : {source_id} "
-                    f"(cancelled {cancelled} enqueuers, drained {drained} queued task-batches)")
+    @staticmethod
+    async def _reset_connections(token, source_id):
+        pm = ProfileManager(database, geni, token)
+        path_mgr = PathManager(database, geni, token)
+        if not source_id:
+            my_profile = await pm.cache()
+            source_id = my_profile['id']
+        await path_mgr.clear_paths(source_id)
+        # Also stop the running crawl so it can't repopulate the cleared results.
+        PathView._halt_crawl()
+        logger.info(f"Deleted personalities paths search for : {source_id}")
 
     @staticmethod
     async def _post_search_personalities(token, source_id, target_id):
         pm = ProfileManager(database, geni, token)
         path_mgr = PathManager(database, geni, token)
+
+        # Remember which crawl generation this run belongs to. Its tasks keep
+        # retrying only while they match the current generation; a later halt/reset
+        # bumps it, letting this run's leftovers die out.
+        my_gen = current_crawl_gen()
 
         # Cache source profile
         source_profile = await pm.cache(source_id)
@@ -468,7 +493,8 @@ class PathView(HTTPMethodView):
                       "target_id": tgt,
                       "is_user2user": False,
                       "pending_ts": None,  # the first time the path became pending
-                      "token": token},
+                      "token": token,
+                      "crawl_gen": my_gen},
                       task_priority))
             if len(batch) >= PATH_FIND_BATCH:
                 q_index = PathView._choose_queue_index()

@@ -12,6 +12,24 @@ import traceback
 PENDING_TIMEOUT = int(os.environ.get('PENDING_TIMEOUT', 30))
 PATH_FIND_BATCH = int(os.environ.get('PATH_FIND_BATCH', 10))
 
+# --- crawl generation --------------------------------------------------------
+# Bumped whenever a search is halted or reset. Each enqueued task remembers the
+# generation it belongs to. A worker still processes and saves whatever it has
+# already pulled (so the CURRENT search is never starved), but it will NOT
+# re-queue a rate-limited RETRY whose generation is older than the current one —
+# that's what lets a superseded search's crawl die out instead of running
+# forever and bleeding old-target results into the new search.
+_crawl_gen = 0
+
+def bump_crawl_gen():
+    global _crawl_gen
+    _crawl_gen += 1
+    return _crawl_gen
+
+def current_crawl_gen():
+    return _crawl_gen
+
+
 class Task:
     def __init__(self, data: dict, priority: int) -> None:
         self.data = data
@@ -261,11 +279,19 @@ async def path_finder_async(number, queue, user2user_result_queue, db_url, geni)
                 logger.warning(f"{log_prefix} End of Exception caught ====")
             # Notify that processing of the received task is done
             queue.task_done()
-            # Enqueue pending list
-            if pending_list:
+            # Enqueue pending list — but only if this batch still belongs to the
+            # current crawl. A superseded search (the user stopped it or started a
+            # new one) must NOT keep re-queuing its retries, or it runs forever and
+            # bleeds old-target results into the new search. Uses '<' so the current
+            # generation's tasks are always retried; only strictly-older ones die.
+            batch_gen = pending_list[0].data.get('crawl_gen', current_crawl_gen()) if pending_list else current_crawl_gen()
+            if pending_list and batch_gen >= current_crawl_gen():
                 await asyncio_sleep(0.5) # make a pause before inserting again pending tasks
                 await queue.put((priority+10, pending_list))
                 logger.info(f"{log_prefix} Pending list size: {len(pending_list)}, queue size after adding pending: {queue.qsize()}")
+            elif pending_list:
+                logger.info(f"{log_prefix} Dropping {len(pending_list)} pending task(s) from a superseded crawl (gen {batch_gen} < {current_crawl_gen()})")
+                await asyncio_sleep(0.1)
             else:
                 await asyncio_sleep(0.1) # wait a bit to let other tasks run
 
