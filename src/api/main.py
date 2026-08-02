@@ -50,7 +50,7 @@ if os.getenv("GENI_MOCK"):
     from api.mock.geni import GeniClientAsync
 else:
     from api.geni import GeniClientAsync
-from api.path import PathManager, Task, PATH_FIND_BATCH, bump_search_epoch, current_search_epoch
+from api.path import PathManager, Task, PATH_FIND_BATCH
 from api.profile import ProfileManager
 
 
@@ -399,15 +399,9 @@ class PathView(HTTPMethodView):
         await path_mgr.clear_paths(source_id)
 
         # A new search must not keep populating results for the previous target.
-        # 0) Bump the search epoch so any straggler task already off the queue is
-        #    dropped by the worker instead of saving an old-target path.
         # 1) Cancel any still-running enqueuer from the old target.
         # 2) Drain path-finding tasks that were already queued but not yet run.
-        # All wrapped defensively so a hiccup here never breaks the reset.
-        try:
-            bump_search_epoch()
-        except Exception as e:
-            logger.warning(f"Epoch bump skipped: {e}")
+        # Both are wrapped defensively so a hiccup here never breaks the reset.
         cancelled = 0
         try:
             for t in list(getattr(app.ctx, 'enqueue_tasks', []) or []):
@@ -438,10 +432,6 @@ class PathView(HTTPMethodView):
     async def _post_search_personalities(token, source_id, target_id):
         pm = ProfileManager(database, geni, token)
         path_mgr = PathManager(database, geni, token)
-
-        # Stamp every task this run enqueues with the epoch as it is now; if a
-        # later reset bumps the epoch, these tasks become stale and are dropped.
-        my_epoch = current_search_epoch()
 
         # Cache source profile
         source_profile = await pm.cache(source_id)
@@ -478,8 +468,7 @@ class PathView(HTTPMethodView):
                       "target_id": tgt,
                       "is_user2user": False,
                       "pending_ts": None,  # the first time the path became pending
-                      "token": token,
-                      "search_epoch": my_epoch},
+                      "token": token},
                       task_priority))
             if len(batch) >= PATH_FIND_BATCH:
                 q_index = PathView._choose_queue_index()
