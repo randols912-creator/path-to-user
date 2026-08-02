@@ -12,6 +12,23 @@ import traceback
 PENDING_TIMEOUT = int(os.environ.get('PENDING_TIMEOUT', 30))
 PATH_FIND_BATCH = int(os.environ.get('PATH_FIND_BATCH', 10))
 
+# --- search generation ("epoch") ---------------------------------------------
+# Every path-finding task is stamped with the epoch current when it was enqueued.
+# Starting a new search bumps the epoch; the worker drops any task whose stamp is
+# older, so a straggler batch already pulled off the queue before a reset can't
+# save a path for the old target (that was the last "one profile bled through"
+# case). Process-local, which matches the process-local task queues.
+_search_epoch = 0
+
+def bump_search_epoch():
+    global _search_epoch
+    _search_epoch += 1
+    return _search_epoch
+
+def current_search_epoch():
+    return _search_epoch
+
+
 class Task:
     def __init__(self, data: dict, priority: int) -> None:
         self.data = data
@@ -241,6 +258,18 @@ async def path_finder_async(number, queue, user2user_result_queue, db_url, geni)
             if isinstance(task_or_list, Task):
                 task_or_list = [task_or_list]
             logger.info(f"{log_prefix} Received  {len(task_or_list)} tasks, queue size: {queue.qsize()}")
+
+            # Drop tasks that belong to a search the user has since replaced,
+            # so a straggler can't write a path for the previous target.
+            cur_epoch = current_search_epoch()
+            kept = [t for t in task_or_list if t.data.get('search_epoch', cur_epoch) == cur_epoch]
+            if len(kept) != len(task_or_list):
+                logger.info(f"{log_prefix} Dropped {len(task_or_list) - len(kept)} task(s) from a superseded search")
+            if not kept:
+                queue.task_done()
+                await asyncio_sleep(0.05)
+                continue
+            task_or_list = kept
 
             # since values insertion ordered
             try:

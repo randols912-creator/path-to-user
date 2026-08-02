@@ -202,6 +202,19 @@ button:focus {
     padding-left: 28px;
 }
 
+/* Two-column layout for the preset project list only (keeps Submit in view).
+   Scoped to .project-columns so the shared .round / .round_checkbox styles
+   used on other pages are untouched. */
+.project-columns {
+    display: flex;
+    flex-wrap: wrap;
+}
+.project-columns .round {
+    flex: 0 0 50%;
+    box-sizing: border-box;
+    padding-right: 12px;
+}
+
 .display_profile_id{
     padding-left: 47px;
     align-items: center;

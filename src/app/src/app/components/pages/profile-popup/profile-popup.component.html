@@ -101,7 +101,7 @@
                         <span class="span_input">Project List</span>
                     </div>
                     <div class="display_flex_padding">
-                        <div class="round_checkbox">
+                        <div class="round_checkbox project-columns">
                             <div class="round" *ngFor="let project of projectList; let i = index">
                                 <label><span [ngClass]="{'chwckbox':project.checked === true}" class="uncheck"></span>
                                     <input type="radio" id="" [value]="project.id" formControlName="targetProjectIdSelection"
