@@ -49,6 +49,12 @@ export class RelationService {
   private runId = 0;
   private superseded(myRun: number): boolean { return myRun !== this.runId; }
 
+  // Total profiles in the current target (project size, or 1 for a profile).
+  // Already fetched for the progress logic; exposed so the results page can
+  // show "found N of TOTAL". No extra query.
+  private targetTotal = 0;
+  get projectTotal(): number { return this.targetTotal; }
+
   constructor(private http: HttpClient, 
               private auth: AuthService,
               private settings: SettingsService) {
@@ -80,6 +86,7 @@ export class RelationService {
       ]) => {
         if (this.superseded(myRun)) { return; }
         if (this.stopped) { this.status.next(Status.READY); return; }
+        this.targetTotal = profilesCount;
 
         if (totalPathsCount < profilesCount) {
           debugMessage('Reset / Source or target profiles are empty');
@@ -107,6 +114,7 @@ export class RelationService {
     this.uniqueIds.clear();
     this.pathsCount = 0;
     this.pathsCountTs = Date.now();
+    this.targetTotal = 0;
     this.stopped = false;
     this.runId++;                       // supersede any in-flight search
     this.status.next(Status.INITIALIZING);
@@ -177,6 +185,7 @@ export class RelationService {
         if (this.superseded(myRun)) { return; }
         const filtered = this.filterStoreAndReturnFilteredRelations(relations);
         if (this.stopped) { this.status.next(Status.READY); return; }
+        this.targetTotal = profilesCount;
         this.status.next(Status.PART_FETCHED);
 
         if (this.notReady(pathsCount, totalPathsCount, profilesCount)) {

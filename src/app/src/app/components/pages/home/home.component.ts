@@ -21,6 +21,7 @@ export class HomeComponent implements OnInit {
   public getScreenWidth: any;
   sourceText: any;
   targetText: any;
+  isProjectTarget = false;
   constructor(
     private auth: AuthService,
     private relationService: RelationService,
@@ -41,6 +42,14 @@ export class HomeComponent implements OnInit {
 
   get stopped(): boolean {
     return this.relationService.wasStopped;
+  }
+
+  // "N of TOTAL" for a project (so you can see how many more it's checking),
+  // just "N" for a single profile target or before the total is known.
+  get foundCount(): string {
+    const n = this.relations.length;
+    const total = this.relationService.projectTotal;
+    return (this.isProjectTarget && total > n) ? `${n} of ${total}` : `${n}`;
   }
 
   ngOnInit(): void {
@@ -82,6 +91,7 @@ export class HomeComponent implements OnInit {
     this.targetText = sourceTarget.targetName
       ? `(${sourceTarget.targetName})`
       : '(' + sourceTarget.targetId + ")";
+    this.isProjectTarget = String(sourceTarget.targetId || '').startsWith('project');
     if (sourceTarget.targetId.startsWith('project')) {
       this.geniService.projectDetails(sourceTarget.targetId).subscribe(({ project: project }) => {
         if (project && project.name) { this.targetText = `(${project.name})`; }

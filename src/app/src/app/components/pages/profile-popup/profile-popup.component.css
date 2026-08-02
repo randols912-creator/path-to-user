@@ -46,20 +46,24 @@
 
 .finish-button {
     padding: 0;
-    margin-top: 0%;
+    margin-top: 12px;
     border: none;
     width: 100%;
 
-    position: absolute;
-    bottom: 5px;
-    left: 0;
+    /* Stick to the bottom of the screen while scrolling so it's always in reach
+       (was position:absolute, which stranded it at the very bottom of the page).
+       Falls back to normal flow if a container doesn't support sticky. */
+    position: sticky;
+    bottom: 8px;
+    z-index: 5;
 
     font: Bold 16px Open Sans Hebrew;
-    line-height: 32px;
+    line-height: 40px;
     letter-spacing: 0;
 
     background-color: unset;
     background: transparent linear-gradient(263deg, #ffdba7 0%, #ff9e1e 100%) 0% 0% no-repeat padding-box;
+    box-shadow: 0 -6px 12px rgba(255,255,255,0.9);
     opacity: 1;
 }
 
