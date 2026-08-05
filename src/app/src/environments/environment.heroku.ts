@@ -5,6 +5,6 @@ export const environment: Environment = {
   host: 'https://path-to-user.herokuapp.com',
   relationsServiceHost: '',
   socketioUrl: '',
-  geni_client_id: 'Aty8o6yaCh3Ts8uUtKr4C0IkHro9f63FlVLvOqdy'
+  geni_client_id: '2Iipvyd2Q6jCJOvQDe1R1XbANsqqveNcJBfj8HkT'
 
 };
