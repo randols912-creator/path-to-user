@@ -50,7 +50,7 @@ if os.getenv("GENI_MOCK"):
     from api.mock.geni import GeniClientAsync
 else:
     from api.geni import GeniClientAsync
-from api.path import PathManager, Task, PATH_FIND_BATCH
+from api.path import PathManager, Task, PATH_FIND_BATCH, cancel_pending_requeues
 from api.profile import ProfileManager
 
 
@@ -336,6 +336,29 @@ async def admin_project_search(request):
     return json({"configured": configured, "results": results,
                  "cse_id": os.getenv('GOOGLE_CSE_ID', '')})
 
+@bp_admin.get("/geni-rate")
+async def admin_geni_rate(request):
+    """What rate limit is Geni ACTUALLY giving us right now?
+
+    The client no longer guesses: it reads X-API-Rate-Limit / X-API-Rate-Window
+    off Geni's responses and throttles to that. This endpoint shows what it
+    found, plus queue depth, so a slow run can be diagnosed as "Geni's quota is
+    small" vs "we are stuck on something else" without reading dyno logs.
+    """
+    require_admin(request)
+    stats = geni.rate_stats() if hasattr(geni, 'rate_stats') else {}
+    try:
+        stats['queue_sizes'] = [q.qsize() for q in app.ctx.task_queue]
+    except Exception:
+        stats['queue_sizes'] = []
+    from api.path import PENDING_TIMEOUT, PENDING_BACKOFF_BASE, PENDING_BACKOFF_MAX, PATH_FIND_BATCH as _b
+    stats['pending_timeout_seconds'] = PENDING_TIMEOUT
+    stats['pending_backoff_base_seconds'] = PENDING_BACKOFF_BASE
+    stats['pending_backoff_max_seconds'] = PENDING_BACKOFF_MAX
+    stats['path_find_batch'] = _b
+    return json(stats)
+
+
 @bp_admin.delete("/presets/<preset_id>")
 async def admin_delete_preset(request, preset_id):
     require_admin(request)
@@ -412,6 +435,15 @@ class PathView(HTTPMethodView):
         except Exception as e:
             logger.warning(f"Enqueuer cancel skipped: {e}")
 
+        # 3) Drop batches that are sitting out a retry backoff - otherwise they
+        #    wake up after the drain below and re-fill the queues with the old
+        #    target's work.
+        backed_off = 0
+        try:
+            backed_off = cancel_pending_requeues()
+        except Exception as e:
+            logger.warning(f"Backoff cancel skipped: {e}")
+
         drained = 0
         try:
             for q in getattr(app.ctx, 'task_queue', []) or []:
@@ -426,7 +458,8 @@ class PathView(HTTPMethodView):
             logger.warning(f"Queue drain skipped: {e}")
 
         logger.info(f"Deleted personalities paths search for : {source_id} "
-                    f"(cancelled {cancelled} enqueuers, drained {drained} queued task-batches)")
+                    f"(cancelled {cancelled} enqueuers, {backed_off} backed-off batches, "
+                    f"drained {drained} queued task-batches)")
 
     @staticmethod
     async def _post_search_personalities(token, source_id, target_id):
@@ -624,6 +657,10 @@ async def setup_db(app, loop):
 @app.listener('after_server_stop')
 async def close_db(app, loop):
     await database.disconnect()
+    try:
+        await geni.close()   # release the shared aiohttp session
+    except Exception as e:
+        logger.warning(f"Geni session close skipped: {e}")
 
 if __name__ == "__main__":
     worker_quantity = int(os.environ.get('WORKER_QUANTITY', 1))

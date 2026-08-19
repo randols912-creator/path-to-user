@@ -5,6 +5,15 @@ from .timeouts import TIMEOUTS
 
 
 class GeniClientAsync:
+    # Kept in step with the real client so main.py can call these unconditionally.
+    RETRYABLE_STATUSES = ('pending', 'overloaded')
+
+    async def close(self):
+        return None
+
+    def rate_stats(self):
+        return {'mock': True}
+
     async def validate_token(self, token):
         await asyncio.sleep(
             random.choice(TIMEOUTS['validate_token'])
@@ -13,9 +22,14 @@ class GeniClientAsync:
         return True
 
     async def get_path_to(self, source_id, target_id, token):
-        status = random.choices(['pending', 'done'], weights=[0.1, 0.75])[0]
+        # 'overloaded' is a real Geni status and used to be mis-recorded as
+        # "no relation", so the mock now produces it too.
+        status = random.choices(['pending', 'overloaded', 'done'],
+                                weights=[0.1, 0.05, 0.75])[0]
 
         result = new_result(status)
+        if status in self.RETRYABLE_STATUSES:
+            result['retryable'] = True
         if status == 'done':
             result = generate_random_path(result)
 
@@ -34,8 +48,11 @@ class GeniClientAsync:
         status_list = await asyncio.gather(*requests)
         return status_list
 
-    async def get_personalities_profiles(self, token, next_page_url=None):
-        pass
+    async def get_personalities_profiles(self, token, next_page_url=None, project_id=None):
+        return [], None, 0
+
+    async def get_project_details(self, token, project_id=None, fields=None):
+        return new_result('done'), token
 
     async def search_profiles(self, token, names, page=1):
         return ([{'guid': '1001', 'name': f'{names} Mockperson I'},

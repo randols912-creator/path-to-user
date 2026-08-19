@@ -1,4 +1,4 @@
-import sys, os
+import sys, os, time
 from sanic.log import logger
 from api.geni import GeniClientAsync
 from api.profile import ProfileManager
@@ -10,8 +10,65 @@ from asyncio import Queue, sleep as asyncio_sleep
 import datetime
 import traceback
 
-PENDING_TIMEOUT = int(os.environ.get('PENDING_TIMEOUT', 30))
+# How long we keep re-asking Geni about one profile before writing it off.
+#
+# Geni's path-to endpoint is ASYNCHRONOUS: it answers `status: pending` and
+# computes the path in the background, so the only way to get an answer is to
+# ask again later. The old 30s budget was far shorter than Geni often takes,
+# so a profile whose path was still being computed got written to the DB as
+# step_count=0 - indistinguishable from "definitely not related" - and, because
+# the enqueuer skips targets that already have a row, it was never retried.
+PENDING_TIMEOUT = int(os.environ.get('PENDING_TIMEOUT', 600))
 PATH_FIND_BATCH = int(os.environ.get('PATH_FIND_BATCH', 10))
+
+# Exponential backoff between re-polls of a still-pending profile. The old code
+# re-polled roughly twice a second, so a single stuck profile could burn ~60 of
+# our rate-limited requests inside its 30s window. Multiply that by a whole
+# project and the retries consume the entire quota, first attempts never get
+# through, and the run appears to hang. With backoff the same profile costs
+# about a dozen requests spread over ten minutes.
+PENDING_BACKOFF_BASE = float(os.environ.get('PENDING_BACKOFF_BASE', 5))
+PENDING_BACKOFF_MAX = float(os.environ.get('PENDING_BACKOFF_MAX', 60))
+
+# Sleeping re-queue tasks, tracked so a new search can cancel them (otherwise a
+# backed-off batch from the PREVIOUS target wakes up after the queues have been
+# drained and quietly re-populates them).
+_REQUEUE_TASKS = set()
+
+
+def _backoff_delay(attempts: int) -> float:
+    return min(PENDING_BACKOFF_MAX, PENDING_BACKOFF_BASE * (2 ** max(0, attempts - 1)))
+
+
+def cancel_pending_requeues():
+    """Drop any batches that are waiting out a backoff. Returns how many."""
+    cancelled = 0
+    for t in list(_REQUEUE_TASKS):
+        if not t.done():
+            t.cancel()
+            cancelled += 1
+    _REQUEUE_TASKS.clear()
+    return cancelled
+
+
+async def _requeue_after(queue, priority, pending_list, delay, log_prefix):
+    """Put a backed-off batch back on the queue WITHOUT holding up a worker.
+
+    The worker used to `await sleep(0.5)` and then re-queue inline, which meant
+    the pause was paid by the worker itself - it sat idle instead of picking up
+    fresh profiles. Now the wait happens in its own little task and the worker
+    goes straight back to work.
+    """
+    try:
+        await asyncio_sleep(delay)
+        await queue.put((priority, pending_list))
+        logger.info(f"{log_prefix} Re-queued {len(pending_list)} pending tasks "
+                    f"after {delay:.1f}s backoff, queue size: {queue.qsize()}")
+    except asyncio.CancelledError:
+        logger.info(f"{log_prefix} Dropped {len(pending_list)} backed-off tasks (search reset)")
+        raise
+    finally:
+        _REQUEUE_TASKS.discard(asyncio.current_task())
 
 class Task:
     def __init__(self, data: dict, priority: int) -> None:
@@ -46,6 +103,14 @@ class PathManager:
 
         return pending
 
+    # path-to answers with one of: pending | done | overloaded | not found.
+    # 'overloaded' arrives as a normal HTTP 200 with no relations, so the old
+    # `status == 'pending' or not is_success` test let it straight through and
+    # recorded the profile as step_count=0, i.e. "no relation found" - a wrong
+    # answer that then stuck, because the enqueuer skips targets that already
+    # have a row. Both statuses mean "ask again later".
+    UNRESOLVED_STATUSES = ('pending', 'overloaded')
+
     async def find_batch(self, task_list):
         # Resolve each task's path independently and save it to the DB as
         # soon as ITS OWN Geni call completes, instead of awaiting
@@ -58,25 +123,47 @@ class PathManager:
         pending_list = []
 
         async def _resolve(task):
-            source_id, target_id, is_user2user, pending_ts, token = task.data.values()
+            data = task.data
+            source_id = data['source_id']
+            target_id = data['target_id']
+            is_user2user = data.get('is_user2user', False)
+            pending_ts = data.get('pending_ts')
+            token = data.get('token')
             try:
                 result, _ = await self.geni.get_path_to(source_id, target_id, token)
+            except asyncio.CancelledError:
+                raise
             except Exception:
                 logger.exception(f"[{os.getpid()}] Exception resolving {source_id} -> {target_id}")
-                result = {'is_success': False, 'internal_errors': ['exception in get_path_to']}
+                result = {'is_success': False, 'retryable': True,
+                          'internal_errors': ['exception in get_path_to']}
             return task, source_id, target_id, is_user2user, pending_ts, result
 
         for coro in asyncio.as_completed([_resolve(task) for task in task_list]):
             task, source_id, target_id, is_user2user, pending_ts, result = await coro
-            logger.debug("[{}] Status for {} -> {}".format(os.getpid(), target_id, result.get('status')))
+            geni_status = result.get('status')
+            logger.debug("[{}] Status for {} -> {}".format(os.getpid(), target_id, geni_status))
 
-            pending = (result.get('status') == 'pending' or result['is_success'] == False) \
-                      and not self._is_pending_timeout(pending_ts)
-            if pending:
+            unresolved = (geni_status in self.UNRESOLVED_STATUSES) \
+                or not result.get('is_success') \
+                or result.get('retryable', False)
+            timed_out = self._is_pending_timeout(pending_ts)
+
+            if unresolved and not timed_out:
                 if not task.data.get('pending_ts'):
                     task.data['pending_ts'] = datetime.datetime.now()
+                task.data['attempts'] = task.data.get('attempts', 0) + 1
+                task.data['not_before'] = time.monotonic() + _backoff_delay(task.data['attempts'])
                 pending_list.append(task)
                 continue
+
+            if unresolved and timed_out:
+                # Record the give-up explicitly instead of letting it look like a
+                # clean "no relation" result, so incomplete runs are diagnosable.
+                logger.warning(
+                    f"[{os.getpid()}] Giving up on {source_id} -> {target_id} after "
+                    f"{PENDING_TIMEOUT}s / {task.data.get('attempts', 0)} attempts "
+                    f"(last Geni status: {geni_status or result.get('api_errors') or result.get('internal_errors')})")
 
             values = {
                 'source_id': source_id,
@@ -250,6 +337,9 @@ async def path_finder_async(number, queue, user2user_result_queue, db_url, geni)
                 # Communicate found user2user connection via the queue to the main task
                 for u2u in u2u_list:
                     await user2user_result_queue.put(u2u)
+            except asyncio.CancelledError:
+                queue.task_done()
+                raise
             except Exception as e:
                 traceback.print_exc(file=sys.stdout)
                 # If any exception happened during processing, refer to all batch as 'pending'
@@ -257,16 +347,25 @@ async def path_finder_async(number, queue, user2user_result_queue, db_url, geni)
                 for task in pending_list:
                     if not task.data.get('pending_ts'):
                         task.data['pending_ts'] = datetime.datetime.now()
+                    task.data['attempts'] = task.data.get('attempts', 0) + 1
+                    task.data['not_before'] = time.monotonic() + _backoff_delay(task.data['attempts'])
                 logger.warning(f"{log_prefix} Exception caught, ignoring the whole batch:")
                 traceback.print_exc(file=sys.stdout)
                 logger.warning(f"{log_prefix} End of Exception caught ====")
             # Notify that processing of the received task is done
             queue.task_done()
-            # Enqueue pending list
+            # Re-queue anything still pending, AFTER its backoff has elapsed - but
+            # hand the waiting off to a separate task so this worker can pick up
+            # fresh profiles in the meantime instead of idling through the pause.
             if pending_list:
-                await asyncio_sleep(0.5) # make a pause before inserting again pending tasks
-                await queue.put((priority+10, pending_list))
-                logger.info(f"{log_prefix} Pending list size: {len(pending_list)}, queue size after adding pending: {queue.qsize()}")
+                now = time.monotonic()
+                delay = max(0.5, min((t.data.get('not_before', now) for t in pending_list),
+                                     default=now) - now)
+                rq = asyncio.ensure_future(
+                    _requeue_after(queue, priority + 10, pending_list, delay, log_prefix))
+                _REQUEUE_TASKS.add(rq)
+                logger.info(f"{log_prefix} Pending list size: {len(pending_list)}, "
+                            f"backing off {delay:.1f}s before retry")
             else:
                 await asyncio_sleep(0.1) # wait a bit to let other tasks run
 
