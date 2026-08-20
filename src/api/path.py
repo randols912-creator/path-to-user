@@ -1,6 +1,6 @@
 import sys, os, time
 from sanic.log import logger
-from api.geni import GeniClientAsync
+from api.geni import GeniClientAsync, GeniRateLimiter
 from api.profile import ProfileManager
 from api.models import CURRENT_TIMESTAMP, paths_table, profiles_table
 from sqlalchemy import and_, or_, select, join, func, distinct, delete, true
@@ -29,6 +29,87 @@ PATH_FIND_BATCH = int(os.environ.get('PATH_FIND_BATCH', 10))
 # about a dozen requests spread over ten minutes.
 PENDING_BACKOFF_BASE = float(os.environ.get('PENDING_BACKOFF_BASE', 5))
 PENDING_BACKOFF_MAX = float(os.environ.get('PENDING_BACKOFF_MAX', 60))
+
+# How fast we START NEW path searches - a separate, much slower tap than the
+# API rate limit.
+#
+# These are two different resources and conflating them is what made us a bad
+# citizen. The API limit (40 req/10s) governs HTTP calls. But the FIRST call for
+# a given pair does something much more expensive: it queues a fresh path
+# computation on Geni's back end, which then runs for a long time. Re-polling an
+# already-started search is a cheap cache lookup by comparison.
+#
+# Left ungoverned, the first pass over a project starts new searches as fast as
+# the API limit allows - roughly 200 background jobs queued in the first minute -
+# which is precisely the load Geni asked us not to create, and which makes every
+# one of those searches slower (including ours). Pacing new searches means Geni
+# works through a steady trickle instead of a stampede.
+#
+# Re-polls are deliberately NOT throttled by this; they only pay the API limit.
+# The primary control is CONCURRENCY, not rate. What loads Geni's path engine
+# is the number of searches running at the same time, and a rate cap only bounds
+# that indirectly (concurrency ~= rate x duration) - useless when the duration is
+# long and varies per pair. So cap the number of searches we have open at once,
+# and let a finished one make room for the next.
+MAX_CONCURRENT_SEARCHES = int(os.environ.get('GENI_MAX_CONCURRENT_SEARCHES', 25))
+# A gentle ramp on top, so we don't open the whole allowance in one instant.
+NEW_SEARCH_CALLS = float(os.environ.get('GENI_NEW_SEARCH_CALLS', 20))
+NEW_SEARCH_PERIOD = float(os.environ.get('GENI_NEW_SEARCH_PERIOD', 10))
+# How long a profile waits in line when every search slot is busy.
+DEFER_DELAY = float(os.environ.get('GENI_SEARCH_DEFER_DELAY', 5))
+
+_new_search_limiter = GeniRateLimiter(NEW_SEARCH_CALLS, NEW_SEARCH_PERIOD, safety=1.0)
+
+
+class SearchSlots:
+    """Caps how many Geni path searches we have open at once.
+
+    A slot is taken when we first ask about a pair - the request that makes Geni
+    queue a real computation - and released when that pair finally has an answer
+    (or we give up on it). Re-polls do not take a slot; the search they are
+    asking about already holds one.
+
+    try_acquire never blocks. A worker that cannot get a slot puts the profile
+    back in the queue and moves on, which matters: if workers blocked here, all
+    of them could end up waiting for slots held by searches whose re-polls need
+    a worker to run - and nothing would ever finish.
+    """
+
+    def __init__(self, limit: int):
+        self.limit = limit
+        self._active = set()
+        self.peak = 0
+
+    def try_acquire(self, target_id) -> bool:
+        if target_id in self._active:
+            return True
+        if len(self._active) >= self.limit:
+            return False
+        self._active.add(target_id)
+        self.peak = max(self.peak, len(self._active))
+        return True
+
+    def release(self, target_id):
+        self._active.discard(target_id)
+
+    def clear(self):
+        self._active.clear()
+
+    @property
+    def active(self) -> int:
+        return len(self._active)
+
+
+_search_slots = SearchSlots(MAX_CONCURRENT_SEARCHES)
+
+
+def new_search_stats():
+    s = _new_search_limiter.stats()
+    return {'new_searches_started': s['requests_sent'],
+            'concurrent_searches_open': _search_slots.active,
+            'concurrent_search_limit': _search_slots.limit,
+            'peak_concurrent_searches': _search_slots.peak,
+            'ramp': f"{int(NEW_SEARCH_CALLS)} new searches per {int(NEW_SEARCH_PERIOD)}s"}
 
 # Sleeping re-queue tasks, tracked so a new search can cancel them (otherwise a
 # backed-off batch from the PREVIOUS target wakes up after the queues have been
@@ -65,6 +146,8 @@ def cancel_pending_requeues():
             t.cancel()
             cancelled += 1
     _REQUEUE_TASKS.clear()
+    # Those batches are gone, so nothing will ever release their search slots.
+    _search_slots.clear()
     return cancelled
 
 
@@ -146,6 +229,17 @@ class PathManager:
             is_user2user = data.get('is_user2user', False)
             pending_ts = data.get('pending_ts')
             token = data.get('token')
+            # First contact for this pair is what makes Geni queue a real path
+            # computation, so it needs a free search slot. Re-polls skip both
+            # gates - the search they ask about already holds a slot, and a
+            # re-poll is a cheap lookup on Geni's side.
+            if not data.get('attempts'):
+                if not _search_slots.try_acquire(target_id):
+                    # Everything is busy. Go back in the queue without starting
+                    # the clock on this pair - it has not been asked yet.
+                    return task, source_id, target_id, is_user2user, pending_ts, {
+                        'is_success': False, 'retryable': True, 'deferred': True}
+                await _new_search_limiter.acquire()
             try:
                 result, _ = await self.geni.get_path_to(source_id, target_id, token)
             except asyncio.CancelledError:
@@ -158,6 +252,14 @@ class PathManager:
 
         for coro in asyncio.as_completed([_resolve(task) for task in task_list]):
             task, source_id, target_id, is_user2user, pending_ts, result = await coro
+            # Never asked - it just could not get a search slot. Requeue it
+            # untouched: no attempt counted, no pending clock started, so
+            # waiting in line cannot eat into its patience budget.
+            if result.get('deferred'):
+                task.data['not_before'] = time.monotonic() + DEFER_DELAY
+                pending_list.append(task)
+                continue
+
             geni_status = result.get('status')
             logger.debug("[{}] Status for {} -> {}".format(os.getpid(), target_id, geni_status))
 
@@ -207,6 +309,10 @@ class PathManager:
                 'updated_on': CURRENT_TIMESTAMP,
                 'finished_on': CURRENT_TIMESTAMP
             }
+            # This pair is settled either way - free its slot so the next
+            # profile in line can start.
+            _search_slots.release(target_id)
+
             # A retry is replacing a row we previously gave up on - drop the old
             # one first so the pair does not end up with two rows.
             if task.data.get('is_retry'):

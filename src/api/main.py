@@ -351,7 +351,9 @@ async def admin_geni_rate(request):
         stats['queue_sizes'] = [q.qsize() for q in app.ctx.task_queue]
     except Exception:
         stats['queue_sizes'] = []
-    from api.path import PENDING_TIMEOUT, PENDING_BACKOFF_BASE, PENDING_BACKOFF_MAX, PATH_FIND_BATCH as _b
+    from api.path import (PENDING_TIMEOUT, PENDING_BACKOFF_BASE, PENDING_BACKOFF_MAX,
+                          PATH_FIND_BATCH as _b, new_search_stats)
+    stats['new_path_searches'] = new_search_stats()
     stats['pending_timeout_seconds'] = PENDING_TIMEOUT
     stats['pending_backoff_base_seconds'] = PENDING_BACKOFF_BASE
     stats['pending_backoff_max_seconds'] = PENDING_BACKOFF_MAX
