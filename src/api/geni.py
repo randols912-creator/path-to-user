@@ -60,7 +60,9 @@ class GeniRateLimiter:
         self.shards = max(1, int(shards or 1))
         self.safety = safety
         self._advertised = None            # (limit, window) exactly as Geni reported
-        self.calls = max(1, int(calls / self.shards))
+        # Apply the safety margin to the opening guess too, so the very first
+        # burst - fired before any headers have come back - cannot overshoot.
+        self.calls = max(1, int(calls * safety / self.shards))
         self.period = float(period)
         self.calibrated = False
         self._timestamps = deque()
@@ -113,7 +115,11 @@ class GeniRateLimiter:
                 self.calls = max(1, int(limit * self.safety / self.shards))
                 self.period = float(window)
                 self.calibrated = True
-                self._timestamps.clear()
+                # Deliberately do NOT clear _timestamps here: those requests have
+                # already been spent against Geni's current window, and forgetting
+                # them lets us immediately spend a second full allowance inside the
+                # same window - which Geni then refuses. acquire() trims anything
+                # older than the (new) period on its own.
                 sanic_logger.info(
                     f"Geni rate limit calibrated from headers: Geni allows {limit}/{window}s; "
                     f"this process will use {self.calls}/{self.period}s "
@@ -177,12 +183,16 @@ class GeniClientAsync:
     PROFILES_FROM_PROJECT = 'api/{project_id}/profiles'
     PROFILE_SEARCH_URL = 'api/profile/search'
 
-    # Pre-calibration guess only. The real value is taken from Geni's
-    # X-API-Rate-* response headers on the very first call (see GeniRateLimiter),
-    # so this number only governs the handful of requests before that happens.
-    # Deliberately conservative: overshooting costs far more than undershooting,
-    # because every denied request also triggers a re-poll.
-    RATE_LIMIT_CALLS = int(os.environ.get('GENI_RATE_LIMIT_CALLS', 50))
+    # Pre-calibration value, used only for the handful of requests before the
+    # first response's X-API-Rate-* headers arrive (see GeniRateLimiter, which
+    # then adopts whatever Geni actually advertises).
+    #
+    # Measured against this app on 2026-08-19: Geni returns
+    #   X-API-Rate-Limit: 40, X-API-Rate-Window: 10
+    # i.e. 4 requests/second - so the previous setting of 200/10s was five times
+    # over the real quota, and four out of every five requests were being
+    # refused and then retried.
+    RATE_LIMIT_CALLS = int(os.environ.get('GENI_RATE_LIMIT_CALLS', 40))
     RATE_LIMIT_PERIOD = float(os.environ.get('GENI_RATE_LIMIT_PERIOD', 10))
     # Fraction of Geni's advertised limit we actually use.
     RATE_LIMIT_SAFETY = float(os.environ.get('GENI_RATE_LIMIT_SAFETY', 0.85))

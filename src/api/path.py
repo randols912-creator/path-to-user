@@ -165,6 +165,20 @@ class PathManager:
                     f"{PENDING_TIMEOUT}s / {task.data.get('attempts', 0)} attempts "
                     f"(last Geni status: {geni_status or result.get('api_errors') or result.get('internal_errors')})")
 
+            # A profile with no path is written as step_count=0, which on its own
+            # cannot tell "Geni searched and said `not found`" apart from "we ran
+            # out of patience". Those need very different follow-ups - the first
+            # is the right answer, the second is unfinished business - so stash
+            # the outcome in the (otherwise unused) relations column for
+            # zero-step rows. No schema change needed; see /admin/run-status.
+            outcome = None
+            if not result.get('step_count'):
+                outcome = {
+                    'outcome': 'gave_up' if unresolved else (geni_status or 'no_path'),
+                    'geni_status': geni_status,
+                    'attempts': task.data.get('attempts', 0) + (0 if unresolved else 1),
+                }
+
             values = {
                 'source_id': source_id,
                 'target_id': target_id,
@@ -172,10 +186,17 @@ class PathManager:
                 'url': result.get('url', ''),
                 'step_count': result.get('step_count', 0),
                 'relationship': result.get('relationship', '')[:250],
-                'relations': result.get('relations', ''),
+                'relations': outcome if outcome is not None else result.get('relations', ''),
                 'updated_on': CURRENT_TIMESTAMP,
                 'finished_on': CURRENT_TIMESTAMP
             }
+            # A retry is replacing a row we previously gave up on - drop the old
+            # one first so the pair does not end up with two rows.
+            if task.data.get('is_retry'):
+                await self.database.execute(
+                    delete(paths_table).where(
+                        and_(paths_table.c.source_id == source_id,
+                             paths_table.c.target_id == target_id)))
             # Written immediately so a fast result is visible to the frontend
             # right away, instead of waiting on the slowest task in the batch.
             await self.database.execute(paths_table.insert().values(values))
@@ -191,6 +212,51 @@ class PathManager:
             and_(paths_table.c.source_id == source_id, paths_table.c.target_id == target_id))
         path = await self.database.fetch_one(query=query)
         return path
+
+    @staticmethod
+    def _gave_up(path_row) -> bool:
+        """Did this row come from running out of patience rather than an answer?"""
+        try:
+            rel = path_row['relations']
+            return isinstance(rel, dict) and rel.get('outcome') == 'gave_up'
+        except Exception:
+            return False
+
+    async def is_resolved(self, source_id: str, target_id: str):
+        """True if we already have a real answer for this pair.
+
+        The enqueuer used to skip ANY target that had a row, which meant a
+        profile we'd given up on was never looked at again - not on this run,
+        not on the next one. Now a give-up is treated as unfinished business,
+        so simply searching again picks up exactly the stragglers.
+        """
+        path = await self.get(source_id, target_id)
+        if not path:
+            return False
+        return not self._gave_up(path)
+
+    async def outcome_summary(self, source_id: str, user2user=False):
+        """Breakdown of how each profile in a run actually ended up."""
+        query = paths_table.select().where(
+            and_(paths_table.c.source_id == source_id,
+                 paths_table.c.is_user2user == user2user))
+        rows = await self.database.fetch_all(query=query)
+        summary = {'total_rows': len(rows), 'connected': 0,
+                   'no_path_found': 0, 'gave_up': 0, 'other': 0}
+        for r in rows:
+            if (r['step_count'] or 0) > 0:
+                summary['connected'] += 1
+                continue
+            rel = r['relations'] if isinstance(r['relations'], dict) else {}
+            oc = rel.get('outcome')
+            if oc == 'gave_up':
+                summary['gave_up'] += 1
+            elif oc in ('not found', 'no_path', 'done'):
+                summary['no_path_found'] += 1
+            else:
+                # Rows written before this bookkeeping existed.
+                summary['other'] += 1
+        return summary
 
     async def get_paths(self, source_id: str,
                         offset: int,

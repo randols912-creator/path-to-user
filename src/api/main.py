@@ -359,6 +359,32 @@ async def admin_geni_rate(request):
     return json(stats)
 
 
+@bp_admin.get("/run-status")
+async def admin_run_status(request):
+    """Did the last run actually finish, and if not, what is left?
+
+    'connected'     - a path was found
+    'no_path_found' - Geni searched and answered "not found". This is a real
+                      answer, not a failure; for a project of notable people
+                      most of the list often lands here.
+    'gave_up'       - we stopped asking before Geni answered. THESE are the
+                      ones worth re-running; starting a new search retries
+                      exactly this set.
+    """
+    require_admin(request)
+    source_id = request.args.get('source_id')
+    if not source_id:
+        pm = ProfileManager(database, geni, None)
+        abort(400, "source_id is required (e.g. profile-g6000000002764082210)")
+    summary = await PathManager(database, geni, None).outcome_summary(source_id)
+    try:
+        summary['queued_batches'] = sum(q.qsize() for q in app.ctx.task_queue)
+    except Exception:
+        summary['queued_batches'] = None
+    summary['still_working'] = bool(summary.get('queued_batches'))
+    return json(summary)
+
+
 @bp_admin.delete("/presets/<preset_id>")
 async def admin_delete_preset(request, preset_id):
     require_admin(request)
@@ -484,9 +510,15 @@ class PathView(HTTPMethodView):
             # Enqueue tasks for finding paths to all personalities
             max_priority = max(2, int(profiles_count / PATH_FIND_BATCH))
             src,tgt = source_profile['id'],personality['id']
-            if await path_mgr.get(src, tgt):
-                logger.debug(f"Personality path {src} -> {tgt} already exists - skipping")
+            # Skip only profiles we have a real ANSWER for. Ones we previously
+            # gave up on are retried, so re-running a search closes the gap
+            # instead of permanently inheriting the first run's shortfall.
+            existing = await path_mgr.get(src, tgt)
+            if existing and not PathManager._gave_up(existing):
+                logger.debug(f"Personality path {src} -> {tgt} already resolved - skipping")
                 continue
+            if existing:
+                logger.info(f"Retrying previously-abandoned path {src} -> {tgt}")
             # Check validity of both src and target profiles
             profiles_valid = True
             for id in [src, tgt]:
@@ -501,6 +533,7 @@ class PathView(HTTPMethodView):
                       "target_id": tgt,
                       "is_user2user": False,
                       "pending_ts": None,  # the first time the path became pending
+                      "is_retry": bool(existing),  # replace the abandoned row, don't duplicate it
                       "token": token},
                       task_priority))
             if len(batch) >= PATH_FIND_BATCH:
