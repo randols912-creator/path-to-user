@@ -549,6 +549,83 @@ class PathView(HTTPMethodView):
             await app.ctx.task_queue[q_index].put((random.randint(1, max_priority), batch))
             logger.info(f"Added to queue tasks of {count} profiles, queue: {q_index}, queue size: {app.ctx.task_queue[q_index].qsize()}")
 
+        # --- verification sweeps -------------------------------------------
+        # The first pass is not the last word. A profile whose path Geni was
+        # still computing when we stopped waiting gets written down as "no
+        # connection", and those are disproportionately the LONG paths - the
+        # ones most worth having. Geni finishes that background search anyway
+        # and caches the answer, so asking again a few minutes later is both
+        # cheap and often productive. Keep sweeping until a pass adds nothing.
+        await PathView._verification_sweeps(token, source_profile['id'], max_priority)
+
+    @staticmethod
+    async def _wait_for_idle(timeout_seconds=3600):
+        """Block until the path-finding queues AND the backoff waiters are empty."""
+        from api.path import requeue_backlog
+        waited = 0.0
+        quiet = 0
+        while waited < timeout_seconds:
+            queued = sum(q.qsize() for q in app.ctx.task_queue)
+            backlog = requeue_backlog()
+            # Require several consecutive quiet checks: a worker can be midway
+            # through a batch with the queues momentarily empty, and starting a
+            # sweep in that window would re-enqueue a profile that is already
+            # in flight.
+            quiet = quiet + 1 if (queued == 0 and backlog == 0) else 0
+            if quiet >= 5:
+                return True
+            await asyncio.sleep(2)
+            waited += 2
+        logger.warning("Timed out waiting for path queues to go idle")
+        return False
+
+    @staticmethod
+    async def _verification_sweeps(token, source_id, max_priority):
+        from api.path import SWEEP_PASSES, SWEEP_SETTLE_SECONDS
+        path_mgr = PathManager(database, geni, token)
+
+        for sweep in range(1, SWEEP_PASSES + 1):
+            if not await PathView._wait_for_idle():
+                return
+            # Let any Geni-side background searches we abandoned finish landing.
+            await asyncio.sleep(SWEEP_SETTLE_SECONDS)
+
+            before = await path_mgr.count_paths(source_id, connected_only=True)
+            targets = await path_mgr.get_unresolved_targets(source_id)
+            if not targets:
+                logger.info(f"Sweep {sweep}: nothing left unresolved - done")
+                return
+
+            logger.info(f"Sweep {sweep}/{SWEEP_PASSES}: re-checking {len(targets)} "
+                        f"profiles currently recorded as unconnected")
+            batch = []
+            for tgt in targets:
+                batch.append(Task({"source_id": source_id,
+                                   "target_id": tgt,
+                                   "is_user2user": False,
+                                   "pending_ts": None,
+                                   "is_retry": True,   # replaces the existing zero row
+                                   "token": token},
+                                  random.randint(1, max(2, len(targets)))))
+                if len(batch) >= PATH_FIND_BATCH:
+                    q_index = PathView._choose_queue_index()
+                    await app.ctx.task_queue[q_index].put((random.randint(1, max_priority), batch))
+                    batch = []
+            if batch:
+                q_index = PathView._choose_queue_index()
+                await app.ctx.task_queue[q_index].put((random.randint(1, max_priority), batch))
+
+            await PathView._wait_for_idle()
+            after = await path_mgr.count_paths(source_id, connected_only=True)
+            gained = after - before
+            logger.info(f"Sweep {sweep}/{SWEEP_PASSES} finished: {gained} additional "
+                        f"connection(s) found ({before} -> {after})")
+            # A sweep that turns up nothing new means the remaining zeros are
+            # real; another identical pass would just spend quota.
+            if gained <= 0:
+                logger.info("Sweep added nothing new - treating the result as final")
+                return
+
     @staticmethod
     def _choose_queue_index():
         q_sizes = [q.qsize() for q in app.ctx.task_queue]

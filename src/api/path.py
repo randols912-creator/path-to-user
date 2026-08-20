@@ -3,7 +3,7 @@ from sanic.log import logger
 from api.geni import GeniClientAsync
 from api.profile import ProfileManager
 from api.models import CURRENT_TIMESTAMP, paths_table, profiles_table
-from sqlalchemy import and_, select, join, func, distinct, delete, true
+from sqlalchemy import and_, or_, select, join, func, distinct, delete, true
 from databases import Database
 import asyncio
 from asyncio import Queue, sleep as asyncio_sleep
@@ -38,6 +38,23 @@ _REQUEUE_TASKS = set()
 
 def _backoff_delay(attempts: int) -> float:
     return min(PENDING_BACKOFF_MAX, PENDING_BACKOFF_BASE * (2 ** max(0, attempts - 1)))
+
+
+# How many verification sweeps to run after the first pass over a project.
+# Each sweep re-asks Geni about every profile still recorded as unconnected.
+# It is cheap - a genuinely "not found" pair answers instantly from Geni's
+# cache - and it recovers the profiles whose background path search finished
+# after we had already stopped waiting. Those are disproportionately the LONG
+# paths, which is exactly what a user notices missing.
+SWEEP_PASSES = int(os.environ.get('SWEEP_PASSES', 2))
+# Pause between the queues going quiet and the next sweep starting, to let any
+# in-flight Geni background searches land.
+SWEEP_SETTLE_SECONDS = float(os.environ.get('SWEEP_SETTLE_SECONDS', 45))
+
+
+def requeue_backlog() -> int:
+    """How many batches are currently waiting out a backoff."""
+    return sum(1 for t in _REQUEUE_TASKS if not t.done())
 
 
 def cancel_pending_requeues():
@@ -234,6 +251,24 @@ class PathManager:
         if not path:
             return False
         return not self._gave_up(path)
+
+    async def get_unresolved_targets(self, source_id: str, user2user=False):
+        """Targets currently recorded as 'no connection'.
+
+        These are the candidates for a verification sweep. A zero here means one
+        of two things and we cannot tell which from the step count alone: Geni
+        searched and answered "not found", or Geni was still computing when we
+        stopped asking. The second kind is recoverable - Geni finishes the
+        background search anyway and caches the result - so simply asking again
+        a few minutes later is cheap and sometimes turns up a real path.
+        """
+        query = select(paths_table.c.target_id).where(
+            and_(paths_table.c.source_id == source_id,
+                 paths_table.c.is_user2user == user2user,
+                 or_(paths_table.c.step_count == None,
+                     paths_table.c.step_count <= 0)))
+        rows = await self.database.fetch_all(query=query)
+        return [r['target_id'] for r in rows]
 
     async def outcome_summary(self, source_id: str, user2user=False):
         """Breakdown of how each profile in a run actually ended up."""
